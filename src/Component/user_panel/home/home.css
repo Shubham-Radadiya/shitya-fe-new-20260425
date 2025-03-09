@@ -1,0 +1,31 @@
+.container_flex {
+  display: flex;
+  width: 98vw;
+  background-color: var(--bg-color);
+  gap: 1rem;
+}
+.swaminarayan {
+  color: var(--brown-color);
+  font-weight: bolder;
+  font-size: 1.7rem;
+  text-align: center;
+  height: 7vh;
+  align-items: center;
+  justify-content: center;
+}
+.purchase_swaminarayan {
+  color: var(--purchase-bg);
+  font-weight: bolder;
+  font-size: 1.7rem;
+  text-align: center;
+  height: 7vh;
+  align-items: center;
+  justify-content: center;
+}
+.card-content {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.6rem 0.2rem;
+}

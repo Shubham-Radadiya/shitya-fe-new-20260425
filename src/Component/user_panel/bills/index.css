@@ -1,0 +1,417 @@
+.bill-container{
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.bills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  height: 96vh;
+}
+.bill_index {
+  background-color: var(--white-color);
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.3rem 0rem 0.3rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+.bill_header_sub {
+  display: flex;
+  justify-content: space-between;
+  height: 1.4rem;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.bill-top {
+  font-size: 1rem;
+  display: flex;
+  color: var(--brown-color);
+}
+
+.bill-title{
+  color: var(--brown-color);
+  line-height: 70%;
+}
+
+.Homebuttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr));
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.Homebuttons .icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  border-radius: var(--btn-radius);
+  background-color: var(--brown-color);
+  color: var(--white-color);
+  cursor: pointer;
+  padding: 0.3rem;
+}
+.table-container {
+  overflow: hidden;
+}
+
+.bill_table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bill_table th,
+.bill_table td {
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 0.1rem;
+  margin: 0;
+  overflow-y: visible;
+  text-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bill_table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--white-color);
+  border-bottom: 1px solid var(--black-color);
+  border-top: 1px solid var(--black-color);
+}
+
+.bill_table tfoot {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--white-color);
+  border-top: 1px solid var(--black-color);
+  border-bottom: 1px solid var(--black-color);
+}
+
+.visit {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.bill_table thead,
+tfoot,
+tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+
+.bill_table tbody {
+  display: block;
+  max-height: 53vh;
+  overflow-y: auto;
+}
+
+.bill_table tbody::-webkit-scrollbar {
+  width: 5px;
+  overflow-y: auto;
+
+}
+
+.bill_table tbody::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.bill_table tbody::-webkit-scrollbar-thumb {
+  background: var(--brown-color);
+  border-radius: 6px;
+}
+
+.quantity_control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.quantity_control button {
+  display: flex;
+  align-items: center;
+  height: 1rem;
+  width: 0.5rem;
+  justify-content: center;
+  background-color: #70433013;
+  color: var(--brown-color);
+  border-radius: 0.2rem;
+  border: 1px solid var(--brown-color);
+}
+
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.edit-modal-content {
+  background-color: var(--white-color);
+  padding: 1rem;
+  border-radius: var(--btn-radius);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.edit-modal-content input {
+  padding: 0.5rem;
+  border-radius: var(--btn-radius);
+  border: 1px solid var(--grey-btn-color);
+  width: 70%;
+  text-align: center;
+}
+
+.edit-modal-content button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  gap: 1rem;
+}
+
+.edit-btn {
+  gap: 1rem;
+}
+
+.edit-save {
+  background-color: var(--brown-color);
+  color: var(--white-color);
+}
+
+.edit-cancle {
+  background-color: var(--grey-btn-color);
+  color: var(--black-color);
+}
+
+.bill_table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bill_table th,
+.bill_table td {
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 0.1rem;
+  margin: 0;
+  overflow-y: visible;
+  text-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bill_table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--white-color);
+  border-bottom: 1px solid var(--black-color);
+  border-top: 1px solid var(--black-color);
+}
+
+.bill_table tfoot {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--white-color);
+  border-top: 1px solid var(--black-color);
+  border-bottom: 1px solid var(--black-color);
+}
+.bill_table thead,
+tfoot,
+tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+
+.bill_table tbody {
+  display: block;
+  max-height: 53vh;
+  overflow-y: auto;
+}
+
+.bill_table tbody::-webkit-scrollbar {
+  width: 5px;
+  overflow-y: auto;
+
+}
+
+.bill_table tbody::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.bill_table tbody::-webkit-scrollbar-thumb {
+  background: var(--brown-color);
+  border-radius: 6px;
+}
+
+.bill_header_sub {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 12px;
+  background: white;
+}
+.pavti_title_head {
+  display: flex;
+  justify-content: flex-end;
+}
+.pavti_title {
+  font-size: 15px;
+  margin: 0;
+}
+.pavti_data_1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 17px;
+}
+.pavti_product_Id_1 {
+  margin: 0;
+  font-size: 12px;
+  width: 70px;
+}
+.pavti_product_name_1 {
+  margin: 0;
+  font-size: 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 178px;
+  font-weight: 600;
+}
+.pavti_data_quantity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 40px;
+  justify-content: center;
+}
+.product_price_report {
+  margin: 0;
+  width: 80px;
+  text-align: right;
+  font-size: 12px;
+}
+.pavti_total {
+  display: flex;
+  justify-content: flex-end;
+}
+.pavti_footer_text_report {
+  margin: 2px 0px 0px 0px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 18px 0px 8px 0px;
+}
+.pavti_data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pavti_product_name {
+  font-size: 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 178px;
+  font-weight: 600; 
+}
+.product_price_report_1 {
+  margin: 0;
+  width: 100px;
+  text-align: right;
+}
+
+@media print {
+  .bills {
+    display: block;
+    padding: 0;
+    margin: 0;
+  }
+ 
+  .bill_index {
+    width: auto;
+    max-width: 288px;
+    height: auto;
+    margin: 1rem auto;
+    box-shadow: none;
+    padding: 1rem;
+  }
+ 
+  .bill_table {
+    width: 100%;
+    text-align: left;
+  }
+
+  .bill_table tbody {
+    display: block;
+    max-height: auto;
+    overflow-y: visible;
+  }
+
+  .bill_table tfoot {
+    position: static;
+  }
+
+  .bill_qty{
+    width: 10%;
+  }
+ 
+  @page {
+    size: auto;
+    margin: 0;
+  }
+ 
+}
+.print-content {
+  display: none;
+}
+
+/* Override to show the print content when printing */
+@media print {
+  .print-content {
+    display: block;
+  }
+
+  /* Optionally, hide other elements that you don't want to print */
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-content,
+  .print-content * {
+    visibility: visible;
+  }
+
+  .print-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

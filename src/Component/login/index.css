@@ -1,0 +1,102 @@
+.login-container {
+  position: relative;
+  width: 19rem;
+  height: 20rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1;
+  font-family: 'Open Sans', sans-serif;
+  color: var(--brown-color);
+  display: flex;
+  flex-direction: column;
+  gap:0.8rem;
+  border-radius: var(--btn-radius);
+}
+
+.login-container h2 {
+  text-align: center;
+}
+
+.login-title{
+  font-size: 2rem;
+  color: var(--brown-color);
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--brown-color);
+  box-sizing: border-box;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 0.6rem;
+  background-color: var(--brown-color);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--white-color);
+  cursor: pointer;
+  font-weight: bold;
+  position: relative;
+  top: 0.7rem;
+}
+
+.login-btn:hover {
+  background-color: var(--hover-brown-color);
+}
+
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-image: url('../images/kundal.jpg');
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(39, 38, 38, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.right-image {
+  height: 85vh;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 0; 
+  opacity: 0.9;
+}
+
+.left-image {
+  height: 50vh;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  opacity: 0.9;
+  z-index: 0;
+}

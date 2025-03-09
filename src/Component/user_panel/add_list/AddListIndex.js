@@ -1,0 +1,138 @@
+import React from "react";
+import { useDispatch } from "react-redux";
+import { ADD_TO_CART } from "../../../store/cart/cartActionType";
+import "./index.css";
+import { useLocation } from "react-router-dom";
+
+const AddList = ({
+  main,
+  selectedSubCategoryId,
+  setShowReprintBill,
+  newState,
+}) => {
+  const dispatch = useDispatch();
+  const currentLocation = useLocation();
+  const handleAddToCart = (product) => {
+    dispatch({ type: ADD_TO_CART, payload: product });
+    setShowReprintBill(false);
+  };
+
+  function sortBySubId(a, b) {
+    return a.productId - b.productId;
+  }
+
+  // Show all products initially if no subcategory is selected
+  const allProducts = main.subCategory.flatMap(
+    (sub) => sub.products?.sort(sortBySubId) || []
+  );
+
+  // Filter products by selected subcategory
+  const filteredProducts = selectedSubCategoryId
+    ? main.subCategory
+        ?.filter((sub) => sub._id === selectedSubCategoryId)
+        .flatMap((sub) => sub.products?.sort(sortBySubId) || [])
+    : allProducts;
+
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + "...";
+    }
+    return text;
+  };
+
+  function sortById(a, b) {
+    if (a.productId > b.productId) {
+      return 1;
+    }
+    if (a.productId < b.productId) {
+      return -1;
+    }
+    return 0;
+  }
+
+  return (
+    <div className="add-list-container">
+      <div className="product-grid">
+        {newState
+          ? allProducts.sort(sortById).map((product, index) => (
+              <div
+                className="product-box"
+                key={index}
+                onClick={() => handleAddToCart(product)}
+              >
+                <p
+                  className="product-price"
+                  style={{
+                    userSelect: "none",
+                    background:
+                      currentLocation.pathname === "/stock" && "rgb(23 136 42)",
+                  }}
+                >
+                  {new Intl.NumberFormat("en-IN").format(product.price)}
+                </p>
+                <div>
+                  <div className="product-name" style={{ userSelect: "none" }}>
+                    <p
+                      title={product.name}
+                      style={{
+                        fontSize: product.name.length > 14 ? "14px" : "inherit",
+                      }}
+                    >
+                      {product.name}
+                    </p>
+                  </div>
+                  <p
+                    className="product-id"
+                    title={product.productId}
+                    style={{ userSelect: "none" }}
+                  >
+                    {truncateText(product.productId, 10)}
+                  </p>
+                </div>
+              </div>
+            ))
+          : filteredProducts?.sort(sortById).map((product, index) => (
+              <div
+                className="product-box"
+                key={index}
+                onClick={() => handleAddToCart(product)}
+              >
+                <p
+                  className="product-price"
+                  style={{
+                    userSelect: "none",
+                    background:
+                      currentLocation.pathname === "/stock" && "rgb(23 136 42)",
+                  }}
+                >
+                  ₹ {new Intl.NumberFormat("en-IN").format(product.price)}
+                </p>
+                <div>
+                  <div className="product-name" style={{ userSelect: "none",color:
+                      currentLocation.pathname === "/stock" && "rgb(19 65 117)",  }}>
+                    <p
+                      title={product.name}
+                      style={{
+                        fontSize: product.name.length > 18 ? "14px" : "inherit",
+                      }}
+                    >
+                      {product.name}
+                    </p>
+                  </div>
+                  <p
+                    className="product-id"
+                    title={product.productId}
+                    style={{ userSelect: "none", background:
+                      currentLocation.pathname === "/stock" && "rgb(23 136 42)", }}
+                  >
+                    {truncateText(product.productId, 10)}
+                  </p>
+                </div>
+              </div>
+            ))}
+      </div>
+    </div>
+  );
+};
+
+export default AddList;
