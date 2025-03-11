@@ -6,6 +6,7 @@ import MenuVariety from "../../user_panel/menu_variety/MenuVariety";
 import Menu from "../../user_panel/menu/MenuIndex";
 import { useLocation } from "react-router-dom";
 
+
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const currentLocation = useLocation();
@@ -14,6 +15,7 @@ const Home = () => {
   const [returnMode, setReturnMode] = useState(false);
   const [name, setName] = useState("");
   const [newState, setNewState] = useState(false);
+  const invoiceData = currentLocation.state?.invoiceData;
   const [product, setProduct] = useState({
     name: "",
     payload: {
@@ -74,7 +76,7 @@ const Home = () => {
             setShowReprintBill={setShowReprintBill}
           />
         </div>
-        <Bills returnMode={returnMode} setReturnMode={setReturnMode}/>
+        <Bills returnMode={returnMode} setReturnMode={setReturnMode}  invoice={invoiceData}/>
       </div>
     </>
   );

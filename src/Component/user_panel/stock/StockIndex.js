@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Bills from "../../user_panel/bills/BillIndex";
 import AddList from "../../user_panel/add_list/AddListIndex";
 // import "./home.css";
@@ -7,7 +7,7 @@ import Menu from "../../user_panel/menu/MenuIndex";
 import { useLocation } from "react-router-dom";
 
 const StockIndex = () => {
-  const currentLocation = useLocation();
+  
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [showReprintBill, setShowReprintBill] = useState(false);
@@ -23,11 +23,12 @@ const StockIndex = () => {
   const [main, setMain] = useState({
     subCategory: [],
   });
-
+  
   const updateName = (newName) => {
     setName(newName);
   };
-
+  
+  
   const updateProduct = (newProduct) => {
     setProduct({ ...product, name: newProduct.name, payload: newProduct });
   };
@@ -73,7 +74,7 @@ const StockIndex = () => {
             setShowReprintBill={setShowReprintBill}
           />
         </div>
-        <Bills returnMode={returnMode} setReturnMode={setReturnMode} />
+        <Bills returnMode={returnMode} setReturnMode={setReturnMode} invoice={invoiceData} />
       </div>
     </>
   );

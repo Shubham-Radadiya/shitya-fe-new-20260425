@@ -20,11 +20,10 @@ import {
 } from "../../../store/bill/billActionType";
 import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
-import PrintBillIndex from "./PrintBillIndex";
 import { toast } from "react-toastify";
 import { REQUEST_CREATE_INVOICE } from "../../../store/invoice/InvoiceAction";
 
-const Bills = ({ returnMode, setReturnMode }) => {
+const Bills = ({ returnMode, setReturnMode, invoice }) => {
   const dispatch = useDispatch();
 
   const items = useSelector((state) => state.cart.items || []);
@@ -56,6 +55,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
     return text;
   };
 
+  useEffect(() => {
+    console.log(invoice, "come from reports");
+  }, []);
   const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = items.reduce(
     (total, item) => total + item.quantity * item.price,
@@ -113,12 +115,14 @@ const Bills = ({ returnMode, setReturnMode }) => {
             });
         } else {
           console.log("call function");
-          
+
           dispatch({
-            type: currentLocation.pathname === "/stock" ? REQUEST_CREATE_INVOICE : REQUEST_CREATE_BILL,
+            type:
+              currentLocation.pathname === "/stock"
+                ? REQUEST_CREATE_INVOICE
+                : REQUEST_CREATE_BILL,
             payload,
           });
-          
         }
       }
       setShowPrintBill(true);
@@ -215,8 +219,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
   };
 
   return (
-    <div className="bill-container">
-      <div className="bills">
+    <div
+      className="bill-container"
+      style={{
+        alignItems: currentLocation.pathname === "/stock" && "flex-end",
+      }}
+    >
+      <div
+        className="bills"
+        style={{ height: currentLocation.pathname === "/stock" && "92.5vh" }}
+      >
         <h3
           className="bill-title"
           style={{
@@ -262,16 +274,18 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             Reset
           </button>
-          <button
-            className={
-              currentLocation.pathname === "/stock"
-                ? "purchase_icon-button"
-                : "icon-button"
-            }
-            onClick={handleReturnBill}
-          >
-            Return
-          </button>
+          {currentLocation.pathname !== "/stock" && (
+            <button
+              className={
+                currentLocation.pathname === "/stock"
+                  ? "purchase_icon-button"
+                  : "icon-button"
+              }
+              onClick={handleReturnBill}
+            >
+              Return
+            </button>
+          )}
           {/* {items.length > 0 {}} */}
           {items.length || reprintBill?.productId.length > 0 ? (
             <div
@@ -316,23 +330,32 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 : "Print Bill"}
             </p>
           )}
-          <button
-            className={
-              currentLocation.pathname === "/stock"
-                ? "purchase_icon-button"
-                : "icon-button"
-            }
-            onClick={openReprintModal}
-          >
-            Re Print
-          </button>
+          {currentLocation.pathname !== "/stock" && (
+            <button
+              className={
+                currentLocation.pathname === "/stock"
+                  ? "purchase_icon-button"
+                  : "icon-button"
+              }
+              onClick={openReprintModal}
+            >
+              Re Print
+            </button>
+          )}
         </div>
 
-        <div className="bill_index">
+        <div
+          className="bill_index"
+          style={{ height: currentLocation.pathname === "/stock" && "81vh" }}
+        >
           <h4 style={{ textAlign: "center" }}>Jay Swaminarayan</h4>
           <div className="bill_header_sub">
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
-            <h8>Sr.No: {billNo && billNo?.billId}</h8>
+            <h8>
+              {currentLocation.pathname === "/stock"
+                ? `INV.No: ${billNo && billNo?.billId}`
+                : `Sr.No: ${billNo && billNo?.billId}`}
+            </h8>
           </div>
 
           {showReprintBill ? (
@@ -392,7 +415,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         width: "85px",
                       }}
                     >
-                     {currentLocation.pathname === "/stock" ? "Total Purchase" : "Total" } 
+                      {currentLocation.pathname === "/stock"
+                        ? "Total Purchase"
+                        : "Total"}
                     </td>
                     <td></td>
                     <td>
@@ -527,7 +552,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         width: "140px",
                       }}
                     >
-                      {currentLocation.pathname === "/stock" ? "Total Purchase" : "Total" } 
+                      {currentLocation.pathname === "/stock"
+                        ? "Total Purchase"
+                        : "Total"}
                     </td>
                     <td style={{ fontWeight: "bolder", width: "39px" }}>
                       {returnMode
