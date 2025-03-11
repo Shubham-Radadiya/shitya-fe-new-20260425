@@ -12,6 +12,8 @@ import "./index.css";
 import { IoArrowBack } from "react-icons/io5";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
+import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
+import { useInvoice } from "../../store/invoice/InvoiceReducer";
 
 const initialData = [
   { currency: "500", count: 0 },
@@ -28,16 +30,21 @@ const initialData = [
 const PurchaseReport = () => {
   const componentRef = useRef();
   const dispatch = useDispatch();
+  const { invoiceData } = useInvoice();
   const { dailyReport } = useReport();
   const [silakOpen, setSilakOpen] = useState(false);
   const [reportType, setReportType] = useState("daily");
   const printRef = useRef();
   const [billDetail, setBillDetail] = useState(null);
   const [returnbillDetail, setReturnBillDetail] = useState(null);
+  useEffect(() => {
+    dispatch({ type: REQUEST_INVOICE_DATA });
+  }, []);
 
   useEffect(() => {
     handleFetchReports(reportType);
   }, [reportType]);
+  console.log("invoiceData", invoiceData);
 
   const handleFetchReports = (type) => {
     setReportType(type);
@@ -303,9 +310,6 @@ const PurchaseReport = () => {
     setSalesData(updatedSalesData); // Update state with new values
   };
 
-
- 
-
   const midIndex = billDetail?.length ? Math.ceil(billDetail.length / 2) : 0;
   const firstHalf = billDetail?.length ? billDetail.slice(0, midIndex) : [];
   const secondHalf = billDetail?.length ? billDetail.slice(midIndex) : [];
@@ -327,10 +331,13 @@ const PurchaseReport = () => {
           <div className="userreport-box">
             <div style={{ display: "flex", gap: "35px" }}>
               <NavLink to="/stock">
-                <div className="back-btn" style={{
-                  color: "rgb(23 136 42)",
-                  fontSize: "xx-large"
-                }}>
+                <div
+                  className="back-btn"
+                  style={{
+                    color: "rgb(23 136 42)",
+                    fontSize: "xx-large",
+                  }}
+                >
                   <IoArrowBack />
                 </div>
               </NavLink>
@@ -355,63 +362,278 @@ const PurchaseReport = () => {
                   <table className="userreport-table">
                     <thead>
                       <tr>
-                        <th className="stocktable" style={{ width: "9%", textAlign: "start" }}>INV. No.</th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "start" }}>
+                        <th
+                          className="stocktable"
+                          style={{ width: "9%", textAlign: "start" }}
+                        >
+                          INV. No.
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
                           INV. Date
                         </th>
-                        <th className="stocktable" style={{ width: "12%",textAlign: "start" }}>મુર્તિ</th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "start" }}>
-                        વાઘા
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
+                          મુર્તિ
                         </th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "start" }}>ઘરેણા</th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "start" }}>પુજા</th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "start" }}>પુસ્તક</th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "start" }}>જનરલ</th>
-                        <th className="stocktable" style={{ width: "12%", textAlign: "end" }}>Amount</th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
+                          વાઘા
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
+                          ઘરેણા
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
+                          પુજા
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
+                          પુસ્તક
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "start" }}
+                        >
+                          જનરલ
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "end" }}
+                        >
+                          Amount
+                        </th>
+                        <th
+                          className="stocktable"
+                          style={{ width: "12%", textAlign: "end" }}
+                        >
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredProducts.map((product, index) => (
-                        <tr key={index}>
-                          <td style={{ width: "8%" }}>{index + 1}</td>
-                          <td style={{ width: "13%", textAlign: "start" }}>
-                            {product.productId}
-                          </td>
-                          <td style={{ textAlign: "start" }}>
-                            {product.name || "N/A"}
-                          </td>
-                          <td style={{ width: "13%", textAlign: "end" }}>
-                            {new Intl.NumberFormat("en-IN").format(
-                              product.totalBuyingCount
-                            ) || "N/A"}
-                          </td>
-                          <td style={{ width: "13%", textAlign: "end" }}>
-                            {new Intl.NumberFormat("en-IN").format(
-                              product.totalBuyingCount * product.price
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {invoiceData.map((user, userIndex) => {
+                        return user.data.map((invoice, invoiceIndex) => {
+                          const { invoiceId, createdAt, categories } = invoice;
+                          const formattedDate = new Date(
+                            createdAt
+                          ).toLocaleDateString();
+
+                          let murtiAmount = 0,
+                            vaghaAmount = 0,
+                            gharenaAmount = 0,
+                            pujaAmount = 0,
+                            pustakAmount = 0,
+                            generalAmount = 0;
+
+                          categories.forEach((category) => {
+                            if (category.categoryName === "મુર્તિ") {
+                              murtiAmount = category.totalBuyingAmount;
+                            } else if (category.categoryName === "વાઘા") {
+                              vaghaAmount = category.totalBuyingAmount;
+                            } else if (category.categoryName === "ઘરેણા") {
+                              gharenaAmount = category.totalBuyingAmount;
+                            } else if (category.categoryName === "પુજા") {
+                              pujaAmount = category.totalBuyingAmount;
+                            } else if (category.categoryName === "પુસ્તક") {
+                              pustakAmount = category.totalBuyingAmount;
+                            } else if (category.categoryName === "જનરલ") {
+                              generalAmount = category.totalBuyingAmount;
+                            }
+                          });
+
+                          const totalAmount =
+                            murtiAmount +
+                            vaghaAmount +
+                            gharenaAmount +
+                            pujaAmount +
+                            pustakAmount +
+                            generalAmount;
+
+                          return (
+                            <tr key={`${userIndex}-${invoiceIndex}`}>
+                              <td style={{ width: "8%" }}>{invoiceId}</td>
+                              <td style={{ width: "12%", textAlign: "start" }}>
+                                {formattedDate}
+                              </td>
+                              <td style={{ textAlign: "start" }}>
+                                {murtiAmount || 0}
+                              </td>
+                              <td style={{ textAlign: "start" }}>
+                                {vaghaAmount || 0}
+                              </td>
+                              <td style={{ textAlign: "start" }}>
+                                {gharenaAmount || 0}
+                              </td>
+                              <td style={{ textAlign: "start" }}>
+                                {pujaAmount || 0}
+                              </td>
+                              <td style={{ textAlign: "start" }}>
+                                {pustakAmount || 0}
+                              </td>
+                              <td style={{ textAlign: "start" }}>
+                                {generalAmount || 0}
+                              </td>
+                              <td style={{ textAlign: "end" }}>
+                                ₹{" "}
+                                {new Intl.NumberFormat("en-IN").format(
+                                  totalAmount
+                                ) || 0}
+                              </td>
+                              <td>Edit</td>
+                            </tr>
+                          );
+                        });
+                      })}
                     </tbody>
                     <tfoot
                       style={{ borderTop: "1px solid var(--brown-color)" }}
                     >
                       <tr>
-                        <td colSpan="5">
-                          <div className="tfootgroup"></div>
-                        </td>
+                        <td>Total:-</td>
+                        <td style={{ width: "11%" }}></td>
                         <td
                           style={{
-                            textAlign: "end",
-                            paddingLeft: "21px",
-                            fontWeight: "bold",
+                            textAlign: "start",
                           }}
                         >
-                          Total:{" "}
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                const murtiAmount =
+                                  categories.find(
+                                    (category) =>
+                                      category.categoryName === "મુર્તિ"
+                                  )?.totalBuyingAmount || 0;
+                                acc += murtiAmount;
+                              });
+                              return acc;
+                            }, 0)
+                          )}
                         </td>
+
+                        <td style={{ textAlign: "start" }}>
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                const vaghaAmount =
+                                  categories.find(
+                                    (category) =>
+                                      category.categoryName === "વાઘા"
+                                  )?.totalBuyingAmount || 0;
+                                acc += vaghaAmount;
+                              });
+                              return acc;
+                            }, 0)
+                          )}
+                        </td>
+
+                        <td style={{ textAlign: "start" }}>
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                const gharenaAmount =
+                                  categories.find(
+                                    (category) =>
+                                      category.categoryName === "ઘરેણા"
+                                  )?.totalBuyingAmount || 0;
+                                acc += gharenaAmount;
+                              });
+                              return acc;
+                            }, 0)
+                          )}
+                        </td>
+
+                        <td style={{ textAlign: "start" }}>
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                const pujaAmount =
+                                  categories.find(
+                                    (category) =>
+                                      category.categoryName === "પુજા"
+                                  )?.totalBuyingAmount || 0;
+                                acc += pujaAmount;
+                              });
+                              return acc;
+                            }, 0)
+                          )}
+                        </td>
+
+                        <td style={{ textAlign: "start" }}>
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                const pustakAmount =
+                                  categories.find(
+                                    (category) =>
+                                      category.categoryName === "પુસ્તક"
+                                  )?.totalBuyingAmount || 0;
+                                acc += pustakAmount;
+                              });
+                              return acc;
+                            }, 0)
+                          )}
+                        </td>
+
+                        <td style={{ textAlign: "start" }}>
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                const generalAmount =
+                                  categories.find(
+                                    (category) =>
+                                      category.categoryName === "જનરલ"
+                                  )?.totalBuyingAmount || 0;
+                                acc += generalAmount;
+                              });
+                              return acc;
+                            }, 0)
+                          )}
+                        </td>
+
                         <td style={{ textAlign: "end", fontWeight: "bold" }}>
-                          ₹ {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                          ₹{" "}
+                          {new Intl.NumberFormat("en-IN").format(
+                            invoiceData.reduce((acc, user) => {
+                              user.data.forEach((invoice) => {
+                                const { categories } = invoice;
+                                acc += categories.reduce(
+                                  (sum, category) =>
+                                    sum + category.totalBuyingAmount,
+                                  0
+                                );
+                              });
+                              return acc;
+                            }, 0)
+                          )}
                         </td>
+                        <td></td>
                       </tr>
                     </tfoot>
                   </table>

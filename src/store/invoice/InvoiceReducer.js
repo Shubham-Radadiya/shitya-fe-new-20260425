@@ -1,10 +1,15 @@
 import { useSelector } from "react-redux";
-import { ERROR_CREATE_INVOICE, SET_CREATE_INVOICE } from "./InvoiceAction";
+import {
+  ERROR_CREATE_INVOICE,
+  SET_CREATE_INVOICE,
+  SET_INVOICE_DATA,
+} from "./InvoiceAction";
 
 const initialState = {
   message: "",
   busy: false,
   invoice: [],
+  invoiceData: [],
 };
 
 const invoiceReducer = (state = initialState, action) => {
@@ -16,6 +21,12 @@ const invoiceReducer = (state = initialState, action) => {
         invoice: [...state.invoice, action.payload],
       };
     }
+    case SET_INVOICE_DATA:
+      return {
+        ...state,
+        busy: false,
+        invoiceData: action.payload,
+      };
     case ERROR_CREATE_INVOICE:
       return {
         ...state,
