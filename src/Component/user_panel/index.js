@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import Login from "../login/LoginIndex";
 import Home from "./home/HomeIndex";
 import ReportTable from "../report/ReportIndex";
-import StockIndex from "./stock/StockIndex";
 import PurchaseReport from "../report/PurchaseReport";
 import Demo from "../report/Demo";
 

@@ -7,6 +7,7 @@ import ProductReducer from "./product/ProductReducer";
 import authReducer from "./auth/AuthReducers";
 import ReportReducers from "./admin_report/ReportReducer"
 import UserReportReducers from "./user_report/UserReportReducer";
+import invoiceReducer from "./invoice/InvoiceReducer";
 
 export default combineReducers({
   category,
@@ -16,5 +17,6 @@ export default combineReducers({
   product: ProductReducer,
   auth: authReducer,
   report: ReportReducers,
-  userReport:UserReportReducers
+  userReport:UserReportReducers,
+  invoice:invoiceReducer
 });

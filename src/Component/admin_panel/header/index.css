@@ -42,6 +42,7 @@
 .navlinks{
     text-decoration: none;
     display: flex;
+    align-items: center;
     flex-direction: row;
     gap:2.5rem;
     font-weight: bold;
@@ -56,12 +57,12 @@
     margin: 0;
     height: 1.8rem;
 }
+
 .navlinks a:hover{
     text-decoration: none;
     color: var(--light-brown-color);
     text-decoration: none;
     margin: 0;
-
 }
 
 .navlinks a.active {
