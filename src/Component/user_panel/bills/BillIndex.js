@@ -22,6 +22,7 @@ import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
 import PrintBillIndex from "./PrintBillIndex";
 import { toast } from "react-toastify";
+import { REQUEST_CREATE_INVOICE } from "../../../store/invoice/InvoiceAction";
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
@@ -111,10 +112,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
               toast.error("Error updating bill:", error);
             });
         } else {
+          console.log("call function");
+          
           dispatch({
-            type: REQUEST_CREATE_BILL,
+            type: currentLocation.pathname === "/stock" ? REQUEST_CREATE_INVOICE : REQUEST_CREATE_BILL,
             payload,
           });
+          
         }
       }
       setShowPrintBill(true);
@@ -234,10 +238,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
             <Link
               to={
                 currentLocation.pathname === "/stock"
-                  ? 
-                  "/purchaseReport"
-                  // "/demo"
-                  : "/report"
+                  ? "/purchaseReport"
+                  : // "/demo"
+                    "/report"
               }
               style={{ textDecoration: "none", color: "var(--white-color)" }}
             >
@@ -272,7 +275,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
           {/* {items.length > 0 {}} */}
           {items.length || reprintBill?.productId.length > 0 ? (
             <div
-              className={`icon-button ${isButtonDisabled ? "disabled" : ""}`}
+              className={` ${
+                currentLocation.pathname === "/stock"
+                  ? "purchase_icon-button"
+                  : "icon-button"
+              }
+                  ? "purchase_icon-button"
+                  : "icon-button" ${isButtonDisabled ? "disabled" : ""}`}
               onClick={handlePrintClick}
               style={
                 isButtonDisabled
@@ -283,7 +292,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
               <ReactToPrint
                 trigger={() => (
                   <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
-                    Print Bill
+                    {currentLocation.pathname === "/stock"
+                      ? "Print Invoice"
+                      : "Print Bill"}
                   </p>
                 )}
                 content={() => componentRef.current}
@@ -300,7 +311,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
               }
               style={{ fontSize: "0.82rem", color: "gray", userSelect: "none" }}
             >
-              Print Bill
+              {currentLocation.pathname === "/stock"
+                ? "Print Invoice"
+                : "Print Bill"}
             </p>
           )}
           <button

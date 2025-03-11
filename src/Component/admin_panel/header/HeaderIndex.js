@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 import MaharajHeader from "../../images/maharaj-header.png";
 import GurujiHeader from "../../images/guruji-header.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { LOGOUT_REQUEST } from "../../../store/auth/AuthAction";
 import { CgLogOut } from "react-icons/cg";
 import { useDispatch } from "react-redux";
@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 const Header = () => {
   const dispatch = useDispatch();
   const [activeLink, setActiveLink] = useState("Home");
-
+  const currentLocation = useLocation();
   const handleLinkClick = (link) => {
     setActiveLink(link);
   };
@@ -37,27 +37,34 @@ const Header = () => {
         <div className="navlinks">
           <NavLink
             to="/dashboard"
-            className={({isActive})=>`${isActive?"active":""}`}
+            className={({ isActive }) => `${isActive ? "active" : ""}`}
           >
             Home
           </NavLink>
           <NavLink
             to="/product"
-            className={({isActive})=>`${isActive?"active":""}`}
+            className={({ isActive }) => `${isActive ? "active" : ""}`}
           >
             Products
           </NavLink>
           <NavLink
             to="/report"
-            className={({isActive})=>`${isActive?"active":""}`}
+            className={({ isActive }) => `${isActive ? "active" : ""}`}
           >
             Report
           </NavLink>
+          {currentLocation.pathname !== "/stock" && (
+            <NavLink to="/stock"  className={({ isActive }) => `${isActive ? "active" : ""}`}>
+              Purchase
+            </NavLink>
+          )}
+          </div>
+          
           <button className="logout-btn" onClick={handleLogout}>
             <CgLogOut style={{ fontSize: "1.2rem" }} />
             Logout
           </button>
-        </div>
+        
         <div className="flexend">
           <img src={GurujiHeader} alt="guruji" />
         </div>
