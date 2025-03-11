@@ -55,7 +55,7 @@ const Home = () => {
           <h2 className="swaminarayan" style={{
               color:
                 currentLocation.pathname === "/stock"
-                  ? "rgb(23 136 42)"
+                  ? "rgb(87 15 119)"
                   : "rgb(97, 37, 17)",
             }}>જય સ્વામિનારાયણ</h2>
           <div style={{ height:"3.5rem" }}>

@@ -65,7 +65,7 @@ const AddList = ({
                   style={{
                     userSelect: "none",
                     background:
-                      currentLocation.pathname === "/stock" && "rgb(23 136 42)",
+                      currentLocation.pathname === "/stock" && "rgb(87 15 119)",
                   }}
                 >
                   {new Intl.NumberFormat("en-IN").format(product.price)}
@@ -102,14 +102,14 @@ const AddList = ({
                   style={{
                     userSelect: "none",
                     background:
-                      currentLocation.pathname === "/stock" && "rgb(23 136 42)",
+                      currentLocation.pathname === "/stock" && "rgb(87 15 119)",
                   }}
                 >
                   ₹ {new Intl.NumberFormat("en-IN").format(product.price)}
                 </p>
                 <div>
                   <div className="product-name" style={{ userSelect: "none",color:
-                      currentLocation.pathname === "/stock" && "rgb(19 65 117)",  }}>
+                      currentLocation.pathname === "/stock" && "rgb(87 15 119)",  }}>
                     <p
                       title={product.name}
                       style={{
@@ -123,7 +123,7 @@ const AddList = ({
                     className="product-id"
                     title={product.productId}
                     style={{ userSelect: "none", background:
-                      currentLocation.pathname === "/stock" && "rgb(23 136 42)", }}
+                      currentLocation.pathname === "/stock" && "rgb(87 15 119)", }}
                   >
                     {truncateText(product.productId, 10)}
                   </p>

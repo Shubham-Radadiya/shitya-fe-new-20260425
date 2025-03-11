@@ -217,7 +217,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
           className="bill-title"
           style={{
             userSelect: "none",
-            color: currentLocation.pathname === "/stock" && "rgb(23 136 42)",
+            color: currentLocation.pathname === "/stock" && "rgb(87 15 119)",
           }}
         >
           Bills
@@ -379,7 +379,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         width: "85px",
                       }}
                     >
-                      Total
+                     {currentLocation.pathname === "/stock" ? "Total Purchase" : "Total" } 
                     </td>
                     <td></td>
                     <td>
@@ -514,7 +514,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         width: "140px",
                       }}
                     >
-                      Total
+                      {currentLocation.pathname === "/stock" ? "Total Purchase" : "Total" } 
                     </td>
                     <td style={{ fontWeight: "bolder", width: "39px" }}>
                       {returnMode

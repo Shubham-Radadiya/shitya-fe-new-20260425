@@ -328,7 +328,7 @@ const PurchaseReport = () => {
             <div style={{ display: "flex", gap: "35px" }}>
               <NavLink to="/stock">
                 <div className="back-btn" style={{
-                  color: "rgb(23 136 42)",
+                  color: "rgb(87 15 119)",
                   fontSize: "xx-large"
                 }}>
                   <IoArrowBack />

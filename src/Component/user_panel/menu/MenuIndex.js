@@ -62,7 +62,7 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
               <div
                 className="back-btn"
                 style={{
-                  color: "rgb(23 136 42)",
+                  color: "rgb(87 15 119)",
                   height: "14vh",
                   display: "flex",
                   alignItems: "center",
@@ -107,7 +107,7 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
               style={{
                 background:
                   currentLocation.pathname === "/stock"
-                    ? "rgb(23 136 42)"
+                    ? "rgb(87 15 119)"
                     : "rgb(97, 37, 17)",
               }}
             >
