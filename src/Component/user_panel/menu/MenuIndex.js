@@ -96,11 +96,6 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
               ))}
           </div>
           <div>
-            {currentLocation.pathname !== "/stock" && (
-              <NavLink to="/stock" className="Stock_button">
-                Purchase
-              </NavLink>
-            )}
             <button
               className="logout_button"
               onClick={handleLogout}

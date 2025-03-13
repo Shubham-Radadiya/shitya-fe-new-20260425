@@ -49,11 +49,17 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
   }, [dispatch]);
 
   const truncateText = (text, maxLength) => {
+    if (typeof text !== "string") {
+      return "";
+    }
+
     if (text.length > maxLength) {
       return text.substring(0, maxLength) + "..";
     }
     return text;
   };
+
+  console.log("reprintBill", items);
 
   useEffect(() => {
     console.log(invoice, "come from reports");
@@ -229,6 +235,27 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
         className="bills"
         style={{ height: currentLocation.pathname === "/stock" && "92.5vh" }}
       >
+        <div className="screen-list">
+          <NavLink to="/dashboard" className="screen-list-circle sales-circle">
+            S
+          </NavLink>
+          <NavLink to="/stock" className="screen-list-circle purchase-circle">
+            P
+          </NavLink>
+          <NavLink
+            to="/report"
+            className="screen-list-circle sales-report-circle"
+          >
+            SR
+          </NavLink>
+          <NavLink
+            to="/purchaseReport"
+            className="screen-list-circle purchase-report-circle"
+          >
+            PR
+          </NavLink>
+        </div>
+        <hr style={{ border: "1px solid #808080" }} />
         <h3
           className="bill-title"
           style={{
@@ -240,7 +267,7 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
         </h3>
 
         <div className="Homebuttons">
-          <button
+          {/* <button
             className={
               currentLocation.pathname === "/stock"
                 ? "purchase_icon-button"
@@ -258,7 +285,7 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
             >
               Report
             </Link>
-          </button>
+          </button> */}
           <button
             className={
               currentLocation.pathname === "/stock"
@@ -274,18 +301,18 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
           >
             Reset
           </button>
-          {currentLocation.pathname !== "/stock" && (
-            <button
-              className={
-                currentLocation.pathname === "/stock"
-                  ? "purchase_icon-button"
-                  : "icon-button"
-              }
-              onClick={handleReturnBill}
-            >
-              Return
-            </button>
-          )}
+
+          <button
+            className={
+              currentLocation.pathname === "/stock"
+                ? "purchase_icon-button"
+                : "icon-button"
+            }
+            onClick={handleReturnBill}
+          >
+            Return
+          </button>
+
           {/* {items.length > 0 {}} */}
           {items.length || reprintBill?.productId.length > 0 ? (
             <div

@@ -1,4 +1,4 @@
-.bill-container{
+.bill-container {
   height: 100vh;
   display: flex;
   align-items: center;
@@ -38,7 +38,7 @@
   color: var(--brown-color);
 }
 
-.bill-title{
+.bill-title {
   color: var(--brown-color);
   line-height: 70%;
 }
@@ -114,7 +114,6 @@ tr {
   table-layout: fixed;
 }
 
-
 .bill_table tbody {
   display: block;
   max-height: 53vh;
@@ -124,7 +123,6 @@ tr {
 .bill_table tbody::-webkit-scrollbar {
   width: 5px;
   overflow-y: auto;
-
 }
 
 .bill_table tbody::-webkit-scrollbar-track {
@@ -249,7 +247,6 @@ tr {
   table-layout: fixed;
 }
 
-
 .bill_table tbody {
   display: block;
   max-height: 53vh;
@@ -259,7 +256,6 @@ tr {
 .bill_table tbody::-webkit-scrollbar {
   width: 5px;
   overflow-y: auto;
-
 }
 
 .bill_table tbody::-webkit-scrollbar-track {
@@ -340,7 +336,7 @@ tr {
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 178px;
-  font-weight: 600; 
+  font-weight: 600;
 }
 .product_price_report_1 {
   margin: 0;
@@ -354,7 +350,7 @@ tr {
     padding: 0;
     margin: 0;
   }
- 
+
   .bill_index {
     width: auto;
     max-width: 288px;
@@ -363,7 +359,7 @@ tr {
     box-shadow: none;
     padding: 1rem;
   }
- 
+
   .bill_table {
     width: 100%;
     text-align: left;
@@ -379,15 +375,14 @@ tr {
     position: static;
   }
 
-  .bill_qty{
+  .bill_qty {
     width: 10%;
   }
- 
+
   @page {
     size: auto;
     margin: 0;
   }
- 
 }
 .print-content {
   display: none;
@@ -403,7 +398,7 @@ tr {
   body * {
     visibility: hidden;
   }
-  
+
   .print-content,
   .print-content * {
     visibility: visible;
@@ -414,4 +409,36 @@ tr {
     top: 0;
     left: 0;
   }
+}
+
+.screen-list {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
+}
+.screen-list-circle {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  color: var(--white-color);
+  font-size: larger;
+  border-radius: 50%;
+  padding: 0.7rem;
+}
+
+.purchase-circle {
+  background: var(--purchase-bg);
+}
+
+.sales-circle {
+  background-color: var(--brown-color);
+}
+.sales-report-circle {
+  background-color: #f00909;
+}
+
+.purchase-report-circle {
+  background-color: #27a42f;
 }
