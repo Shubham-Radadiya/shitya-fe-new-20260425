@@ -229,6 +229,14 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
         className="bills"
         style={{ height: currentLocation.pathname === "/stock" && "92.5vh" }}
       >
+        <div style={{display:"flex", justifyContent:"flex-end", gap:"5px"}}>
+          <span class="dot" style={{color:"rgb(87 15 119)"}}></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <hr />
+
         <h3
           className="bill-title"
           style={{
