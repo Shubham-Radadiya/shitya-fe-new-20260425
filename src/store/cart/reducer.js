@@ -3,6 +3,7 @@ import {
   ADD_TO_CART,
   ADD_TO_UPDATEDCART,
   CLEAR_CART,
+  EDIT_PURCHASE_DATA,
   REMOVE_FROM_CART,
 } from "./cartActionType";
 
@@ -20,7 +21,7 @@ const cartReducer = (state = initialState, action) => {
       if (existingItemIndex !== -1) {
         const updatedItems = [...state.items];
         updatedItems[existingItemIndex].quantity += 1;
-        
+
         return {
           ...state,
           items: updatedItems,
@@ -75,7 +76,11 @@ const cartReducer = (state = initialState, action) => {
         ...state,
         items: [],
       };
-
+    case EDIT_PURCHASE_DATA:
+      return {
+        ...state,
+        items: action.payload,
+      };
     default:
       return state;
   }

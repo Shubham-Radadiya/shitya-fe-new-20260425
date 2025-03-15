@@ -6,10 +6,11 @@ import MenuVariety from "../../user_panel/menu_variety/MenuVariety";
 import Menu from "../../user_panel/menu/MenuIndex";
 import { useLocation } from "react-router-dom";
 
-
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const currentLocation = useLocation();
+  console.log("currentLocation", currentLocation);
+
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [showReprintBill, setShowReprintBill] = useState(false);
   const [returnMode, setReturnMode] = useState(false);
@@ -41,10 +42,11 @@ const Home = () => {
   const stateUpdate = (state) => {
     setNewState(state);
   };
+  console.log("invoiceData", invoiceData);
 
   return (
     <>
-       <div className="container_flex" style={{height: "100vh"}}>
+      <div className="container_flex" style={{ height: "100vh" }}>
         <Menu
           name={name}
           updateName={updateName}
@@ -54,13 +56,18 @@ const Home = () => {
           setSelectedCategory={setSelectedCategory}
         />
         <div className="card-content">
-          <h2 className="swaminarayan" style={{
+          <h2
+            className="swaminarayan"
+            style={{
               color:
                 currentLocation.pathname === "/stock"
                   ? "rgb(87 15 119)"
                   : "rgb(97, 37, 17)",
-            }}>જય સ્વામિનારાયણ</h2>
-          <div style={{ height:"3.5rem" }}>
+            }}
+          >
+            જય સ્વામિનારાયણ
+          </h2>
+          <div style={{ height: "3.5rem" }}>
             <MenuVariety
               name={name}
               updateProduct={updateProduct}
@@ -76,7 +83,11 @@ const Home = () => {
             setShowReprintBill={setShowReprintBill}
           />
         </div>
-        <Bills returnMode={returnMode} setReturnMode={setReturnMode}  invoice={invoiceData}/>
+        <Bills
+          returnMode={returnMode}
+          setReturnMode={setReturnMode}
+          invoice={invoiceData}
+        />
       </div>
     </>
   );

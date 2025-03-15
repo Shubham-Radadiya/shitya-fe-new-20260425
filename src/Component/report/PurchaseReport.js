@@ -18,6 +18,7 @@ import { AiOutlinePrinter } from "react-icons/ai";
 import { CiEdit } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
+import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 
 const initialData = [
   { currency: "500", count: 0 },
@@ -45,16 +46,19 @@ const PurchaseReport = () => {
   const fetchInvoiceData = async (invoiceId) => {
     try {
       const token = localStorage.getItem("access_token");
-      const response = await fetch(`http://localhost:3010/invoice/${invoiceId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      });
-  
+      const response = await fetch(
+        `http://localhost:3010/invoice/${invoiceId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+
       if (!response.ok) throw new Error("Failed to fetch invoice data");
-  
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -62,14 +66,16 @@ const PurchaseReport = () => {
       return null;
     }
   };
-  
+
   const fetchInvoiceDataForStock = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
+
     if (data) {
-      navigate("/stock", { state: { invoiceData: data } });
+      navigate("/stock");
+      dispatch({ type: EDIT_PURCHASE_DATA, payload: data?.productId });
     }
   };
-  
+
   const fetchInvoiceDataForModal = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
     if (data) {
@@ -89,7 +95,6 @@ const PurchaseReport = () => {
   useEffect(() => {
     handleFetchReports(reportType);
   }, [reportType]);
-  console.log("invoiceData", invoiceData);
 
   const handleFetchReports = (type) => {
     setReportType(type);
@@ -235,8 +240,8 @@ const PurchaseReport = () => {
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box">
-            <div style={{ display: "flex", gap: "35px" }}>
+          <div className="userreport-box" style={{justifyContent:"flex-end"}}>
+            {/* <div style={{ display: "flex", gap: "35px" }}>
               <NavLink to="/stock">
                 <div
                   className="back-btn"
@@ -248,7 +253,7 @@ const PurchaseReport = () => {
                   <IoArrowBack />
                 </div>
               </NavLink>
-            </div>
+            </div> */}
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -377,43 +382,36 @@ const PurchaseReport = () => {
                               {formattedDate}
                             </td>
                             <td style={{ textAlign: "end", width: "12%" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 murtiAmount || 0
                               )}
                             </td>
                             <td style={{ width: "12%", textAlign: "end" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 vaghaAmount || 0
                               )}
                             </td>
                             <td style={{ width: "12%", textAlign: "end" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 gharenaAmount || 0
                               )}
                             </td>
                             <td style={{ width: "12%", textAlign: "end" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 pujaAmount || 0
                               )}
                             </td>
                             <td style={{ width: "12%", textAlign: "end" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 pustakAmount || 0
                               )}
                             </td>
                             <td style={{ width: "12%", textAlign: "end" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 generalAmount || 0
                               )}
                             </td>
                             <td style={{ width: "12%", textAlign: "end" }}>
-                              
                               {new Intl.NumberFormat("en-IN").format(
                                 totalAmount
                               ) || 0}
@@ -427,7 +425,7 @@ const PurchaseReport = () => {
                               }}
                             >
                               <span
-                                style={{ fontSize: "26px", cursor:"pointer" }}
+                                style={{ fontSize: "26px", cursor: "pointer" }}
                                 onClick={() =>
                                   fetchInvoiceDataForModal(invoice.invoiceId)
                                 }
@@ -444,10 +442,16 @@ const PurchaseReport = () => {
                               }}
                             >
                               <span
-                                style={{ fontSize: "26px", cursor:"pointer" }}
-                                onClick={() => fetchInvoiceDataForStock(invoice.invoiceId)}
+                                style={{ fontSize: "26px", cursor: "pointer" }}
+                                onClick={() =>
+                                  fetchInvoiceDataForStock(invoice.invoiceId)
+                                }
                               >
-                                <img style={{width:"20px"}} src={Edit} alt="edit" />
+                                <img
+                                  style={{ width: "20px" }}
+                                  src={Edit}
+                                  alt="edit"
+                                />
                               </span>
                             </td>
                           </tr>
@@ -457,16 +461,17 @@ const PurchaseReport = () => {
                   </tbody>
                   <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                     <tr>
-                      <td style={{ width: "21%", fontWeight:"bold" }}>Total:-</td>
+                      <td style={{ width: "21%", fontWeight: "bold" }}>
+                        Total:-
+                      </td>
                       <td style={{ width: "0%" }}></td>
                       <td
                         style={{
                           width: "12%",
                           textAlign: "end",
-                          fontWeight:"bold"
+                          fontWeight: "bold",
                         }}
                       >
-                        
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -483,8 +488,13 @@ const PurchaseReport = () => {
                         )}
                       </td>
 
-                      <td style={{ width: "12%", textAlign: "end", fontWeight:"bold" }}>
-                        
+                      <td
+                        style={{
+                          width: "12%",
+                          textAlign: "end",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -500,8 +510,13 @@ const PurchaseReport = () => {
                         )}
                       </td>
 
-                      <td style={{ width: "12%", textAlign: "end", fontWeight:"bold" }}>
-                        
+                      <td
+                        style={{
+                          width: "12%",
+                          textAlign: "end",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -518,8 +533,13 @@ const PurchaseReport = () => {
                         )}
                       </td>
 
-                      <td style={{ width: "12%", textAlign: "end", fontWeight:"bold" }}>
-                        
+                      <td
+                        style={{
+                          width: "12%",
+                          textAlign: "end",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -535,8 +555,13 @@ const PurchaseReport = () => {
                         )}
                       </td>
 
-                      <td style={{ width: "12%", textAlign: "end", fontWeight:"bold" }}>
-                        
+                      <td
+                        style={{
+                          width: "12%",
+                          textAlign: "end",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -553,8 +578,13 @@ const PurchaseReport = () => {
                         )}
                       </td>
 
-                      <td style={{ width: "12%", textAlign: "end", fontWeight:"bold" }}>
-                        
+                      <td
+                        style={{
+                          width: "12%",
+                          textAlign: "end",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -577,7 +607,6 @@ const PurchaseReport = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        
                         {new Intl.NumberFormat("en-IN").format(
                           invoiceData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
@@ -618,7 +647,7 @@ const PurchaseReport = () => {
                   {new Date(selectedInvoice.createdAt).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Total Amount:</strong> 
+                  <strong>Total Amount:</strong>
                   {selectedInvoice.totalAmount.toLocaleString("en-IN")}
                 </p>
 

@@ -49,11 +49,17 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
   }, [dispatch]);
 
   const truncateText = (text, maxLength) => {
+    if (typeof text !== "string") {
+      return "";
+    }
+
     if (text.length > maxLength) {
       return text.substring(0, maxLength) + "..";
     }
     return text;
   };
+
+  console.log("reprintBill", items);
 
   useEffect(() => {
     console.log(invoice, "come from reports");
@@ -221,22 +227,31 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
   return (
     <div
       className="bill-container"
-      style={{
-        alignItems: currentLocation.pathname === "/stock" && "flex-end",
-      }}
     >
       <div
         className="bills"
-        style={{ height: currentLocation.pathname === "/stock" && "92.5vh" }}
       >
-        <div style={{display:"flex", justifyContent:"flex-end", gap:"5px"}}>
-          <span class="dot" style={{color:"rgb(87 15 119)"}}></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
+        <div className="screen-list">
+          <NavLink to="/stock" className="screen-list-circle purchase-circle">
+            P
+          </NavLink>
+          <NavLink to="/dashboard" className="screen-list-circle sales-circle">
+            S
+          </NavLink>
+          <NavLink
+            to="/report"
+            className="screen-list-circle sales-report-circle"
+          >
+            R
+          </NavLink>
+          <NavLink
+            // to="/purchaseReport"
+            className="screen-list-circle purchase-report-circle"
+          >
+            
+          </NavLink>
         </div>
-        <hr />
-
+        <hr style={{ border: "1px solid #808080" }} />
         <h3
           className="bill-title"
           style={{
@@ -248,7 +263,7 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
         </h3>
 
         <div className="Homebuttons">
-          <button
+          {/* <button
             className={
               currentLocation.pathname === "/stock"
                 ? "purchase_icon-button"
@@ -266,7 +281,7 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
             >
               Report
             </Link>
-          </button>
+          </button> */}
           <button
             className={
               currentLocation.pathname === "/stock"
@@ -282,19 +297,17 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
           >
             Reset
           </button>
-          {currentLocation.pathname !== "/stock" && (
-            <button
-              className={
-                currentLocation.pathname === "/stock"
-                  ? "purchase_icon-button"
-                  : "icon-button"
-              }
-              onClick={handleReturnBill}
-            >
-              Return
-            </button>
-          )}
-          {/* {items.length > 0 {}} */}
+
+          <button
+            className={
+              currentLocation.pathname === "/stock"
+                ? "purchase_icon-button"
+                : "icon-button"
+            }
+            onClick={handleReturnBill}
+          >
+            Return
+          </button>
           {items.length || reprintBill?.productId.length > 0 ? (
             <div
               className={` ${
@@ -354,7 +367,6 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
 
         <div
           className="bill_index"
-          style={{ height: currentLocation.pathname === "/stock" && "81vh" }}
         >
           <h4 style={{ textAlign: "center" }}>Jay Swaminarayan</h4>
           <div className="bill_header_sub">

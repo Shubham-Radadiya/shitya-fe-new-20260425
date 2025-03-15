@@ -19,7 +19,7 @@ const AdminIndex = () => {
       <Route path="/product" element={<Dashboard component={<Product />} />} />
       <Route path="/stock" element={<Home/>}/>
       <Route path="/report" element={<ReportScreen/>}  />
-              <Route path="/purchaseReport" element={<PurchaseReport />} />
+      <Route path="/purchaseReport" element={<PurchaseReport />} />
       
     </Routes>
   );

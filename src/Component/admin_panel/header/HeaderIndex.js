@@ -53,11 +53,11 @@ const Header = () => {
           >
             Report
           </NavLink>
-          {currentLocation.pathname !== "/stock" && (
+          {/* {currentLocation.pathname !== "/stock" && (
             <NavLink to="/stock"  className={({ isActive }) => `${isActive ? "active" : ""}`}>
               Purchase
             </NavLink>
-          )}
+          )} */}
           </div>
           
           <button className="logout-btn" onClick={handleLogout}>

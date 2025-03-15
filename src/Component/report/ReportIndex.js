@@ -2,14 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import ReactToPrint from "react-to-print";
 import * as XLSX from "xlsx";
-import {
-  GET_DAILY_REPORTS_REQUEST,
-  GET_MONTHLY_REPORTS_REQUEST,
-  GET_YEARLY_REPORTS_REQUEST,
-} from "../../store/user_report/UserReportAction";
+import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
-import { IoArrowBack } from "react-icons/io5";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 
@@ -388,13 +383,8 @@ const ReportIndex = () => {
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box">
+          <div className="userreport-box" style={{justifyContent:"space-between"}}>
             <div style={{ display: "flex", gap: "35px" }}>
-              <NavLink to="/dashboard">
-                <div className="back-btn">
-                  <IoArrowBack />
-                </div>
-              </NavLink>
               <div
                 style={{
                   display: "flex",
@@ -413,6 +403,7 @@ const ReportIndex = () => {
                 </p>
               </div>
             </div>
+
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={OpenModel}>
                 Print
@@ -422,145 +413,142 @@ const ReportIndex = () => {
               </button>
             </div>
           </div>
-          
-            <div className="userreport-table-wrapper">
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "30px",
-                }}
-              >
-                {reportType === "daily" && (
-                  <>
-                    <table className="userreport-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: "8%" }}>Sr. No.</th>
-                          <th style={{ width: "13%", textAlign: "start" }}>
-                            Product ID
-                          </th>
-                          <th style={{ textAlign: "start" }}>Product Name</th>
-                          <th style={{ width: "13%", textAlign: "end" }}>
-                            Quantity
-                          </th>
-                          <th style={{ width: "13%", textAlign: "end" }}>
-                            Amount
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredProducts.map((product, index) => (
-                          <tr key={index}>
-                            <td style={{ width: "8%" }}>{index + 1}</td>
-                            <td style={{ width: "13%", textAlign: "start" }}>
-                              {product.productId}
-                            </td>
-                            <td style={{ textAlign: "start" }}>
-                              {product.name || "N/A"}
-                            </td>
-                            <td style={{ width: "13%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                product.totalBuyingCount
-                              ) || "N/A"}
-                            </td>
-                            <td style={{ width: "13%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                product.totalBuyingCount * product.price
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot
-                        style={{ borderTop: "1px solid var(--brown-color)" }}
-                      >
-                        <tr>
-                          <td colSpan="5">
-                            <div className="tfootgroup"></div>
+
+          <div className="userreport-table-wrapper">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "30px",
+              }}
+            >
+              {reportType === "daily" && (
+                <>
+                  <table className="userreport-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "8%" }}>Sr. No.</th>
+                        <th style={{ width: "13%", textAlign: "start" }}>
+                          Product ID
+                        </th>
+                        <th style={{ textAlign: "start" }}>Product Name</th>
+                        <th style={{ width: "13%", textAlign: "end" }}>
+                          Quantity
+                        </th>
+                        <th style={{ width: "13%", textAlign: "end" }}>
+                          Amount
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProducts.map((product, index) => (
+                        <tr key={index}>
+                          <td style={{ width: "8%" }}>{index + 1}</td>
+                          <td style={{ width: "13%", textAlign: "start" }}>
+                            {product.productId}
                           </td>
-                          <td
-                            style={{
-                              textAlign: "end",
-                              paddingLeft: "21px",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            Total:{" "}
+                          <td style={{ textAlign: "start" }}>
+                            {product.name || "N/A"}
                           </td>
-                          <td style={{ textAlign: "end", fontWeight: "bold" }}>
-                            ₹{" "}
-                            {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                          <td style={{ width: "13%", textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              product.totalBuyingCount
+                            ) || "N/A"}
+                          </td>
+                          <td style={{ width: "13%", textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              product.totalBuyingCount * product.price
+                            )}
                           </td>
                         </tr>
-                      </tfoot>
-                    </table>
-                    <table className="userreport-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: "8%" }}>Sr. No.</th>
-                          <th style={{ width: "13%", textAlign: "start" }}>
-                            Category Name
-                          </th>
-                          <th style={{ width: "13%", textAlign: "end" }}>
-                            Total Quantity
-                          </th>
-                          <th style={{ width: "13%", textAlign: "end" }}>
-                            Total Amount
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredCategory.map((category, index) => (
-                          <tr key={category.categoryIndex}>
-                            <td style={{ width: "8%" }}>{index + 1}</td>
-                            <td style={{ width: "13%", textAlign: "start" }}>
-                              {category.categoryName}
-                            </td>
-                            <td style={{ width: "13%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                category.totalQuantity
-                              ) || "N/A"}
-                            </td>
-                            <td style={{ width: "13%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                category.totalAmount
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot
-                        style={{ borderTop: "1px solid var(--brown-color)" }}
-                      >
-                        <tr>
-                          <td colSpan="2"></td>
-                          <td
-                            style={{
-                              textAlign: "end",
-                              paddingRight: "36px",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            Total:{" "}
+                      ))}
+                    </tbody>
+                    <tfoot
+                      style={{ borderTop: "1px solid var(--brown-color)" }}
+                    >
+                      <tr>
+                        <td colSpan="5">
+                          <div className="tfootgroup"></div>
+                        </td>
+                        <td
+                          style={{
+                            textAlign: "end",
+                            paddingLeft: "21px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Total:{" "}
+                        </td>
+                        <td style={{ textAlign: "end", fontWeight: "bold" }}>
+                          ₹ {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                  <table className="userreport-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "8%" }}>Sr. No.</th>
+                        <th style={{ width: "13%", textAlign: "start" }}>
+                          Category Name
+                        </th>
+                        <th style={{ width: "13%", textAlign: "end" }}>
+                          Total Quantity
+                        </th>
+                        <th style={{ width: "13%", textAlign: "end" }}>
+                          Total Amount
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCategory.map((category, index) => (
+                        <tr key={category.categoryIndex}>
+                          <td style={{ width: "8%" }}>{index + 1}</td>
+                          <td style={{ width: "13%", textAlign: "start" }}>
+                            {category.categoryName}
                           </td>
-                          <td
-                            style={{
-                              textAlign: "end",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            ₹{" "}
-                            {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                          <td style={{ width: "13%", textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              category.totalQuantity
+                            ) || "N/A"}
+                          </td>
+                          <td style={{ width: "13%", textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              category.totalAmount
+                            )}
                           </td>
                         </tr>
-                      </tfoot>
-                    </table>
-                  </>
-                )}
-              </div>
+                      ))}
+                    </tbody>
+                    <tfoot
+                      style={{ borderTop: "1px solid var(--brown-color)" }}
+                    >
+                      <tr>
+                        <td colSpan="2"></td>
+                        <td
+                          style={{
+                            textAlign: "end",
+                            paddingRight: "36px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Total:{" "}
+                        </td>
+                        <td
+                          style={{
+                            textAlign: "end",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          ₹ {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </>
+              )}
             </div>
-          
+          </div>
         </div>
       </div>
       <div ref={printRef} className="print-content">

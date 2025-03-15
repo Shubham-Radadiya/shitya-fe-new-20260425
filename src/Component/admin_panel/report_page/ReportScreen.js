@@ -12,9 +12,11 @@ import DailyReport from "../report_page/DailyReport";
 import YearlyReport from "../report_page/YearlyReport";
 import MonthlyReport from "../report_page/MonthlyReport";
 import CustomeReport from "./CustomeReport";
+import PurchaseReport from "../../report/PurchaseReport";
 
 const ReportScreen = () => {
   const [reportType, setReportType] = useState("daily");
+  const [activeReport, setActiveReport] = useState("sales");
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -39,15 +41,14 @@ const ReportScreen = () => {
     };
     dispatch({ type: REQUEST_TODAY_PRODUCT, payload: data });
     console.log("fsdfds");
-    
+
     setReportType("daily");
   };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    getDailyReport(date); 
+    getDailyReport(date);
   };
-
 
   const getMonthlyReport = () => {
     // const now = new Date();
@@ -91,73 +92,70 @@ const ReportScreen = () => {
   };
 
   return (
-    <div className="flexbetween report-screen">
+    <div className="flexbetween report-screen" style={{height:'97vh'}}>
       <div className="header">
         <Header />
       </div>
-      <div className="report-dashboard">
-        <div className="report-left-side">
+        <div className="report-tab-button">
           <button
-            className={`sidebar-btn ${reportType === "daily" ? "selected-report" : ""
-              }`}
-            onClick={getDailyReport}
+            className={`userreprt-button ${
+              activeReport === "sales" ? "active" : ""
+            }`}
+            onClick={() => setActiveReport("sales")}
           >
-            Today Report
+            Sales Report
           </button>
           <button
-            className={`sidebar-btn ${reportType === "monthly" ? "selected-report" : ""
-              }`}
-            onClick={getMonthlyReport}
+            className={`userreprt-button ${
+              activeReport === "purchase" ? "active" : ""
+            }`}
+            onClick={() => setActiveReport("purchase")}
           >
-            Daily Report
+            Purchase Report
           </button>
-          <button
-            className={`sidebar-btn ${reportType === "yearly" ? "selected-report" : ""
-              }`}
-            onClick={getYearlyReport}
-          >
-            Monthly Report
-          </button>
-          {/* <button
-            className={`sidebar-btn ${reportType === "custome" ? "selected-report" : ""
-              }`}
-            onClick={getCutomeReport}
-          >
-            Custome Report
-          </button> */}
         </div>
+        {/* Report Content */}
+        {activeReport === "purchase" ? (
+          <PurchaseReport />
+        ) : (
+          <div className="report-dashboard">
+            <div className="report-left-side">
+              <button
+                className={`sidebar-btn ${
+                  reportType === "daily" ? "selected-report" : ""
+                }`}
+                onClick={getDailyReport}
+              >
+                Today Report
+              </button>
+              <button
+                className={`sidebar-btn ${
+                  reportType === "monthly" ? "selected-report" : ""
+                }`}
+                onClick={getMonthlyReport}
+              >
+                Monthly Report
+              </button>
+              <button
+                className={`sidebar-btn ${
+                  reportType === "yearly" ? "selected-report" : ""
+                }`}
+                onClick={getYearlyReport}
+              >
+                Yearly Report
+              </button>
+            </div>
 
-        <div className="report-right-side">
-          <div>
-          {reportType === "daily" && (
-              <DailyReport selectedUser={selectedUser} />
-            )}
-            {reportType === "custome" && (<CustomeReport selectedUser={selectedUser} setSelectedUser={setSelectedUser} />)}
-            {reportType === "monthly" && (
-              <MonthlyReport selectedUser={selectedUser} setUsers={setUsers} />
-            )}
-            {reportType === "yearly" && (
-              <YearlyReport selectedUser={selectedUser} setUsers={setUsers} />
-            )}
-            {reportType === "quarterly" && (
-              <MonthlyReport selectedUser={selectedUser} setUsers={setUsers} />
-            )}
+            <div className="report-right-side">
+              {reportType === "daily" && <DailyReport />}
+              {reportType === "monthly" && <MonthlyReport />}
+              {reportType === "yearly" && <YearlyReport />}
+              {reportType === "custome" && <CustomeReport />}
+            </div>
           </div>
-        </div>
+        )}
       </div>
-    </div>
   );
 };
 
 export default ReportScreen;
-
-
-
-
-   {/* <button
-            className={`sidebar-btn ${reportType === "quarterly" ? "selected-report" : ""
-              }`}
-            onClick={getQuarterlyReport}
-          >
-            Quarterly Report
-          </button> */}

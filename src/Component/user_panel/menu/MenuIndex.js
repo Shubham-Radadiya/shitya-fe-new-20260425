@@ -57,7 +57,7 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
     <div className="menu-container">
       <div className="menu_list">
         <div className="menu_icon">
-          {currentLocation.pathname === "/stock" ? (
+          {/* {currentLocation.pathname === "/stock" ? (
             <NavLink to="/dashboard">
               <div
                 className="back-btn"
@@ -72,9 +72,9 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
                 <IoArrowBack />
               </div>
             </NavLink>
-          ) : (
+          ) : ( */}
             <img src={img2} alt="Menu Logo" className="raja-home" />
-          )}
+          {/* )} */}
         </div>
         <div className="menu_box">
           <div className="menu_lists">
@@ -96,11 +96,6 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
               ))}
           </div>
           <div>
-            {currentLocation.pathname !== "/stock" && (
-              <NavLink to="/stock" className="Stock_button">
-                Purchase
-              </NavLink>
-            )}
             <button
               className="logout_button"
               onClick={handleLogout}
