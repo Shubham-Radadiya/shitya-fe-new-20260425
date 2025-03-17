@@ -4,6 +4,7 @@ import {
   ADD_TO_PURCHASE_CART,
   ADD_TO_UPDATEDCART,
   CLEAR_CART,
+  CLEAR_PURCHASE_CART,
   EDIT_PURCHASE_DATA,
   REMOVE_FROM_CART,
   REMOVE_FROM_PURCHASE_CART,
@@ -120,6 +121,10 @@ const cartReducer = (state = initialState, action) => {
         ...state,
         items: [],
       };
+
+    case CLEAR_PURCHASE_CART:
+      return { ...state, purchaseItems: [] };
+
     case EDIT_PURCHASE_DATA:
       return {
         ...state,

@@ -57,9 +57,9 @@
   border: 2px solid var(--brown-color);
 }
 .purchase_subcategory_contain.active {
-  background-color: var(--purchase-bg);
-  color: var(--brown-color);
-  border: 2px solid var(--brown-color);
+  background-color: rgb(79 19 106 / 9%);
+  color: var(--purchase-bg);
+  border: 2px solid var(--purchase-bg);
 }
 .subcategory_name {
   font-size: 1.2rem;

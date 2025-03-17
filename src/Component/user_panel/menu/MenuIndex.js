@@ -4,10 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { REQUEST_CATEGORY } from "../../../store/category/categoryActionType";
 import { LOGOUT_REQUEST } from "../../../store/auth/AuthAction";
 import img2 from "../../images/raja_home.png";
-import img from "../../images/maharaj.png";
-import { IoArrowBack } from "react-icons/io5";
 import { CgLogOut } from "react-icons/cg";
-import { useLocation, NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
   const dispatch = useDispatch();
@@ -73,7 +71,7 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
               </div>
             </NavLink>
           ) : ( */}
-            <img src={img2} alt="Menu Logo" className="raja-home" />
+          <img src={img2} alt="Menu Logo" className="raja-home" />
           {/* )} */}
         </div>
         <div className="menu_box">

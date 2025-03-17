@@ -12,6 +12,7 @@ import DailyReport from "../report_page/DailyReport";
 import YearlyReport from "../report_page/YearlyReport";
 import MonthlyReport from "../report_page/MonthlyReport";
 import PurchaseReport from "../../report/PurchaseReport";
+import StockTable from "../../report/StockTable";
 
 const ReportScreen = () => {
   const [activeReport, setActiveReport] = useState("purchase");
@@ -99,6 +100,7 @@ const ReportScreen = () => {
         { key: "yearly", label: "Yearly Report", component: <YearlyReport /> },
       ],
     },
+    { key: "stock", label: "Stock Report", component: <StockTable /> },
   ];
 
   return (

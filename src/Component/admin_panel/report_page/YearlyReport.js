@@ -11,7 +11,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { FILTER_YEARLY, REQUEST_YEARLY_PRODUCT } from "../../../store/admin_report/ReportAction";
+import {
+  FILTER_YEARLY,
+  REQUEST_YEARLY_PRODUCT,
+} from "../../../store/admin_report/ReportAction";
 import TableFooter from "@mui/material/TableFooter";
 import { styled } from "@mui/material/styles";
 import * as XLSX from "xlsx";
@@ -24,7 +27,6 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
 }));
 
 export default function YearlyReport() {
-
   const { yearlyreport } = useReport();
   const dispatch = useDispatch();
   const users = useAuth();
@@ -53,9 +55,7 @@ export default function YearlyReport() {
   }, [date, dispatch]);
 
   const filteredReport = selectedUser
-    ? yearlyreport.filter(
-        (item) => item.userFullName === selectedUser.fullName
-      )
+    ? yearlyreport.filter((item) => item.userFullName === selectedUser.fullName)
     : yearlyreport;
 
   const getMonths = (report) => {
@@ -98,12 +98,12 @@ export default function YearlyReport() {
     const rows = [];
     const categoryRows = new Map();
     const subCategoryRows = new Map();
-  
+
     let srNo = 1;
-  
+
     data.forEach((dateData) => {
       const date = dateData.createdAt;
-  
+
       dateData.categories?.forEach((category) => {
         if (!categoryRows.has(category.categoryName)) {
           const categoryRow = {
@@ -116,38 +116,38 @@ export default function YearlyReport() {
             isSubCategory: false,
             expanded: false,
           };
-  
+
           let totalQty = 0;
           let totalAmount = 0;
-  
+
           dates.forEach((date) => {
             const categoryData = data
               .find((d) => d.createdAt === date)
               ?.categories.find(
                 (c) => c.categoryName === category.categoryName
               );
-  
+
             const qty = categoryData
               ? categoryData.totalBuyingCountPerCategory
               : 0;
             const amount = categoryData
               ? categoryData.totalBuyingAmountPerCategory
               : 0;
-  
+
             categoryRow[`qty_${date}`] = qty;
             categoryRow[`amount_${date}`] = amount;
-  
+
             totalQty += qty;
             totalAmount += amount;
           });
-  
+
           categoryRow.total_qty = totalQty;
           categoryRow.total_amount = totalAmount;
-  
+
           categoryRows.set(category.categoryName, categoryRow);
           rows.push(categoryRow);
         }
-  
+
         category.subCategories?.forEach((subCategory) => {
           if (!subCategoryRows.has(category.categoryName)) {
             subCategoryRows.set(category.categoryName, new Map());
@@ -160,7 +160,7 @@ export default function YearlyReport() {
             subCategoryRows
               .get(category.categoryName)
               .set(subCategory.subCategoryName, new Set());
-  
+
             const subCategoryRow = {
               sr_no: srNo++,
               category_name: category.categoryName,
@@ -171,10 +171,10 @@ export default function YearlyReport() {
               isSubCategory: true,
               expanded: false,
             };
-  
+
             let totalQty = 0;
             let totalAmount = 0;
-  
+
             const accumulatedData = dates.reduce((acc, date) => {
               const subCategoryData = data
                 .find((d) => d.createdAt === date)
@@ -184,29 +184,29 @@ export default function YearlyReport() {
                 ?.subCategories.find(
                   (s) => s.subCategoryName === subCategory.subCategoryName
                 );
-  
+
               const qty = subCategoryData
                 ? subCategoryData.totalBuyingCount
                 : 0;
               const amount = subCategoryData
                 ? subCategoryData.totalBuyingAmount
                 : 0;
-  
+
               acc[`qty_${date}`] = qty;
               acc[`amount_${date}`] = amount;
-  
+
               totalQty += qty;
               totalAmount += amount;
-  
+
               return acc;
             }, {});
-  
+
             Object.assign(subCategoryRow, accumulatedData);
             subCategoryRow.total_qty = totalQty;
             subCategoryRow.total_amount = totalAmount;
             rows.push(subCategoryRow);
           }
-  
+
           subCategory.products?.forEach((product) => {
             if (
               !subCategoryRows
@@ -218,7 +218,7 @@ export default function YearlyReport() {
                 .get(category.categoryName)
                 .get(subCategory.subCategoryName)
                 ?.add(product.name);
-  
+
               const productRow = {
                 sr_no: srNo++,
                 category_name: category.categoryName,
@@ -228,10 +228,10 @@ export default function YearlyReport() {
                 isCategory: false,
                 isSubCategory: false,
               };
-  
+
               let totalQty = 0;
               let totalAmount = 0;
-  
+
               const productfuncData = dates.reduce((acc, date) => {
                 const productData = data
                   .find((d) => d.createdAt === date)
@@ -242,53 +242,53 @@ export default function YearlyReport() {
                     (s) => s.subCategoryName === subCategory.subCategoryName
                   )
                   ?.products.find((p) => p.name === product.name);
-  
+
                 const qty = productData ? productData.totalBuyingCount : 0;
                 const amount = productData ? productData.totalBuyingAmount : 0;
-  
+
                 acc[`qty_${date}`] = qty;
                 acc[`amount_${date}`] = amount;
-  
+
                 totalQty += qty;
                 totalAmount += amount;
-  
+
                 return acc;
               }, {});
-  
+
               Object.assign(productRow, productfuncData);
               productRow.total_qty = totalQty;
               productRow.total_amount = totalAmount;
-  
+
               rows.push(productRow);
             }
           });
         });
       });
     });
-  
+
     // Initialize total storage for each date
     const overallTotals = dates.reduce(
       (acc, date) => {
         const qtyColumn = `qty_${date}`;
         const amountColumn = `amount_${date}`;
-  
+
         const categoryTotals = {};
-  
+
         rows.forEach((row) => {
           if (row.isCategory) {
             const category = row.category_name;
             const qty = parseFloat(row[qtyColumn]) || 0;
             const amount = parseFloat(row[amountColumn]) || 0;
-  
+
             if (!categoryTotals[category]) {
               categoryTotals[category] = { qty: 0, amount: 0 };
             }
-  
+
             categoryTotals[category].qty += qty;
             categoryTotals[category].amount += amount;
           }
         });
-  
+
         acc.total_qty[date] = Object.values(categoryTotals).reduce(
           (sum, totals) => sum + totals.qty,
           0
@@ -297,12 +297,12 @@ export default function YearlyReport() {
           (sum, totals) => sum + totals.amount,
           0
         );
-  
+
         return acc;
       },
       { total_qty: {}, total_amount: {} }
     );
-  
+
     const grandTotals = {
       total_qty: Object.values(overallTotals.total_qty).reduce(
         (sum, value) => sum + value,
@@ -313,7 +313,7 @@ export default function YearlyReport() {
         0
       ),
     };
-  
+
     return { rows, overallTotals, grandTotals };
   };
 
@@ -365,43 +365,45 @@ export default function YearlyReport() {
   const getFiscalYears = () => {
     const fiscalYears = [];
     const currentYear = new Date().getFullYear();
-    
-    for (let i = -5; i <= 0; i++) {
-        const startYear = currentYear + i;
-        const endYear = startYear + 1;
-        const fiscalYearLabel = `${startYear}-${endYear.toString().slice(-2)}`;
-        fiscalYears.push({ label: fiscalYearLabel, startYear, endYear });
-    }
-    
-    return fiscalYears;
-};
 
+    for (let i = -5; i <= 0; i++) {
+      const startYear = currentYear + i;
+      const endYear = startYear + 1;
+      const fiscalYearLabel = `${startYear}-${endYear.toString().slice(-2)}`;
+      fiscalYears.push({ label: fiscalYearLabel, startYear, endYear });
+    }
+
+    return fiscalYears;
+  };
 
   const fiscalYears = getFiscalYears();
 
   const handleChange = (event) => {
     const selectedValue = event.target.value;
-    const [startYear, endYearSuffix] = selectedValue.split('-');
+    const [startYear, endYearSuffix] = selectedValue.split("-");
     const endYear = parseInt(startYear) + 1; // Calculate end year correctly
 
     // Create start and end dates
     const startDate = new Date(Date.UTC(startYear, 3, 1)); // April is month 3 (0-based index)
     const endDate = new Date(Date.UTC(endYear, 2, 31, 23, 59, 59, 999)); // March is month 2 (0-based index)
-    
+
     // Check if the dates are valid
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        console.error('Invalid date value');
-        return;
+      console.error("Invalid date value");
+      return;
     }
 
     // Format dates to ISO 8601 format
     const formatDateToISO = (date) => {
-        return date.toISOString();
+      return date.toISOString();
     };
 
     setSelectedFiscalYear(selectedValue);
-    setDate({ start: formatDateToISO(startDate), end: formatDateToISO(endDate) });
-};
+    setDate({
+      start: formatDateToISO(startDate),
+      end: formatDateToISO(endDate),
+    });
+  };
 
   const exportToExcel = () => {
     // Create a new workbook and add a worksheet
@@ -475,19 +477,43 @@ export default function YearlyReport() {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString + "-01"); // Adding "-01" to create a valid date
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const month = monthNames[date.getMonth()];
     const year = date.getFullYear().toString().slice(-2); // Get the last two digits of the year
     return `${month}-${year}`;
   };
+  const uniqueUsers = Array.from(
+    new Map(
+      users
+        .filter((user) => user.userType === "USER")
+        .map((user) => [user.fullName, user])
+    ).values()
+  );
 
   return (
     <div>
       <div className="report-box">
         <div className="flexgap user-btns-box">
-        <div style={{ width: "175px", marginRight: "20px" }}>
+          <div style={{ width: "175px", marginRight: "20px" }}>
             <label>Select a year: </label>
-            <select onChange={handleChange} value={selectedFiscalYear} style={{width:"55%", height:"32px", borderRadius:"8px"}}>
+            <select
+              onChange={handleChange}
+              value={selectedFiscalYear}
+              style={{ width: "55%", height: "32px", borderRadius: "8px" }}
+            >
               <option value="">Year</option>
               {fiscalYears.map((fy, index) => (
                 <option
@@ -499,31 +525,25 @@ export default function YearlyReport() {
               ))}
             </select>
           </div>
-          <button
-            className={`report-user-btn ${
-              selectedUser === null ? "selected-user" : ""
-            }`}
-            onClick={() => handleUserChange(null)}
-          >
-            All
-          </button>
-          <div className="flexgap">
-            {users.map(
-              (user, index) =>
-                user.userType === "USER" && (
-                  <button
-                    key={index}
-                    className={`report-user-btn ${
-                      selectedUser?.fullName === user.fullName
-                        ? "selected-user"
-                        : ""
-                    }`}
-                    onClick={() => handleUserChange(user)}
-                  >
-                    {user.fullName}
-                  </button>
-                )
-            )}
+          <div style={{ width: "200px" }}>
+            <label>Select a user: </label>
+            <select
+              onChange={(e) => {
+                const selected = users.find(
+                  (user) => user.fullName === e.target.value
+                );
+                handleUserChange(selected || null);
+              }}
+              value={selectedUser ? selectedUser.fullName : ""}
+              style={{ width: "70%", height: "32px", borderRadius: "8px" }}
+            >
+              <option value="">All</option>
+              {uniqueUsers.map((user, index) => (
+                <option key={index} value={user.fullName}>
+                  {user.fullName}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <Paper
@@ -611,7 +631,9 @@ export default function YearlyReport() {
                         border: "1px solid",
                       }}
                       align="center"
-                    >{formatDate(`${date}`)}</TableCell>
+                    >
+                      {formatDate(`${date}`)}
+                    </TableCell>
                   ))}
                   {/* Total Quantity Column */}
                   <TableCell
@@ -638,7 +660,9 @@ export default function YearlyReport() {
                         border: "1px solid",
                       }}
                       align="center"
-                    >{formatDate(`${date}`)}</TableCell>
+                    >
+                      {formatDate(`${date}`)}
+                    </TableCell>
                   ))}
                   {/* Total Amount Column */}
                   <TableCell
@@ -651,7 +675,6 @@ export default function YearlyReport() {
                     }}
                     align="center"
                   >
-                    
                     Total Amount
                   </TableCell>
                 </TableRow>
@@ -662,9 +685,19 @@ export default function YearlyReport() {
                   <React.Fragment key={row.sr_no}>
                     {row.isCategory && (
                       <React.Fragment>
-                        <TableRow style={{background:"rgba(196, 164, 132, 0.7)"}}>
-                          <TableCell style={{border:"1px solid white"}} align="center">{row.sr_no}</TableCell>
-                          <TableCell style={{border:"1px solid white"}} align="center">
+                        <TableRow
+                          style={{ background: "rgba(196, 164, 132, 0.7)" }}
+                        >
+                          <TableCell
+                            style={{ border: "1px solid white" }}
+                            align="center"
+                          >
+                            {row.sr_no}
+                          </TableCell>
+                          <TableCell
+                            style={{ border: "1px solid white" }}
+                            align="center"
+                          >
                             <span
                               style={{
                                 cursor: "pointer",
@@ -676,21 +709,55 @@ export default function YearlyReport() {
                               {row.category_name}
                             </span>
                           </TableCell>
-                          <TableCell style={{border:"1px solid white"}} align="center"></TableCell>
+                          <TableCell
+                            style={{ border: "1px solid white" }}
+                            align="center"
+                          ></TableCell>
                           {/* Date Quantity Columns */}
                           {dates.map((date) => (
-                            <TableCell key={`qty_${date}`} style={{border:"1px solid white"}} align="center">
-                              {row[`qty_${date}`] || 0}
+                            <TableCell
+                              key={`qty_${date}`}
+                              style={{ border: "1px solid white" }}
+                              align="center"
+                            >
+                              {Intl.NumberFormat("en-IN").format(
+                                row[`qty_${date}`] || 0
+                              )}
                             </TableCell>
                           ))}
-                          <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center">{row.total_qty || 0}</TableCell>
+                          <TableCell
+                            style={{
+                              border: "1px solid white",
+                              fontWeight: "bolder",
+                            }}
+                            align="center"
+                          >
+                            {row.total_qty || 0}
+                          </TableCell>
                           {/* Date Amount Columns */}
                           {dates.map((date) => (
-                            <TableCell key={`amount_${date}`} style={{border:"1px solid white"}} align="center">
-                              {Intl.NumberFormat('en-IN').format(row[`amount_${date}`]) || 0}
+                            <TableCell
+                              key={`amount_${date}`}
+                              style={{ border: "1px solid white" }}
+                              align="center"
+                            >
+                              {Intl.NumberFormat("en-IN").format(
+                                row[`amount_${date}`]
+                              ) || 0}
                             </TableCell>
                           ))}
-                          <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center"> {Intl.NumberFormat('en-IN').format(row.total_amount) || 0}</TableCell>
+                          <TableCell
+                            style={{
+                              border: "1px solid white",
+                              fontWeight: "bolder",
+                            }}
+                            align="center"
+                          >
+                            {" "}
+                            {Intl.NumberFormat("en-IN").format(
+                              row.total_amount
+                            ) || 0}
+                          </TableCell>
                         </TableRow>
                         {expandedCategories.has(row.category_name) &&
                           rows
@@ -701,10 +768,22 @@ export default function YearlyReport() {
                             )
                             .map((subRow) => (
                               <React.Fragment key={subRow.sr_no}>
-                                <TableRow style={{background:"rgb(193, 154, 107, 0.2)"}}>
-                                  <TableCell style={{border:"1px solid white"}} align="center">{subRow.sr_no}</TableCell>
-                                  
-                                  <TableCell style={{border:"1px solid white"}} align="center">
+                                <TableRow
+                                  style={{
+                                    background: "rgb(193, 154, 107, 0.2)",
+                                  }}
+                                >
+                                  <TableCell
+                                    style={{ border: "1px solid white" }}
+                                    align="center"
+                                  >
+                                    {subRow.sr_no}
+                                  </TableCell>
+
+                                  <TableCell
+                                    style={{ border: "1px solid white" }}
+                                    align="center"
+                                  >
                                     <span
                                       style={{
                                         cursor: "pointer",
@@ -719,22 +798,53 @@ export default function YearlyReport() {
                                       {subRow.subcategory_name}
                                     </span>
                                   </TableCell>
-                                  <TableCell style={{border:"1px solid white"}} align="center"></TableCell>
+                                  <TableCell
+                                    style={{ border: "1px solid white" }}
+                                    align="center"
+                                  ></TableCell>
                                   {/* Date Quantity Columns */}
                                   {dates.map((date) => (
-                                    <TableCell key={`qty_${date}`} style={{border:"1px solid white"}} align="center">
+                                    <TableCell
+                                      key={`qty_${date}`}
+                                      style={{ border: "1px solid white" }}
+                                      align="center"
+                                    >
                                       {subRow[`qty_${date}`] || 0}
                                     </TableCell>
                                   ))}
-                                  <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center">{subRow.total_qty || 0}</TableCell>
+                                  <TableCell
+                                    style={{
+                                      border: "1px solid white",
+                                      fontWeight: "bolder",
+                                    }}
+                                    align="center"
+                                  >
+                                    {Intl.NumberFormat("en-IN").format(
+                                      subRow.total_qty || 0
+                                    )}
+                                  </TableCell>
                                   {/* Date Amount Columns */}
                                   {dates.map((date) => (
-                                    <TableCell key={`amount_${date}`} style={{border:"1px solid white"}} align="center">
-                                      {Intl.NumberFormat('en-IN').format(subRow[`amount_${date}`]) || 0}
+                                    <TableCell
+                                      key={`amount_${date}`}
+                                      style={{ border: "1px solid white" }}
+                                      align="center"
+                                    >
+                                      {Intl.NumberFormat("en-IN").format(
+                                        subRow[`amount_${date}`]
+                                      ) || 0}
                                     </TableCell>
                                   ))}
-                                  <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center">
-                                    {Intl.NumberFormat('en-IN').format(subRow.total_amount) || 0}
+                                  <TableCell
+                                    style={{
+                                      border: "1px solid white",
+                                      fontWeight: "bolder",
+                                    }}
+                                    align="center"
+                                  >
+                                    {Intl.NumberFormat("en-IN").format(
+                                      subRow.total_amount
+                                    ) || 0}
                                   </TableCell>
                                 </TableRow>
                                 {expandedSubCategories
@@ -751,33 +861,78 @@ export default function YearlyReport() {
                                           subRow.subcategory_name
                                     )
                                     .map((productRow) => (
-                                      <TableRow style={{background:"#f0f0f0"}} key={productRow.sr_no} >
-                                        <TableCell style={{border:"1px solid white"}} align="center">
+                                      <TableRow
+                                        style={{ background: "#f0f0f0" }}
+                                        key={productRow.sr_no}
+                                      >
+                                        <TableCell
+                                          style={{ border: "1px solid white" }}
+                                          align="center"
+                                        >
                                           {productRow.sr_no}
                                         </TableCell>
-                                        <TableCell style={{border:"1px solid white"}} align="center">
+                                        <TableCell
+                                          style={{ border: "1px solid white" }}
+                                          align="center"
+                                        >
                                           {productRow.product_name}
                                         </TableCell>
-                                        <TableCell style={{border:"1px solid white"}} align="center">
+                                        <TableCell
+                                          style={{ border: "1px solid white" }}
+                                          align="center"
+                                        >
                                           {productRow.product_Id}
                                         </TableCell>
                                         {/* Date Quantity Columns */}
                                         {dates.map((date) => (
-                                          <TableCell key={`qty_${date}`} style={{border:"1px solid white"}} align="center">
-                                            {productRow[`qty_${date}`] || 0}
+                                          <TableCell
+                                            key={`qty_${date}`}
+                                            style={{
+                                              border: "1px solid white",
+                                            }}
+                                            align="center"
+                                          >
+                                            {Intl.NumberFormat("en-IN").format(
+                                              productRow[`qty_${date}`] || 0
+                                            )}
                                           </TableCell>
                                         ))}
-                                        <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center">
-                                          {productRow.total_qty || 0}
+                                        <TableCell
+                                          style={{
+                                            border: "1px solid white",
+                                            fontWeight: "bolder",
+                                          }}
+                                          align="center"
+                                        >
+                                          {Intl.NumberFormat("en-IN").format(
+                                            productRow.total_qty || 0
+                                          )}
                                         </TableCell>
                                         {/* Date Amount Columns */}
                                         {dates.map((date) => (
-                                          <TableCell key={`amount_${date}`} style={{border:"1px solid white"}} align="center">
-                                            {Intl.NumberFormat('en-IN').format(productRow[`amount_${date}`]) || 0}
+                                          <TableCell
+                                            key={`amount_${date}`}
+                                            style={{
+                                              border: "1px solid white",
+                                            }}
+                                            align="center"
+                                          >
+                                            {Intl.NumberFormat("en-IN").format(
+                                              productRow[`amount_${date}`]
+                                            ) || 0}
                                           </TableCell>
                                         ))}
-                                        <TableCell style={{border:"1px solid white", color:"black", fontWeight:"bolder"}} align="center">
-                                          {Intl.NumberFormat('en-IN').format(productRow.total_amount) || 0}
+                                        <TableCell
+                                          style={{
+                                            border: "1px solid white",
+                                            color: "black",
+                                            fontWeight: "bolder",
+                                          }}
+                                          align="center"
+                                        >
+                                          {Intl.NumberFormat("en-IN").format(
+                                            productRow.total_amount
+                                          ) || 0}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -791,23 +946,86 @@ export default function YearlyReport() {
 
               <TableFooter>
                 <TableRow>
-                  <TableCell colSpan={3} style={{border:"1px solid white", backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center">Overall Totals</TableCell>
+                  <TableCell
+                    colSpan={3}
+                    style={{
+                      border: "1px solid white",
+                      backgroundColor: "#ededed",
+                      fontWeight: "bolder",
+                      color: "black",
+                      fontSize: "16px",
+                    }}
+                    align="center"
+                  >
+                    Overall Totals
+                  </TableCell>
                   {/* Date Quantity Columns */}
                   {dates.map((date) => (
-                    <TableCell key={`overall_qty_${date}`} style={{border:"1px solid white",  backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center">
-                      {overallTotals.total_qty[date] || 0}
+                    <TableCell
+                      key={`overall_qty_${date}`}
+                      style={{
+                        border: "1px solid white",
+                        backgroundColor: "#ededed",
+                        fontWeight: "bolder",
+                        color: "black",
+                        fontSize: "16px",
+                      }}
+                      align="center"
+                    >
+                      {Intl.NumberFormat("en-IN").format(
+                        overallTotals.total_qty[date] || 0
+                      )}
                     </TableCell>
                   ))}
                   {/* Total Quantity Column */}
-                  <TableCell style={{border:"1px solid white", backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center">{grandTotals.total_qty || 0}</TableCell>
+                  <TableCell
+                    style={{
+                      border: "1px solid white",
+                      backgroundColor: "#ededed",
+                      fontWeight: "bolder",
+                      color: "black",
+                      fontSize: "16px",
+                    }}
+                    align="center"
+                  >
+                    {Intl.NumberFormat("en-IN").format(
+                      grandTotals.total_qty || 0
+                    )}
+                  </TableCell>
                   {/* Date Amount Columns */}
                   {dates.map((date) => (
-                    <TableCell key={`overall_amount_${date}`} style={{border:"1px solid white",  backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center">
-                      {Intl.NumberFormat('en-IN').format(overallTotals.total_amount[date]) || 0}
+                    <TableCell
+                      key={`overall_amount_${date}`}
+                      style={{
+                        border: "1px solid white",
+                        backgroundColor: "#ededed",
+                        fontWeight: "bolder",
+                        color: "black",
+                        fontSize: "16px",
+                      }}
+                      align="center"
+                    >
+                      {Intl.NumberFormat("en-IN").format(
+                        overallTotals.total_amount[date]
+                      ) || 0}
                     </TableCell>
                   ))}
                   {/* Total Amount Column */}
-                  <TableCell style={{border:"1px solid white",  backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center"> {Intl.NumberFormat('en-IN').format(grandTotals.total_amount) || 0}</TableCell>
+                  <TableCell
+                    style={{
+                      border: "1px solid white",
+                      backgroundColor: "#ededed",
+                      fontWeight: "bolder",
+                      color: "black",
+                      fontSize: "16px",
+                    }}
+                    align="center"
+                  >
+                    {" "}
+                    {Intl.NumberFormat("en-IN").format(
+                      grandTotals.total_amount
+                    ) || 0}
+                  </TableCell>
                 </TableRow>
               </TableFooter>
             </Table>

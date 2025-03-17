@@ -187,7 +187,7 @@ const PurchaseReturn = () => {
       .slice(1)
       .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
 
-    const totalRow = ["", "", "", "Total:", `₹${Amount.toFixed(2)}`];
+    const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
 
     // Create a new workbook and append the worksheet
@@ -701,9 +701,9 @@ const PurchaseReturn = () => {
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
                         <td>{product._id.name}</td>
-                        <td>₹ {product.price}</td>
+                        <td>{product.price}</td>
                         <td>{product.quantity}</td>
-                        <td>₹ {product.price * product.quantity}</td>
+                        <td>{product.price * product.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -920,7 +920,7 @@ const PurchaseReturn = () => {
                 fontWeight: "bold",
               }}
             >
-              ₹ {new Intl.NumberFormat("en-IN").format(5000)}
+              {new Intl.NumberFormat("en-IN").format(5000)}
             </p>
           </div>
 

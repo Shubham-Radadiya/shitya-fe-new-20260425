@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { FILTER_DAILY, REQUEST_TODAY_PRODUCT } from "../../../store/admin_report/ReportAction";
+import {
+  FILTER_DAILY,
+  REQUEST_TODAY_PRODUCT,
+} from "../../../store/admin_report/ReportAction";
 import { REQUEST_USER } from "../../../store/auth/AuthAction";
 import { useAuth } from "../../../store/auth/AuthReducers";
 import ReactToPrint from "react-to-print";
@@ -46,15 +49,18 @@ const DailyReport = () => {
     : dailyreport;
 
   const productsArray = getProducts(filteredReport);
-  console.log(productsArray,dailyreport, "productsArray");
-  
+  console.log(productsArray, dailyreport, "productsArray");
+
   const isDataAvailable = productsArray.length > 0;
 
   const handleUserChange = (user) => {
-    console.log(user,"user");
-    
+    console.log(user, "user");
+
     setSelectedUser(user);
-    dispatch({ type: FILTER_DAILY, payload: user ? filteredReport : dailyreport });
+    dispatch({
+      type: FILTER_DAILY,
+      payload: user ? filteredReport : dailyreport,
+    });
   };
 
   const getDailyReport = () => {
@@ -87,20 +93,26 @@ const DailyReport = () => {
         product.productId || "N/A",
         product.name || "N/A",
         product.totalBuyingCount || "N/A",
-        (product.price * product.totalBuyingCount || 0).toFixed(2)
+        (product.price * product.totalBuyingCount || 0).toFixed(2),
       ]);
     });
 
     // Calculate the total amount
     const getTotalAmount = (products) => {
-        return products.reduce((acc, product) => {
-          return acc + (product.price * product.totalBuyingCount || 0);
-        }, 0);
+      return products.reduce((acc, product) => {
+        return acc + (product.price * product.totalBuyingCount || 0);
+      }, 0);
     };
 
     // Add the total row at the end
     const totalAmount = getTotalAmount(productsArray);
-    const totalRow = ["", "", "", "Total:", `${new Intl.NumberFormat("en-IN").format(totalAmount.toFixed(2))}`];
+    const totalRow = [
+      "",
+      "",
+      "",
+      "Total:",
+      `${new Intl.NumberFormat("en-IN").format(totalAmount.toFixed(2))}`,
+    ];
     sheetData.push(totalRow);
 
     // Create the worksheet from the sheetData array
@@ -118,10 +130,15 @@ const DailyReport = () => {
     // Create a Blob and trigger the download
     const blob = new Blob([buf], { type: "application/octet-stream" });
     saveAs(blob, "DailyReport.xlsx");
-};
+  };
 
-
-
+  const uniqueUsers = Array.from(
+    new Map(
+      users
+        .filter((user) => user.userType === "USER")
+        .map((user) => [user.fullName, user])
+    ).values()
+  );
 
   return (
     <div>
@@ -137,42 +154,54 @@ const DailyReport = () => {
               popperPlacement="bottom-start"
             />
           </div>
-          <button
-            className={`report-user-btn ${selectedUser === null ? "selected-user" : ""}`}
-            onClick={() => handleUserChange(null)}
-          >
-            All
-          </button>
-          <div className="flexgap">
-            {users.map(
-              (user, index) =>
-                user.userType === "USER" && (
-                  <button
-                    key={index}
-                    className={`report-user-btn ${selectedUser?.fullName === user.fullName ? "selected-user" : ""
-                      }`}
-                    onClick={() => handleUserChange(user)}
-                  >
-                    {user.fullName}
-                  </button>
-                )
-            )}
+          <div style={{ width: "200px" }}>
+            <label>Select a user: </label>
+            <select
+              onChange={(e) => {
+                const selected = users.find(
+                  (user) => user.fullName === e.target.value
+                );
+                handleUserChange(selected || null);
+              }}
+              value={selectedUser ? selectedUser.fullName : ""}
+              style={{ width: "70%", height: "32px", borderRadius: "8px" }}
+            >
+              <option value="">All</option>
+              {uniqueUsers.map((user, index) => (
+                <option key={index} value={user.fullName}>
+                  {user.fullName}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         <div ref={componentRef}>
           <div className="print-header">
             <h1 style={{ textAlign: "center" }}>જય સ્વામિનારાયણ</h1>
-            <h3>Date: {selectedDate ? selectedDate.toLocaleDateString() : 'N/A'}</h3>
+            <h3>
+              Date: {selectedDate ? selectedDate.toLocaleDateString() : "N/A"}
+            </h3>
           </div>
           <table className="report-table">
             <thead className="tab-header">
-              <tr className="first-row" style={{ width:"100%" }}>
-                <th style={{ width:"18%" }}>Sr. No.</th>
-                <th style={{ textAlign: "center", width:"18%" }}>Product ID</th>
-                <th style={{ textAlign: "left", width:"32%" }}>Product</th>
-                <th style={{ textAlign: "center", width:"18%" }}>Quantity</th>
-                <th style={{ textAlign: "right", width:"17%", paddingLeft:"18px", paddingRight:"19px" }}>Amount</th>
+              <tr className="first-row" style={{ width: "100%" }}>
+                <th style={{ width: "18%" }}>Sr. No.</th>
+                <th style={{ textAlign: "center", width: "18%" }}>
+                  Product ID
+                </th>
+                <th style={{ textAlign: "left", width: "32%" }}>Product</th>
+                <th style={{ textAlign: "center", width: "18%" }}>Quantity</th>
+                <th
+                  style={{
+                    textAlign: "right",
+                    width: "17%",
+                    paddingLeft: "18px",
+                    paddingRight: "19px",
+                  }}
+                >
+                  Amount
+                </th>
               </tr>
             </thead>
             <tbody className="tab-body">
@@ -180,20 +209,35 @@ const DailyReport = () => {
                 productsArray.map((product, index) => {
                   const currentSerialNumber = index + 1;
                   return (
-                    <tr key={product.productId + index} style={{ width:"100%" }}>
-                      <td style={{ width:"18%" }}>{currentSerialNumber}</td>
-                      <td style={{ textAlign: "center", width:"18%" }}>{product.productId}</td>
-                      <td style={{ textAlign: "left", width:"32%" }}>{product.name || "N/A"}</td>
-                      <td style={{ textAlign: "center", width:"18%" }}>{product.totalBuyingCount || "N/A"}</td>
-                      <td style={{ textAlign: "right", width:"18%" }}>
-                       {new Intl.NumberFormat("en-IN").format(product.totalBuyingCount * product.price) || 0}
+                    <tr
+                      key={product.productId + index}
+                      style={{ width: "100%" }}
+                    >
+                      <td style={{ width: "18%" }}>{currentSerialNumber}</td>
+                      <td style={{ textAlign: "center", width: "18%" }}>
+                        {product.productId}
+                      </td>
+                      <td style={{ textAlign: "left", width: "32%" }}>
+                        {product.name || "N/A"}
+                      </td>
+                      <td style={{ textAlign: "center", width: "18%" }}>
+                        {new Intl.NumberFormat("en-IN").format(
+                          product.totalBuyingCount || "N/A"
+                        )}
+                      </td>
+                      <td style={{ textAlign: "right", width: "18%" }}>
+                        {new Intl.NumberFormat("en-IN").format(
+                          product.totalBuyingCount * product.price
+                        ) || 0}
                       </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan="5" className="no-data-cell">No Data Found</td>
+                  <td colSpan="5" className="no-data-cell">
+                    No Data Found
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -205,13 +249,25 @@ const DailyReport = () => {
                       trigger={() => <button className="print-btn" style={{ cursor: "pointer" }}>Print</button>}
                       content={() => componentRef.current}
                     /> */}
-                    <button className="print-btn" style={{ cursor: "pointer" }} onClick={exportToExcel}>Export</button>
+                    <button
+                      className="print-btn"
+                      style={{ cursor: "pointer" }}
+                      onClick={exportToExcel}
+                    >
+                      Export
+                    </button>
                   </div>
                 </td>
                 <td></td>
                 <td></td>
-                <td className="total-amount" style={{textAlign: "right", paddingRight:"16px"}}>
-                  Total Amount:  {new Intl.NumberFormat("en-IN").format(getTotalAmount(productsArray).toFixed(2))}
+                <td
+                  className="total-amount"
+                  style={{ textAlign: "right", paddingRight: "16px" }}
+                >
+                  Total Amount:{" "}
+                  {new Intl.NumberFormat("en-IN").format(
+                    getTotalAmount(productsArray).toFixed(2)
+                  )}
                 </td>
               </tr>
             </tfoot>

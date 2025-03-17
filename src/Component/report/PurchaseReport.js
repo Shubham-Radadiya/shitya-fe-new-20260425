@@ -64,10 +64,9 @@ const PurchaseReport = () => {
       isDeActive: item?._id?.item?._id?.updatedAt,
       quantity: item?.quantity,
     }));
-    console.log(transformedArray, "data");
 
     if (data) {
-      navigate("/stock");
+      navigate("/stock", { state: { edit: true, id: data?._id } });
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
@@ -78,10 +77,6 @@ const PurchaseReport = () => {
       setSelectedInvoice(data);
       setIsModalOpen(true);
     }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   useEffect(() => {
@@ -124,12 +119,6 @@ const PurchaseReport = () => {
   const currentReport = getCurrentReportData();
 
   const filteredProducts = currentReport[0]?.products || [];
-
-  const filteredCategory =
-    currentReport[0]?.categories?.filter(
-      (categorie) => categorie.totalQuantity > 0
-    ) || [];
-
   const calculateTotalAmount = () => {
     if (reportType === "daily") {
       return filteredProducts.reduce((sum, item) => {
@@ -183,7 +172,7 @@ const PurchaseReport = () => {
       .slice(1)
       .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
 
-    const totalRow = ["", "", "", "Total:", `₹${Amount.toFixed(2)}`];
+    const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
 
     // Create a new workbook and append the worksheet
@@ -215,22 +204,10 @@ const PurchaseReport = () => {
     document.body.removeChild(a);
   };
 
-  const now = new Date();
-
-  const totalQuantity = filteredProducts?.reduce(
-    (total, item) => total + item.totalBuyingCount,
+  const totalQuantity = selectedInvoice?.productId.reduce(
+    (total, item) => total + item.quantity,
     0
   );
-  const currentDateTime = () => {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-indexed
-    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year} (${hours}:${minutes})`;
-  };
 
   useEffect(() => {
     console.log(selectedInvoice, "selectedINV");
@@ -239,7 +216,10 @@ const PurchaseReport = () => {
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box" style={{justifyContent:"flex-end"}}>
+          <div
+            className="userreport-box"
+            style={{ justifyContent: "flex-end" }}
+          >
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -681,9 +661,9 @@ const PurchaseReport = () => {
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
                         <td>{product._id.name}</td>
-                        <td>₹ {product.price}</td>
+                        <td>{product.price}</td>
                         <td>{product.quantity}</td>
-                        <td>₹ {product.price * product.quantity}</td>
+                        <td>{product.price * product.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -900,7 +880,7 @@ const PurchaseReport = () => {
                 fontWeight: "bold",
               }}
             >
-              ₹ {new Intl.NumberFormat("en-IN").format(5000)}
+              {new Intl.NumberFormat("en-IN").format(selectedInvoice?.totalAmount)}
             </p>
           </div>
 

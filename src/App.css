@@ -31,7 +31,7 @@ a{
 }
 .flexgap{
   display: flex; 
-  gap: 0.5rem;
+  gap: 2.5rem;
   align-items: center;
 }
 .flexend{

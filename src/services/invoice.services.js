@@ -15,7 +15,15 @@ const invoiceData = async () => {
   return response.data;
 };
 
+const editInvoiceData = async (id, payload) => {
+  const response = await axios.patch(`${API_URL}/invoice/${id}`, payload, {
+    headers: { Authorization: localStorage.getItem("access_token") },
+  });
+  return response.data;
+};
+
 export default {
   createInvoice,
   invoiceData,
+  editInvoiceData,
 };
