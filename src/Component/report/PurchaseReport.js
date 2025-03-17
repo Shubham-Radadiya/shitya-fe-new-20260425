@@ -11,6 +11,7 @@ import { AiOutlinePrinter } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
+import ReactToPrint from "react-to-print";
 
 const PurchaseReport = () => {
   const componentRef = useRef();
@@ -63,10 +64,9 @@ const PurchaseReport = () => {
       isDeActive: item?._id?.item?._id?.updatedAt,
       quantity: item?.quantity,
     }));
-    console.log(transformedArray, "data");
 
     if (data) {
-      navigate("/stock");
+      navigate("/stock", { state: { edit: true, id: data?._id } });
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
@@ -238,7 +238,10 @@ const PurchaseReport = () => {
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box" style={{justifyContent:"flex-end"}}>
+          <div
+            className="userreport-box"
+            style={{ justifyContent: "flex-end" }}
+          >
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel

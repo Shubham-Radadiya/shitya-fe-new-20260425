@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import axios from "axios";
+import { NavLink, useLocation } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import {
   ADD_TO_CART,
@@ -11,6 +10,7 @@ import {
   ADD_TO_UPDATEDCART,
   ADD_TO_PURCHASE_CART,
   REMOVE_FROM_PURCHASE_CART,
+  CLEAR_PURCHASE_CART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -22,8 +22,10 @@ import {
 } from "../../../store/bill/billActionType";
 import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
-import { toast } from "react-toastify";
-import { REQUEST_CREATE_INVOICE } from "../../../store/invoice/InvoiceAction";
+import {
+  REQUEST_CREATE_INVOICE,
+  REQUEST_EDIT_INVOICE_DATA,
+} from "../../../store/invoice/InvoiceAction";
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
@@ -34,8 +36,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
   const [reportData, setReportData] = useState(null);
-  const [updateBill, setUpdateBill] = useState(false);
-  const [inputValue, setInputValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const [newQuantity, setNewQuantity] = useState("");
@@ -46,7 +46,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const [showPrintBill, setShowPrintBill] = useState(false);
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  console.log("purchaseItems", purchaseItems);
+  console.log("purchaseItems", currentLocation);
 
   useEffect(() => {
     dispatch({ type: REQUEST_BILL_NO });
@@ -62,8 +62,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     }
     return text;
   };
-
-  console.log("reprintBill", items);
 
   // useEffect(() => {
   //   console.log(invoice, "come from reports");
@@ -94,10 +92,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setIsButtonDisabled(true);
 
     // Perform the print operation and set localStorage items
-    printDiv(items);
+    printDiv(currentLocation.pathname === "/stock" ? purchaseItems : items);
     localStorage.setItem("billData", JSON.stringify(items));
     localStorage.setItem("billId", reportData);
-    dispatch({ type: CLEAR_CART });
+    dispatch({
+      type:
+        currentLocation.pathname === "/stock"
+          ? CLEAR_PURCHASE_CART
+          : CLEAR_CART,
+    });
+
     // Re-enable the button after a few seconds (e.g., 5 seconds)
     setTimeout(() => {
       setIsButtonDisabled(false); // Re-enable the button
@@ -111,7 +115,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
         quantity: item.quantity,
         price: item.price,
       })),
-      totalAmount: totalPrice,
+      totalAmount:
+        currentLocation.pathname === "/stock" ? totalPurchaseprice : totalPrice,
     };
 
     if (showReprintBill) {
@@ -123,15 +128,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
           payload,
         });
       } else {
-        if (updateBill) {
-          axios
-            .patch(`http://localhost:3010/bill/${inputValue}`, payload)
-            .then((response) => {
-              toast.success("Bill updated successfully:", response.data);
-            })
-            .catch((error) => {
-              toast.error("Error updating bill:", error);
-            });
+        if (
+          currentLocation.pathname === "/stock" &&
+          currentLocation.state?.edit === true
+        ) {
+          console.log("call functuion");
+          dispatch({
+            type: REQUEST_EDIT_INVOICE_DATA,
+            payload: payload,
+            id: currentLocation.state?.id,
+          });
         } else {
           dispatch({
             type:
@@ -608,7 +614,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
                           style={{
                             width: "100px",
                             textAlign: "start",
-                            width: "100px",
                             padding: 0,
                           }}
                         >
@@ -989,8 +994,55 @@ const Bills = ({ returnMode, setReturnMode }) => {
               </p>
             </div>
             <hr style={{ borderTop: "solid 1px" }} />
-
-            {items.length > 0
+            {currentLocation.pathname === "/stock"
+              ? purchaseItems.length > 0
+                ? purchaseItems.map((product) => (
+                    <div key={product._id}>
+                      <div className="pavti_data_1" style={{ width: "380px" }}>
+                        <p
+                          title={product.productId}
+                          className="pavti_product_Id_1"
+                          style={{
+                            textAlign: "left",
+                            width: "52px",
+                            borderRight: "1px solid",
+                            fontSize: "15px",
+                          }}
+                        >
+                          {product.productId}
+                        </p>
+                        <h3
+                          className="pavti_product_name_1"
+                          style={{
+                            width: "208px",
+                            borderRight: "1px solid",
+                            paddingLeft: "4px",
+                            fontSize: "15px",
+                          }}
+                        >
+                          {" "}
+                          {product.name}
+                        </h3>
+                        <div className="pavti_data_quantity">
+                          <span style={{ fontSize: "15px" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              product.quantity
+                            )}
+                          </span>
+                        </div>
+                        <p
+                          className="product_price_report"
+                          style={{ fontSize: "15px", textAlign: "center" }}
+                        >
+                          {new Intl.NumberFormat("en-IN").format(
+                            product.price * product.quantity
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                : "no data"
+              : items.length > 0
               ? items.map((product) => (
                   <div key={product._id}>
                     <div className="pavti_data_1" style={{ width: "380px" }}>
@@ -1067,7 +1119,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   fontWeight: "bold",
                 }}
               >
-                {new Intl.NumberFormat("en-IN").format(totalQuantity)}
+                {currentLocation.pathname === "/stock"
+                  ? new Intl.NumberFormat("en-IN").format(totalPurchaseQuantity)
+                  : new Intl.NumberFormat("en-IN").format(totalQuantity)}
               </p>
               <p
                 style={{
@@ -1077,7 +1131,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   fontWeight: "bold",
                 }}
               >
-                ₹ {new Intl.NumberFormat("en-IN").format(totalPrice)}
+                ₹{" "}
+                {currentLocation.pathname === "/stock"
+                  ? new Intl.NumberFormat("en-IN").format(totalPurchaseprice)
+                  : new Intl.NumberFormat("en-IN").format(totalPrice)}
               </p>
             </div>
 
