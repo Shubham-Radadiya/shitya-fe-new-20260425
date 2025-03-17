@@ -187,7 +187,7 @@ const PurchaseReport = () => {
       .slice(1)
       .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
 
-    const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
+    const totalRow = ["", "", "", "Total:", `₹${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
 
     // Create a new workbook and append the worksheet
@@ -236,11 +236,30 @@ const PurchaseReport = () => {
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
 
+  useEffect(() => {
+    console.log(selectedInvoice, "selectedINV");
+  }, [selectedInvoice]);
   return (
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box" style={{justifyContent:"flex-end"}}>
+          <div
+            className="userreport-box"
+            style={{ justifyContent: "flex-end" }}
+          >
+            {/* <div style={{ display: "flex", gap: "35px" }}>
+              <NavLink to="/stock">
+                <div
+                  className="back-btn"
+                  style={{
+                    color: "rgb(87 15 119)",
+                    fontSize: "xx-large",
+                  }}
+                >
+                  <IoArrowBack />
+                </div>
+              </NavLink>
+            </div> */}
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -324,127 +343,149 @@ const PurchaseReport = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoiceData.map((user, userIndex) => {
-                      return user.data.map((invoice, invoiceIndex) => {
-                        const { invoiceId, createdAt, categories } = invoice;
-                        const formattedDate = new Date(
-                          createdAt
-                        ).toLocaleDateString();
+                    {invoiceData
+                      .map((user) => ({
+                        ...user,
+                        data: [...user.data].sort(
+                          (a, b) => Number(b.invoiceId) - Number(a.invoiceId)
+                        ),
+                      }))
+                      .map((user, userIndex) =>
+                        user.data.map((invoice, invoiceIndex) => {
+                          const { invoiceId, createdAt, categories } = invoice;
+                          const formattedDate = new Date(
+                            createdAt
+                          ).toLocaleDateString();
 
-                        let murtiAmount = 0,
-                          vaghaAmount = 0,
-                          gharenaAmount = 0,
-                          pujaAmount = 0,
-                          pustakAmount = 0,
-                          generalAmount = 0;
+                          let murtiAmount = 0,
+                            vaghaAmount = 0,
+                            gharenaAmount = 0,
+                            pujaAmount = 0,
+                            pustakAmount = 0,
+                            generalAmount = 0;
 
-                        categories.forEach((category) => {
-                          if (category.categoryName === "મુર્તિ") {
-                            murtiAmount = category.totalBuyingAmount;
-                          } else if (category.categoryName === "વાઘા") {
-                            vaghaAmount = category.totalBuyingAmount;
-                          } else if (category.categoryName === "ઘરેણા") {
-                            gharenaAmount = category.totalBuyingAmount;
-                          } else if (category.categoryName === "પુજા") {
-                            pujaAmount = category.totalBuyingAmount;
-                          } else if (category.categoryName === "પુસ્તક") {
-                            pustakAmount = category.totalBuyingAmount;
-                          } else if (category.categoryName === "જનરલ") {
-                            generalAmount = category.totalBuyingAmount;
-                          }
-                        });
+                          categories.forEach((category) => {
+                            switch (category.categoryName) {
+                              case "મુર્તિ":
+                                murtiAmount = category.totalBuyingAmount;
+                                break;
+                              case "વાઘા":
+                                vaghaAmount = category.totalBuyingAmount;
+                                break;
+                              case "ઘરેણા":
+                                gharenaAmount = category.totalBuyingAmount;
+                                break;
+                              case "પુજા":
+                                pujaAmount = category.totalBuyingAmount;
+                                break;
+                              case "પુસ્તક":
+                                pustakAmount = category.totalBuyingAmount;
+                                break;
+                              case "જનરલ":
+                                generalAmount = category.totalBuyingAmount;
+                                break;
+                              default:
+                                break;
+                            }
+                          });
 
-                        const totalAmount =
-                          murtiAmount +
-                          vaghaAmount +
-                          gharenaAmount +
-                          pujaAmount +
-                          pustakAmount +
-                          generalAmount;
+                          const totalAmount =
+                            murtiAmount +
+                            vaghaAmount +
+                            gharenaAmount +
+                            pujaAmount +
+                            pustakAmount +
+                            generalAmount;
 
-                        return (
-                          <tr key={`${userIndex}-${invoiceIndex}`}>
-                            <td style={{ width: "9%" }}>{invoiceId}</td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {formattedDate}
-                            </td>
-                            <td style={{ textAlign: "end", width: "12%" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                murtiAmount || 0
-                              )}
-                            </td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                vaghaAmount || 0
-                              )}
-                            </td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                gharenaAmount || 0
-                              )}
-                            </td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                pujaAmount || 0
-                              )}
-                            </td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                pustakAmount || 0
-                              )}
-                            </td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                generalAmount || 0
-                              )}
-                            </td>
-                            <td style={{ width: "12%", textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                totalAmount
-                              ) || 0}
-                            </td>
-                            <td
-                              style={{
-                                width: "5.9%",
-                                padding: "0px",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                              }}
-                            >
-                              <span
-                                style={{ fontSize: "26px", cursor: "pointer" }}
-                                onClick={() =>
-                                  fetchInvoiceDataForModal(invoice.invoiceId)
-                                }
+                          return (
+                            <tr key={`${userIndex}-${invoiceIndex}`}>
+                              <td style={{ width: "9%" }}>{invoiceId}</td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {formattedDate}
+                              </td>
+                              <td style={{ textAlign: "end", width: "12%" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  murtiAmount || 0
+                                )}
+                              </td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  vaghaAmount || 0
+                                )}
+                              </td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  gharenaAmount || 0
+                                )}
+                              </td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  pujaAmount || 0
+                                )}
+                              </td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  pustakAmount || 0
+                                )}
+                              </td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  generalAmount || 0
+                                )}
+                              </td>
+                              <td style={{ width: "12%", textAlign: "end" }}>
+                                {new Intl.NumberFormat("en-IN").format(
+                                  totalAmount
+                                ) || 0}
+                              </td>
+                              <td
+                                style={{
+                                  width: "5.9%",
+                                  padding: "0px",
+                                  textAlign: "center",
+                                  verticalAlign: "middle",
+                                }}
                               >
-                                <AiOutlinePrinter />
-                              </span>
-                            </td>
-                            <td
-                              style={{
-                                width: "5.9%",
-                                padding: "0px",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                              }}
-                            >
-                              <span
-                                style={{ fontSize: "26px", cursor: "pointer" }}
-                                onClick={() =>
-                                  fetchInvoiceDataForStock(invoice.invoiceId)
-                                }
+                                <span
+                                  style={{
+                                    fontSize: "26px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    fetchInvoiceDataForModal(invoice.invoiceId)
+                                  }
+                                >
+                                  <AiOutlinePrinter />
+                                </span>
+                              </td>
+                              <td
+                                style={{
+                                  width: "5.9%",
+                                  padding: "0px",
+                                  textAlign: "center",
+                                  verticalAlign: "middle",
+                                }}
                               >
-                                <img
-                                  style={{ width: "20px" }}
-                                  src={Edit}
-                                  alt="edit"
-                                />
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      });
-                    })}
+                                <span
+                                  style={{
+                                    fontSize: "26px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    fetchInvoiceDataForStock(invoice.invoiceId)
+                                  }
+                                >
+                                  <img
+                                    style={{ width: "20px" }}
+                                    src={Edit}
+                                    alt="edit"
+                                  />
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
                   </tbody>
                   <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                     <tr>
@@ -628,16 +669,24 @@ const PurchaseReport = () => {
             ></div>
             <div className="modal">
               <div className="modal-content">
-                <h2>Invoice: {selectedInvoice.invoiceId}</h2>
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(selectedInvoice.createdAt).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Total Amount:</strong>
-                  {selectedInvoice.totalAmount.toLocaleString("en-IN")}
-                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(selectedInvoice.createdAt).toLocaleDateString()}
+                  </p>
+                  <h2>Invoice: {selectedInvoice.invoiceId}</h2>
 
+                  <p>
+                    <strong>Total Amount:</strong>
+                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                  </p>
+                </div>
                 <h3>Products:</h3>
                 <table border="1" width="100%">
                   <thead>
@@ -652,22 +701,233 @@ const PurchaseReport = () => {
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
                         <td>{product._id.name}</td>
-                        <td> {product.price}</td>
+                        <td>₹ {product.price}</td>
                         <td>{product.quantity}</td>
-                        <td> {product.price * product.quantity}</td>
+                        <td>₹ {product.price * product.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
 
-                <button onClick={handlePrint} className="print-button">
-                  Print Invoice
+                <button
+                  className="print-button"
+                  style={{ marginRight: "10px" }}
+                >
+                  <ReactToPrint
+                    trigger={() => (
+                      <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+                        Print Bill
+                      </p>
+                    )}
+                    content={() => componentRef.current}
+                    removeAfterPrint={false}
+                  />
                 </button>
-                <button onClick={() => setIsModalOpen(false)}>Close</button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="print-button"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </>
         )}
+
+      <div ref={componentRef} className="print-content">
+        <h1
+          style={{
+            padding: "11px 0px",
+            fontSize: "22px",
+            textAlign: "center",
+            margin: "0",
+            background: "white",
+            borderRadius: "0px 25px 0px 0px",
+          }}
+        >
+          Jay Swaminarayan
+        </h1>
+        <div className="bill_header_sub">
+          <p style={{ margin: 0, fontSize: "15px", fontWeight: "bold" }}>
+            Date :- {new Date(selectedInvoice?.createdAt).toLocaleDateString()}
+          </p>
+          <h8
+            style={{
+              margin: 0,
+              fontSize: "15px",
+              fontWeight: "bold",
+              paddingRight: "5px",
+            }}
+          >
+            Sr.No: {selectedInvoice?.invoiceId}
+          </h8>
+        </div>
+        <div className="bill_header_main"></div>
+        <div
+          style={{
+            height: "80.5%",
+            overflow: "auto",
+            padding: "0px 12px",
+            background: "white",
+            borderRadius: "0px 0px 40px 0px",
+          }}
+        >
+          <hr style={{ borderTop: "solid 2px", margin: "5px 0px 0px 0px" }} />
+
+          <div
+            className="pavti_title_head"
+            style={{ height: "24px", alignItems: "center", width: "380px" }}
+          >
+            <p
+              className="pavti_title"
+              style={{
+                width: "52px",
+                textAlign: "center",
+                fontWeight: "bold",
+                borderRight: "1px solid",
+                height: "26px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ID
+            </p>
+            <p
+              className="pavti_title"
+              style={{
+                width: "208px",
+                textAlign: "left",
+                fontWeight: "bold",
+                borderRight: "1px solid",
+                paddingLeft: "4px",
+                height: "26px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              Item
+            </p>
+            <p
+              className="pavti_title"
+              style={{
+                width: "40px",
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
+            >
+              Qty
+            </p>
+            <p
+              className="pavti_title"
+              style={{
+                width: "80px",
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
+            >
+              Amt
+            </p>
+          </div>
+          <hr style={{ borderTop: "solid 1px" }} />
+          {selectedInvoice === null ? (
+            <p>Loading...</p>
+          ) : selectedInvoice?.productId?.length > 0 ? (
+            selectedInvoice.productId.map((product, i) => (
+              <div key={i}>
+                <div className="pavti_data_1" style={{ width: "380px" }}>
+                  <p
+                    title={product.productId}
+                    className="pavti_product_Id_1"
+                    style={{
+                      textAlign: "left",
+                      width: "52px",
+                      borderRight: "1px solid",
+                      fontSize: "15px",
+                    }}
+                  >
+                    {product._id.productId}
+                  </p>
+                  <h3
+                    className="pavti_product_name_1"
+                    style={{
+                      width: "208px",
+                      borderRight: "1px solid",
+                      paddingLeft: "4px",
+                      fontSize: "15px",
+                    }}
+                  >
+                    {" "}
+                    {product._id.name}
+                  </h3>
+                  <div className="pavti_data_quantity">
+                    <span style={{ fontSize: "15px" }}>
+                      {new Intl.NumberFormat("en-IN").format(product.quantity)}
+                    </span>
+                  </div>
+                  <p
+                    className="product_price_report"
+                    style={{ fontSize: "15px", textAlign: "center" }}
+                  >
+                    {new Intl.NumberFormat("en-IN").format(
+                      product.price * product.quantity
+                    )}
+                  </p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No data available</p>
+          )}
+
+          <hr style={{ borderTop: "solid 1px" }} />
+          <hr style={{ borderTop: "solid 1px", margin: "0px" }} />
+          <div
+            className="pavti_total"
+            style={{ height: "30px", alignItems: "center", width: "380px" }}
+          >
+            <p
+              style={{
+                width: "265px",
+                margin: 0,
+                textAlign: "left",
+                fontWeight: "bold",
+                height: "32px",
+                display: "flex",
+                alignItems: "Center",
+                justifyContent: "center",
+                borderRight: "1px solid",
+              }}
+            >
+              Total
+            </p>
+            <p
+              style={{
+                width: "40px",
+                margin: 0,
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
+            >
+              {new Intl.NumberFormat("en-IN").format(totalQuantity)}
+            </p>
+            <p
+              style={{
+                width: "80px",
+                margin: 0,
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
+            >
+              ₹ {new Intl.NumberFormat("en-IN").format(5000)}
+            </p>
+          </div>
+
+          <hr style={{ borderTop: "solid 2px" }} />
+          <p className="pavti_footer_text_report">... Visit Again ...</p>
+        </div>
+      </div>
     </>
   );
 };

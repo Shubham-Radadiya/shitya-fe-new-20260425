@@ -753,6 +753,7 @@ tr {
 }
 
 .modal {
+  width: 100%;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -778,9 +779,8 @@ tr {
 
 .modal-content {
   background: white;
-  padding: 20px;
   border-radius: 8px;
-  width: 60%;
+  width: 100%;
   max-height: 80%;
   overflow-y: auto;
   text-align: center;
