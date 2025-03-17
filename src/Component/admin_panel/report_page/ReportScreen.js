@@ -99,11 +99,6 @@ const ReportScreen = () => {
         { key: "yearly", label: "Yearly Report", component: <YearlyReport /> },
       ],
     },
-    // {
-    //   key: "Stock",
-    //   label: "Stock Report",
-    //   component: <PurchaseReport />,
-    // },
   ];
 
   return (

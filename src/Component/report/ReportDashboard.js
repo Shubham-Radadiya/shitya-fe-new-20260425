@@ -6,14 +6,28 @@ import { Link } from "react-router-dom";
 
 const ReportsDashboard = () => {
   const [activeReport, setActiveReport] = useState("sales");
+  const [reportType, setReportType] = useState("purchasebill");
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   const reportOptions = [
+    { key: "sales", label: "Sales Report", component: <ReportIndex /> },
     {
       key: "purchase",
       label: "Purchase Report",
-      component: <PurchaseReport />,
+      hasSubReports: true,
+      subReports: [
+        {
+          key: "purchasebill",
+          label: "Purchase Bill",
+          component: <PurchaseReport />,
+        },
+        {
+          key: "purchaseReturn",
+          label: "Purchase Return",
+          component: <PurchaseReport />,
+        },
+      ],
     },
-    { key: "sales", label: "Sales Report", component: <ReportIndex /> },
     // { key: "stock", label: "Stock Report", component: <ReportIndex /> },
   ];
 
@@ -38,9 +52,7 @@ const ReportsDashboard = () => {
             >
               R
             </NavLink>
-            {/* <NavLink
-              className="screen-list-circle purchase-report-circle"
-            ></NavLink> */}
+            <NavLink className="screen-list-circle purchase-report-circle"></NavLink>
           </div>
         </div>
         <div
@@ -50,24 +62,56 @@ const ReportsDashboard = () => {
           <div className="report-left-side">
             <div>
               {reportOptions.map((report) => (
-                <button
-                  key={report.key}
-                  className={`sidebar-link ${
-                    activeReport === report.key ? "active" : ""
-                  }`}
-                  onClick={() => setActiveReport(report.key)}
-                >
-                  {report.label}
-                </button>
+                <div key={report.key}>
+                  <button
+                    className={`sidebar-link ${
+                      activeReport === report.key ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setActiveReport(report.key);
+                      if (report.hasSubReports) {
+                        setOpenDropdown(
+                          openDropdown === report.key ? null : report.key
+                        );
+                      } else {
+                        setOpenDropdown(null);
+                      }
+                    }}
+                  >
+                    {report.label}{" "}
+                    {report.hasSubReports && (
+                      <span className="arrow">
+                        {openDropdown === report.key ? "▲" : "▼"}
+                      </span>
+                    )}
+                  </button>
+                  {openDropdown === report.key && report.hasSubReports && (
+                    <div className="dropdown-menu">
+                      {report.subReports.map((sub) => (
+                        <button
+                          key={sub.key}
+                          className={`dropdown-item ${
+                            reportType === sub.key ? "active" : ""
+                          }`}
+                          onClick={() => setReportType(sub.key)}
+                        >
+                          {sub.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
 
           <div className="report-right-side">
-            {
-              reportOptions.find((report) => report.key === activeReport)
-                ?.component
-            }
+            {activeReport === "sales"
+              ? reportOptions.find((r) => r.key === "sales")?.component
+              : reportOptions
+                  .find((r) => r.key === activeReport)
+                  ?.subReports?.find((s) => s.key === reportType)
+                  ?.component || <div>Select a report</div>}
           </div>
         </div>
         <div className="reportContainerStyle"></div>
