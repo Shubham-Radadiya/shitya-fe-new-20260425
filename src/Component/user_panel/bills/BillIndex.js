@@ -9,6 +9,8 @@ import {
   REMOVE_FROM_CART,
   CLEAR_CART,
   ADD_TO_UPDATEDCART,
+  ADD_TO_PURCHASE_CART,
+  REMOVE_FROM_PURCHASE_CART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -27,6 +29,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
 
   const items = useSelector((state) => state.cart.items || []);
+  const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
   const { billNo } = useBill();
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
@@ -43,6 +46,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const [showPrintBill, setShowPrintBill] = useState(false);
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  console.log("purchaseItems", purchaseItems);
 
   useEffect(() => {
     dispatch({ type: REQUEST_BILL_NO });
@@ -65,7 +69,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
   //   console.log(invoice, "come from reports");
   // }, []);
   const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
+  const totalPurchaseQuantity = purchaseItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
   const totalPrice = items.reduce(
+    (total, item) => total + item.quantity * item.price,
+    0
+  );
+
+  const totalPurchaseprice = purchaseItems.reduce(
     (total, item) => total + item.quantity * item.price,
     0
   );
@@ -120,8 +133,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
               toast.error("Error updating bill:", error);
             });
         } else {
-          console.log("call function");
-
           dispatch({
             type:
               currentLocation.pathname === "/stock"
@@ -225,12 +236,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
   };
 
   return (
-    <div
-      className="bill-container"
-    >
-      <div
-        className="bills"
-      >
+    <div className="bill-container">
+      <div className="bills">
         <div className="screen-list">
           <NavLink to="/stock" className="screen-list-circle purchase-circle">
             P
@@ -308,15 +315,51 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             Return
           </button>
-          {items.length || reprintBill?.productId.length > 0 ? (
+          {currentLocation.pathname === "/stock" ? (
+            purchaseItems.length > 0 ? (
+              <div
+                className={`purchase_icon-button ${
+                  isButtonDisabled ? "disabled" : ""
+                }`}
+                onClick={handlePrintClick}
+                style={
+                  isButtonDisabled
+                    ? {
+                        pointerEvents: "none",
+                        opacity: 0.6,
+                        userSelect: "none",
+                      }
+                    : {}
+                }
+              >
+                <ReactToPrint
+                  trigger={() => (
+                    <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+                      Print Invoice
+                    </p>
+                  )}
+                  content={() => componentRef.current}
+                  onAfterPrint={handleAfterPrint}
+                  removeAfterPrint={false}
+                />
+              </div>
+            ) : (
+              <p
+                className="purchase_icon-button"
+                style={{
+                  fontSize: "0.82rem",
+                  color: "gray",
+                  userSelect: "none",
+                }}
+              >
+                Print Invoice
+              </p>
+            )
+          ) : items.length || reprintBill?.productId?.length > 0 ? (
             <div
-              className={` ${
-                currentLocation.pathname === "/stock"
-                  ? "purchase_icon-button"
-                  : "icon-button"
-              }
-                  ? "purchase_icon-button"
-                  : "icon-button" ${isButtonDisabled ? "disabled" : ""}`}
+              className={`
+                 icon-button
+               ${isButtonDisabled ? "disabled" : ""}`}
               onClick={handlePrintClick}
               style={
                 isButtonDisabled
@@ -327,9 +370,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
               <ReactToPrint
                 trigger={() => (
                   <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
-                    {currentLocation.pathname === "/stock"
-                      ? "Print Invoice"
-                      : "Print Bill"}
+                    Print Bill
                   </p>
                 )}
                 content={() => componentRef.current}
@@ -339,18 +380,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
             </div>
           ) : (
             <p
-              className={
-                currentLocation.pathname === "/stock"
-                  ? "purchase_icon-button"
-                  : "icon-button"
-              }
+              className="icon-button"
               style={{ fontSize: "0.82rem", color: "gray", userSelect: "none" }}
             >
-              {currentLocation.pathname === "/stock"
-                ? "Print Invoice"
-                : "Print Bill"}
+              Print Bill
             </p>
           )}
+
           {currentLocation.pathname !== "/stock" && (
             <button
               className={
@@ -365,9 +401,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
           )}
         </div>
 
-        <div
-          className="bill_index"
-        >
+        <div className="bill_index">
           <h4 style={{ textAlign: "center" }}>Jay Swaminarayan</h4>
           <div className="bill_header_sub">
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
@@ -381,7 +415,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
           {showReprintBill ? (
             <div className="table-container">
               <table className="bill_table">
-                <thead> 
+                <thead>
                   <tr>
                     <th style={{ width: "45px" }}>ID</th>
                     <th style={{ width: "100px" }}>Item</th>
@@ -477,7 +511,90 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.length > 0 ? (
+                  {currentLocation.pathname === "/stock" ? (
+                    purchaseItems.length > 0 ? (
+                      purchaseItems.map((product) => (
+                        <tr key={product._id}>
+                          <td
+                            title={product.productId}
+                            style={{ width: "48px", padding: 0 }}
+                          >
+                            {truncateText(product.productId, 8)}
+                          </td>
+                          <td
+                            title={product.name}
+                            style={{
+                              width: "100px",
+                              textAlign: "start",
+
+                              padding: 0,
+                            }}
+                          >
+                            {truncateText(product.name, 15)}
+                          </td>
+                          <td style={{ padding: 0 }}>
+                            <div className="quantity_control">
+                              <button
+                                onClick={() => {
+                                  dispatch({
+                                    type: ADD_TO_PURCHASE_CART,
+                                    payload: product,
+                                  });
+                                  setShowReprintBill(false);
+                                }}
+                              >
+                                +
+                              </button>
+                              <span
+                                onClick={() => openModal(product)}
+                                style={{ cursor: "pointer" }}
+                              >
+                                {returnMode
+                                  ? -new Intl.NumberFormat("en-IN").format(
+                                      product.quantity
+                                    )
+                                  : new Intl.NumberFormat("en-IN").format(
+                                      product.quantity
+                                    )}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  dispatch({
+                                    type: REMOVE_FROM_PURCHASE_CART,
+                                    payload: product._id,
+                                  });
+                                  setShowReprintBill(false);
+                                }}
+                              >
+                                -
+                              </button>
+                            </div>
+                          </td>
+                          <td
+                            style={{
+                              fontWeight: "bolder",
+                              padding: 0,
+                              textAlign: "center",
+                              textWrap: "nowrap",
+                              overflow: "visible  ",
+                              textOverflow: "none",
+                            }}
+                          >
+                            {returnMode ? "-" : null}
+                            {new Intl.NumberFormat("en-IN").format(
+                              product.price * product.quantity
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="no-data">
+                          No Data Available
+                        </td>
+                      </tr>
+                    )
+                  ) : items.length > 0 ? (
                     items.map((product) => (
                       <tr key={product._id}>
                         <td
@@ -577,7 +694,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         : "Total"}
                     </td>
                     <td style={{ fontWeight: "bolder", width: "39px" }}>
-                      {returnMode
+                      {currentLocation.pathname === "/stock"
+                        ? new Intl.NumberFormat("en-IN").format(
+                            totalPurchaseQuantity
+                          )
+                        : returnMode
                         ? -new Intl.NumberFormat("en-IN").format(totalQuantity)
                         : new Intl.NumberFormat("en-IN").format(totalQuantity)}
                     </td>
@@ -591,8 +712,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         textOverflow: "none",
                       }}
                     >
+                      {" "}
                       {returnMode ? "-" : null}₹{" "}
-                      {new Intl.NumberFormat("en-IN").format(totalPrice)}
+                      {currentLocation.pathname === "/stock"
+                        ? new Intl.NumberFormat("en-IN").format(
+                            totalPurchaseprice
+                          )
+                        : new Intl.NumberFormat("en-IN").format(totalPrice)}
                     </td>
                   </tr>
                 </tfoot>
@@ -863,6 +989,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
               </p>
             </div>
             <hr style={{ borderTop: "solid 1px" }} />
+
             {items.length > 0
               ? items.map((product) => (
                   <div key={product._id}>

@@ -9,8 +9,6 @@ import { useLocation } from "react-router-dom";
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const currentLocation = useLocation();
-  console.log("currentLocation", currentLocation);
-
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [showReprintBill, setShowReprintBill] = useState(false);
   const [returnMode, setReturnMode] = useState(false);

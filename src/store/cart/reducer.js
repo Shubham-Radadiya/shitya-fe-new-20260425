@@ -1,15 +1,18 @@
 import { useSelector } from "react-redux";
 import {
   ADD_TO_CART,
+  ADD_TO_PURCHASE_CART,
   ADD_TO_UPDATEDCART,
   CLEAR_CART,
   EDIT_PURCHASE_DATA,
   REMOVE_FROM_CART,
+  REMOVE_FROM_PURCHASE_CART,
 } from "./cartActionType";
 
 const initialState = {
   items: [],
   quantity: 0,
+  purchaseItems: [],
 };
 
 const cartReducer = (state = initialState, action) => {
@@ -30,6 +33,28 @@ const cartReducer = (state = initialState, action) => {
         return {
           ...state,
           items: [...state.items, { ...action.payload, quantity: 1 }],
+        };
+      }
+
+    case ADD_TO_PURCHASE_CART:
+      const existingItemIndex1 = state.purchaseItems.findIndex(
+        (item) => item.productId === action.payload.productId
+      );
+      if (existingItemIndex1 !== -1) {
+        const updatedItems = [...state.purchaseItems];
+        updatedItems[existingItemIndex1].quantity += 1;
+
+        return {
+          ...state,
+          purchaseItems: updatedItems,
+        };
+      } else {
+        return {
+          ...state,
+          purchaseItems: [
+            ...state.purchaseItems,
+            { ...action.payload, quantity: 1 },
+          ],
         };
       }
 
@@ -71,6 +96,25 @@ const cartReducer = (state = initialState, action) => {
       }
       break;
 
+    case REMOVE_FROM_PURCHASE_CART:
+      const exitingIndex1 = state.purchaseItems.findIndex(
+        (item) => item._id === action.payload
+      );
+
+      if (exitingIndex1 !== -1) {
+        const updatedItems = [...state.purchaseItems];
+        if (updatedItems[exitingIndex1].quantity > 1) {
+          updatedItems[exitingIndex1].quantity -= 1;
+        } else {
+          updatedItems.splice(exitingIndex1, 1);
+        }
+        return {
+          ...state,
+          purchaseItems: updatedItems,
+        };
+      }
+      break;
+
     case CLEAR_CART:
       return {
         ...state,
@@ -79,7 +123,7 @@ const cartReducer = (state = initialState, action) => {
     case EDIT_PURCHASE_DATA:
       return {
         ...state,
-        items: action.payload,
+        purchaseItems: action.payload,
       };
     default:
       return state;

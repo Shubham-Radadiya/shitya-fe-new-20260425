@@ -1,36 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import ReactToPrint from "react-to-print";
 import * as XLSX from "xlsx";
-import {
-  GET_DAILY_REPORTS_REQUEST,
-  GET_MONTHLY_REPORTS_REQUEST,
-  GET_YEARLY_REPORTS_REQUEST,
-} from "../../store/user_report/UserReportAction";
+import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
-import { IoArrowBack } from "react-icons/io5";
-import { NavLink } from "react-router-dom";
-import axios from "axios";
+
 import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
-import { CiEdit } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
-
-const initialData = [
-  { currency: "500", count: 0 },
-  { currency: "200", count: 0 },
-  { currency: "100", count: 0 },
-  { currency: "50", count: 0 },
-  { currency: "20", count: 0 },
-  { currency: "10", count: 0 },
-  { currency: "5", count: 0 },
-  { currency: "2", count: 0 },
-  { currency: "1", count: 0 },
-];
 
 const PurchaseReport = () => {
   const componentRef = useRef();
@@ -69,10 +49,25 @@ const PurchaseReport = () => {
 
   const fetchInvoiceDataForStock = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
+    const transformedArray = data?.productId.map((item) => ({
+      _id: item?._id?._id,
+      name: item?._id?.name,
+      productId: item?._id?.productId,
+      price: item?.price,
+      image: item?._id?.image,
+      rate: item?._id?.rate,
+      remark: item?._id?.remark,
+      createdAt: item?._id?.createdAt,
+      updatedAt: item?._id?.updatedAt,
+      __v: item?._id?.__v,
+      isDeActive: item?._id?.item?._id?.updatedAt,
+      quantity: item?.quantity,
+    }));
+    console.log(transformedArray, "data");
 
     if (data) {
       navigate("/stock");
-      dispatch({ type: EDIT_PURCHASE_DATA, payload: data?.productId });
+      dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
 
@@ -240,7 +235,10 @@ const PurchaseReport = () => {
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box" style={{justifyContent:"flex-end"}}>
+          <div
+            className="userreport-box"
+            style={{ justifyContent: "flex-end" }}
+          >
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
