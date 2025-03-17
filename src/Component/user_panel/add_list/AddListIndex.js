@@ -1,6 +1,9 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { ADD_TO_CART } from "../../../store/cart/cartActionType";
+import {
+  ADD_TO_CART,
+  ADD_TO_PURCHASE_CART,
+} from "../../../store/cart/cartActionType";
 import "./index.css";
 import { useLocation } from "react-router-dom";
 
@@ -13,7 +16,12 @@ const AddList = ({
   const dispatch = useDispatch();
   const currentLocation = useLocation();
   const handleAddToCart = (product) => {
-    dispatch({ type: ADD_TO_CART, payload: product });
+    if (currentLocation.pathname === "/stock") {
+      dispatch({ type: ADD_TO_PURCHASE_CART, payload: product });
+    } else {
+      dispatch({ type: ADD_TO_CART, payload: product });
+    }
+
     setShowReprintBill(false);
   };
 
@@ -108,8 +116,15 @@ const AddList = ({
                   ₹ {new Intl.NumberFormat("en-IN").format(product.price)}
                 </p>
                 <div>
-                  <div className="product-name" style={{ userSelect: "none",color:
-                      currentLocation.pathname === "/stock" && "rgb(87 15 119)",  }}>
+                  <div
+                    className="product-name"
+                    style={{
+                      userSelect: "none",
+                      color:
+                        currentLocation.pathname === "/stock" &&
+                        "rgb(87 15 119)",
+                    }}
+                  >
                     <p
                       title={product.name}
                       style={{
@@ -122,8 +137,12 @@ const AddList = ({
                   <p
                     className="product-id"
                     title={product.productId}
-                    style={{ userSelect: "none", background:
-                      currentLocation.pathname === "/stock" && "rgb(87 15 119)", }}
+                    style={{
+                      userSelect: "none",
+                      background:
+                        currentLocation.pathname === "/stock" &&
+                        "rgb(87 15 119)",
+                    }}
                   >
                     {truncateText(product.productId, 10)}
                   </p>
