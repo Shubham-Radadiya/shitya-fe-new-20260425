@@ -3,6 +3,9 @@ import PurchaseReport from "./PurchaseReport";
 import ReportIndex from "./ReportIndex";
 import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
+// import Stock from "./stock";
+import PurchaseReturn from "./PurchaseReturn";
+import StockTable from "./StockTable";
 
 const ReportsDashboard = () => {
   const [activeReport, setActiveReport] = useState("sales");
@@ -24,11 +27,11 @@ const ReportsDashboard = () => {
         {
           key: "purchaseReturn",
           label: "Purchase Return",
-          component: <PurchaseReport />,
+          component: <PurchaseReturn />,
         },
       ],
     },
-    // { key: "stock", label: "Stock Report", component: <ReportIndex /> },
+    { key: "stock", label: "Stock Report", component: <StockTable /> },
   ];
 
   return (
@@ -106,11 +109,11 @@ const ReportsDashboard = () => {
           </div>
 
           <div className="report-right-side">
-            {activeReport === "sales"
-              ? reportOptions.find((r) => r.key === "sales")?.component
-              : reportOptions
+            {reportOptions.find((r) => r.key === activeReport)?.hasSubReports
+              ? reportOptions
                   .find((r) => r.key === activeReport)
-                  ?.subReports?.find((s) => s.key === reportType)
+                  ?.subReports?.find((s) => s.key === reportType)?.component
+              : reportOptions.find((r) => r.key === activeReport)
                   ?.component || <div>Select a report</div>}
           </div>
         </div>

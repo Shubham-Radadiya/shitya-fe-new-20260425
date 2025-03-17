@@ -32,7 +32,7 @@ const initialData = [
   { currency: "1", count: 0 },
 ];
 
-const PurchaseReport = () => {
+const PurchaseReturn = () => {
   const componentRef = useRef();
   const dispatch = useDispatch();
   const { invoiceData } = useInvoice();
@@ -283,7 +283,7 @@ const PurchaseReport = () => {
                         className="stocktable"
                         style={{ width: "9%", textAlign: "center" }}
                       >
-                        INV. No.
+                       R. INV. No.
                       </th>
                       <th
                         className="stocktable"
@@ -932,4 +932,4 @@ const PurchaseReport = () => {
   );
 };
 
-export default PurchaseReport;
+export default PurchaseReturn;
