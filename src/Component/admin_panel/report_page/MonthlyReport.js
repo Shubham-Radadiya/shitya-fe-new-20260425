@@ -700,7 +700,7 @@ export default function MonthlyReport() {
                               {Intl.NumberFormat('en-IN').format(row[`amount_${date}`]) || 0}
                             </TableCell>
                           ))}
-                          <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center">₹ {Intl.NumberFormat('en-IN').format(row.total_amount) || 0}</TableCell>
+                          <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center"> {Intl.NumberFormat('en-IN').format(row.total_amount) || 0}</TableCell>
                         </TableRow>
                         {expandedCategories.has(row.category_name) &&
                           rows
@@ -744,7 +744,7 @@ export default function MonthlyReport() {
                                     </TableCell>
                                   ))}
                                   <TableCell style={{border:"1px solid white", fontWeight:"bolder"}} align="center">
-                                  ₹  {Intl.NumberFormat('en-IN').format(subRow.total_amount) || 0}
+                                    {Intl.NumberFormat('en-IN').format(subRow.total_amount) || 0}
                                   </TableCell>
                                 </TableRow>
                                 {expandedSubCategories
@@ -787,7 +787,7 @@ export default function MonthlyReport() {
                                           </TableCell>
                                         ))}
                                         <TableCell style={{border:"1px solid white", color:"black", fontWeight:"bolder"}} align="center">
-                                        ₹  {Intl.NumberFormat('en-IN').format(productRow.total_amount) || 0}
+                                          {Intl.NumberFormat('en-IN').format(productRow.total_amount) || 0}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -813,11 +813,11 @@ export default function MonthlyReport() {
                   {/* Date Amount Columns */}
                   {dates.map((date) => (
                     <TableCell key={`overall_amount_${date}`} style={{border:"1px solid white",  backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center">
-                     ₹ {Intl.NumberFormat('en-IN').format(overallTotals.total_amount[date]) || 0}
+                      {Intl.NumberFormat('en-IN').format(overallTotals.total_amount[date]) || 0}
                     </TableCell>
                   ))}
                   {/* Total Amount Column */}
-                  <TableCell style={{border:"1px solid white",  backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center">₹ {Intl.NumberFormat('en-IN').format(grandTotals.total_amount) || 0}</TableCell>
+                  <TableCell style={{border:"1px solid white",  backgroundColor:"#ededed", fontWeight:"bolder", color:"black", fontSize:"16px"}} align="center"> {Intl.NumberFormat('en-IN').format(grandTotals.total_amount) || 0}</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>

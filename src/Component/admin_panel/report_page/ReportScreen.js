@@ -11,15 +11,13 @@ import {
 import DailyReport from "../report_page/DailyReport";
 import YearlyReport from "../report_page/YearlyReport";
 import MonthlyReport from "../report_page/MonthlyReport";
-import CustomeReport from "./CustomeReport";
 import PurchaseReport from "../../report/PurchaseReport";
 
 const ReportScreen = () => {
+  const [activeReport, setActiveReport] = useState("purchase");
   const [reportType, setReportType] = useState("daily");
-  const [activeReport, setActiveReport] = useState("sales");
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [openDropdown, setOpenDropdown] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -51,16 +49,6 @@ const ReportScreen = () => {
   };
 
   const getMonthlyReport = () => {
-    // const now = new Date();
-    // const startDate = new Date(now);
-    // startDate.setDate(now.getDate() - 30);
-
-    // const data = {
-    //   startDate: startDate.toISOString(),
-    //   endDate: now.toISOString(),
-    // };
-
-    // dispatch({ type: REQUEST_MONTHLY_PRODUCT, payload: data });
     setReportType("monthly");
   };
 
@@ -91,70 +79,94 @@ const ReportScreen = () => {
     setReportType("yearly");
   };
 
+  const reportOptions = [
+    {
+      key: "purchase",
+      label: "Purchase Report",
+      component: <PurchaseReport />,
+    },
+    {
+      key: "sales",
+      label: "Sales Report",
+      hasSubReports: true,
+      subReports: [
+        { key: "daily", label: "Daily Report", component: <DailyReport /> },
+        {
+          key: "monthly",
+          label: "Monthly Report",
+          component: <MonthlyReport />,
+        },
+        { key: "yearly", label: "Yearly Report", component: <YearlyReport /> },
+      ],
+    },
+    // {
+    //   key: "Stock",
+    //   label: "Stock Report",
+    //   component: <PurchaseReport />,
+    // },
+  ];
+
   return (
-    <div className="flexbetween report-screen" style={{height:'97vh'}}>
+    <div className="flexbetween report-screen" style={{ height: "97vh" }}>
       <div className="header">
         <Header />
       </div>
-        <div className="report-tab-button">
-          <button
-            className={`userreprt-button ${
-              activeReport === "sales" ? "active" : ""
-            }`}
-            onClick={() => setActiveReport("sales")}
-          >
-            Sales Report
-          </button>
-          <button
-            className={`userreprt-button ${
-              activeReport === "purchase" ? "active" : ""
-            }`}
-            onClick={() => setActiveReport("purchase")}
-          >
-            Purchase Report
-          </button>
+      <div className="report-dashboard">
+        <div className="report-left-side" style={{ gap: "0" }}>
+          {reportOptions.map((report) => (
+            <div key={report.key}>
+              <button
+                className={`sidebar-link ${
+                  activeReport === report.key ? "active" : ""
+                }`}
+                onClick={() => {
+                  setActiveReport(report.key);
+                  if (report.hasSubReports) {
+                    setOpenDropdown(
+                      openDropdown === report.key ? null : report.key
+                    );
+                  } else {
+                    setOpenDropdown(null);
+                  }
+                }}
+              >
+                {report.label}{" "}
+                {report.hasSubReports && (
+                  <span className="arrow">
+                    {openDropdown === report.key ? "▲" : "▼"}
+                  </span>
+                )}
+              </button>
+              {openDropdown === report.key && report.hasSubReports && (
+                <div className="dropdown-menu">
+                  {report.subReports.map((sub) => (
+                    <button
+                      key={sub.key}
+                      className={`dropdown-item ${
+                        reportType === sub.key ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        setReportType(sub.key);
+                      }}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-        {/* Report Content */}
-        {activeReport === "purchase" ? (
-          <PurchaseReport />
-        ) : (
-          <div className="report-dashboard">
-            <div className="report-left-side">
-              <button
-                className={`sidebar-btn ${
-                  reportType === "daily" ? "selected-report" : ""
-                }`}
-                onClick={getDailyReport}
-              >
-                Today Report
-              </button>
-              <button
-                className={`sidebar-btn ${
-                  reportType === "monthly" ? "selected-report" : ""
-                }`}
-                onClick={getMonthlyReport}
-              >
-                Monthly Report
-              </button>
-              <button
-                className={`sidebar-btn ${
-                  reportType === "yearly" ? "selected-report" : ""
-                }`}
-                onClick={getYearlyReport}
-              >
-                Yearly Report
-              </button>
-            </div>
 
-            <div className="report-right-side">
-              {reportType === "daily" && <DailyReport />}
-              {reportType === "monthly" && <MonthlyReport />}
-              {reportType === "yearly" && <YearlyReport />}
-              {reportType === "custome" && <CustomeReport />}
-            </div>
-          </div>
-        )}
+        <div className="report-right-side">
+          {activeReport === "sales"
+            ? reportOptions
+                .find((r) => r.key === "sales")
+                ?.subReports.find((s) => s.key === reportType)?.component
+            : reportOptions.find((r) => r.key === activeReport)?.component}
+        </div>
       </div>
+    </div>
   );
 };
 

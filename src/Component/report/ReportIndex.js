@@ -125,7 +125,7 @@ const ReportIndex = () => {
       .slice(1)
       .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
 
-    const totalRow = ["", "", "", "Total:", `₹${Amount.toFixed(2)}`];
+    const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
 
     // Create a new workbook and append the worksheet
@@ -480,7 +480,7 @@ const ReportIndex = () => {
                           Total:{" "}
                         </td>
                         <td style={{ textAlign: "end", fontWeight: "bold" }}>
-                          ₹ {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                           {new Intl.NumberFormat("en-IN").format(totalAmount)}
                         </td>
                       </tr>
                     </tfoot>
@@ -540,7 +540,7 @@ const ReportIndex = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          ₹ {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                           {new Intl.NumberFormat("en-IN").format(totalAmount)}
                         </td>
                       </tr>
                     </tfoot>
@@ -645,7 +645,7 @@ const ReportIndex = () => {
                 fontWeight: "bold",
               }}
             >
-              Amt-₹
+              Amt
             </p>
           </div>
           <hr style={{ borderTop: "solid 2px" }} />
@@ -1898,7 +1898,7 @@ const ReportIndex = () => {
                         width: "35%",
                       }}
                     >
-                      ₹{" "}
+                      {" "}
                       {new Intl.NumberFormat("en-IN").format(
                         SilakCurrencyTotal
                       )}

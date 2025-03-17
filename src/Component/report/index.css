@@ -1,14 +1,3 @@
-.user-template {
-  /* padding: 0.5rem; */
-  /* border-radius: 1rem; */
-  min-height: 75vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: var(--bg-color);
-  margin-bottom: 20px;
-}
-
 .userreport-table-wrapper {
   flex: 1;
   /* max-height: 500px; */
@@ -34,8 +23,8 @@
 .userreport-table tfoot {
   position: sticky;
   font-size: large;
-  background-color: var(--white-color); 
-  z-index: 1; 
+  background-color: var(--white-color);
+  z-index: 1;
 }
 
 .tfootgroup {
@@ -45,24 +34,24 @@
 
 .userreport-table thead {
   top: 0;
-  border-bottom: 2px solid #dcdcdc; 
+  border-bottom: 2px solid #dcdcdc;
 }
 
 .userreport-table tfoot {
   bottom: 0;
-  border-top: 2px solid var(--white-color); 
+  border-top: 2px solid var(--white-color);
 }
 
 .userreport-table th,
 .userreport-table td {
-  padding: 0.4rem; 
+  padding: 0.4rem;
   text-align: center;
   border: 1px solid var(--white-color);
 }
 
 .userreport-table th {
-  background-color: var(--brown-color); 
-  color: var(--white-color); 
+  background-color: var(--brown-color);
+  color: var(--white-color);
   font-weight: bold;
 }
 
@@ -100,7 +89,7 @@
   font-size: large;
   transition: background-color 0.3s ease, color 0.3s ease;
   text-align: center;
-  background-color: var(--white-color); 
+  background-color: var(--white-color);
 }
 
 .userreprt-button.active {
@@ -109,12 +98,12 @@
   border: none;
 }
 
-.userreportbtns{
+.userreportbtns {
   display: flex;
   gap: 1rem;
 }
 
-.back-btn{
+.back-btn {
   font-size: x-large;
   color: var(--brown-color);
   text-decoration: none;
@@ -128,14 +117,14 @@
 }
 @media print {
   .userreport-table {
-    border: none; 
+    border: none;
     border-collapse: collapse;
     width: 100%;
   }
 
   .userreport-table th,
   .userreport-table td {
-    border: 1px solid var(--black-color); 
+    border: 1px solid var(--black-color);
   }
 
   .userreport-table tbody tr:nth-child(even) {
@@ -148,16 +137,16 @@
 
   .userreport-table tfoot {
     bottom: 0;
-    border-top: 2px solid var(--white-color); 
+    border-top: 2px solid var(--white-color);
     z-index: 1;
   }
 
   .userreprt-button {
-    display: none; 
+    display: none;
   }
 
   .userreport-box {
-    display: none; 
+    display: none;
   }
 }
 
@@ -176,7 +165,7 @@
   body * {
     visibility: hidden;
   }
-  
+
   .print-content,
   .print-content * {
     visibility: visible;
@@ -189,20 +178,79 @@
   }
 }
 
+.sidebar-link {
+  display: flex;
+  color: rgb(97, 37, 17);
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  list-style: none;
+  height: 60px;
+  text-decoration: none;
+  font-size: 18px;
+  background: #ffffff;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  border: 0px;
+}
 
+.sidebar-link:hover {
+  background: #efeeee;
+  border-left: 4px solid rgb(97, 37, 17);
+  border-top: 2px solid rgb(97, 37, 17);
+  border-bottom: 2px solid rgb(97, 37, 17);
+  cursor: pointer;
+}
 
+.sidebar-link.active {
+  background: #e3e3e3;
+  border-left: 4px solid rgb(97, 37, 17);
+  border-top: 2px solid rgb(97, 37, 17);
+  border-bottom: 2px solid rgb(97, 37, 17);
+}
+
+.sidebar-label {
+  margin-left: 16px;
+  color: rgb(97, 37, 17);
+}
+
+.dropdown-link {
+  background: #414757;
+  height: 60px;
+  padding-left: 3rem;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #f5f5f5;
+  font-size: 18px;
+}
+
+.dropdown-link:hover {
+  background: #632ce4;
+  cursor: pointer;
+}
+
+.toggle-button {
+  background-color: #632ce4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px;
+}
+
+.toggle-button:hover {
+  background-color: #414757;
+}
 
 .user-template {
-  /* padding: 0.5rem; */
-  /* border-radius: 1rem; */
   min-height: 75vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--bg-color);
-  margin-bottom: 20px;
 }
-.user-container{
+.user-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -228,8 +276,8 @@
 .userreport-table tfoot {
   position: sticky;
   font-size: large;
-  background-color: var(--white-color); 
-  z-index: 1; 
+  background-color: var(--white-color);
+  z-index: 1;
 }
 
 .tfootgroup {
@@ -239,24 +287,24 @@
 
 .userreport-table thead {
   top: 0;
-  border-bottom: 2px solid #dcdcdc; 
+  border-bottom: 2px solid #dcdcdc;
 }
 
 .userreport-table tfoot {
   bottom: 0;
-  border-top: 2px solid var(--white-color); 
+  border-top: 2px solid var(--white-color);
 }
 
 .userreport-table th,
 .userreport-table td {
-  padding: 0.4rem; 
+  padding: 0.4rem;
   text-align: center;
   border: 1px solid var(--white-color);
 }
 
 .userreport-table th {
-  background-color: var(--brown-color); 
-  color: var(--white-color); 
+  background-color: var(--brown-color);
+  color: var(--white-color);
   font-weight: bold;
 }
 
@@ -294,7 +342,7 @@
   font-size: large;
   transition: background-color 0.3s ease, color 0.3s ease;
   text-align: center;
-  background-color: var(--white-color); 
+  background-color: var(--white-color);
 }
 
 .userreprt-button.active {
@@ -303,12 +351,12 @@
   border: none;
 }
 
-.userreportbtns{
+.userreportbtns {
   display: flex;
   gap: 1rem;
 }
 
-.back-btn{
+.back-btn {
   font-size: x-large;
   color: var(--brown-color);
   text-decoration: none;
@@ -322,14 +370,14 @@
 }
 @media print {
   .userreport-table {
-    border: none; 
+    border: none;
     border-collapse: collapse;
     width: 100%;
   }
 
   .userreport-table th,
   .userreport-table td {
-    border: 1px solid var(--black-color); 
+    border: 1px solid var(--black-color);
   }
 
   .userreport-table tbody tr:nth-child(even) {
@@ -342,16 +390,16 @@
 
   .userreport-table tfoot {
     bottom: 0;
-    border-top: 2px solid var(--white-color); 
+    border-top: 2px solid var(--white-color);
     z-index: 1;
   }
 
   .userreprt-button {
-    display: none; 
+    display: none;
   }
 
   .userreport-box {
-    display: none; 
+    display: none;
   }
 }
 
@@ -370,7 +418,7 @@
   body * {
     visibility: hidden;
   }
-  
+
   .print-content,
   .print-content * {
     visibility: visible;
@@ -398,45 +446,45 @@
   border-top-right-radius: 1rem;
   border-bottom-right-radius: 1rem;
 }
-.khulti-silak{
+.khulti-silak {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  }
-  .khulti-silak-amount{
-    width: 28%;
-    text-align: end;
-    font-size: 20px;
-    font-weight: 700;
-  }
-  .silak-table{
-    display: flex;
-    justify-content: end;
-    width: 100%;
-  }
-  .silak-title-th{
-    width: 86%;
-    color: black;
-    background-color: white;
-    border: 1px solid;
-    text-align: start;
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 33px;
-  }
-  .silak-value-th{
-    width: 40%;
-    color: black;
-    background-color: white;
-    border: 1px solid;
-    text-align: end;
-    font-weight: 700;
-    font-size: 18px;
-    line-height: 33px;
-    padding-right: 3px;
-  }
-.khulti-shilak-model{
+}
+.khulti-silak-amount {
+  width: 28%;
+  text-align: end;
+  font-size: 20px;
+  font-weight: 700;
+}
+.silak-table {
+  display: flex;
+  justify-content: end;
+  width: 100%;
+}
+.silak-title-th {
+  width: 86%;
+  color: black;
+  background-color: white;
+  border: 1px solid;
+  text-align: start;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 33px;
+}
+.silak-value-th {
+  width: 40%;
+  color: black;
+  background-color: white;
+  border: 1px solid;
+  text-align: end;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 33px;
+  padding-right: 3px;
+}
+.khulti-shilak-model {
   width: 60%;
   background-color: var(--white-color);
   padding: 1rem;
@@ -450,7 +498,7 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
-.icon-button{
+.icon-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -462,7 +510,7 @@
   cursor: pointer;
   padding: 0.3rem;
 }
-.purchase_icon-button{
+.purchase_icon-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -474,7 +522,7 @@
   cursor: pointer;
   padding: 0.3rem;
 }
-.khulti-shilak-model-title{
+.khulti-shilak-model-title {
   color: white;
   width: 100%;
   display: flex;
@@ -555,7 +603,6 @@ tr {
 .bill_table tbody::-webkit-scrollbar {
   width: 5px;
   overflow-y: auto;
-
 }
 
 .bill_table tbody::-webkit-scrollbar-track {
@@ -566,7 +613,7 @@ tr {
   background: var(--brown-color);
   border-radius: 6px;
 }
-.silak-table-main{
+.silak-table-main {
   display: flex;
   gap: 20px;
 }
@@ -576,7 +623,7 @@ tr {
     padding: 0;
     margin: 0;
   }
- 
+
   .bill_index {
     width: auto;
     max-width: 288px;
@@ -585,7 +632,7 @@ tr {
     box-shadow: none;
     padding: 1rem;
   }
- 
+
   .bill_table {
     width: 100%;
     text-align: left;
@@ -601,15 +648,14 @@ tr {
     position: static;
   }
 
-  .bill_qty{
+  .bill_qty {
     width: 10%;
   }
- 
+
   @page {
     size: auto;
     margin: 0;
   }
- 
 }
 .report {
   display: none;
@@ -640,7 +686,7 @@ tr {
   width: 70px;
 }
 .stocktable {
-background-color: var(--purchase-bg) !important;
+  background-color: var(--purchase-bg) !important;
 }
 .pavti_product_name_1 {
   margin: 0;
@@ -686,7 +732,7 @@ background-color: var(--purchase-bg) !important;
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 178px;
-  font-weight: 600; 
+  font-weight: 600;
 }
 .product_price_report_1 {
   margin: 0;
@@ -730,7 +776,6 @@ background-color: var(--purchase-bg) !important;
   z-index: 999; /* Below modal but above other elements */
 }
 
-
 .modal-content {
   background: white;
   padding: 20px;
@@ -760,7 +805,7 @@ background-color: var(--purchase-bg) !important;
   padding: "10px 20px";
   font-size: "16px";
   cursor: "pointer";
-};
+}
 
 .reportContainerStyle {
   border: "1px solid #ccc";
@@ -768,4 +813,4 @@ background-color: var(--purchase-bg) !important;
   width: "80%";
   margin: "auto";
   min-height: "200px";
-};
+}

@@ -100,7 +100,7 @@ const DailyReport = () => {
 
     // Add the total row at the end
     const totalAmount = getTotalAmount(productsArray);
-    const totalRow = ["", "", "", "Total:", `₹${new Intl.NumberFormat("en-IN").format(totalAmount.toFixed(2))}`];
+    const totalRow = ["", "", "", "Total:", `${new Intl.NumberFormat("en-IN").format(totalAmount.toFixed(2))}`];
     sheetData.push(totalRow);
 
     // Create the worksheet from the sheetData array
@@ -186,7 +186,7 @@ const DailyReport = () => {
                       <td style={{ textAlign: "left", width:"32%" }}>{product.name || "N/A"}</td>
                       <td style={{ textAlign: "center", width:"18%" }}>{product.totalBuyingCount || "N/A"}</td>
                       <td style={{ textAlign: "right", width:"18%" }}>
-                      ₹ {new Intl.NumberFormat("en-IN").format(product.totalBuyingCount * product.price) || 0}
+                       {new Intl.NumberFormat("en-IN").format(product.totalBuyingCount * product.price) || 0}
                       </td>
                     </tr>
                   );
@@ -211,7 +211,7 @@ const DailyReport = () => {
                 <td></td>
                 <td></td>
                 <td className="total-amount" style={{textAlign: "right", paddingRight:"16px"}}>
-                  Total Amount: ₹ {new Intl.NumberFormat("en-IN").format(getTotalAmount(productsArray).toFixed(2))}
+                  Total Amount:  {new Intl.NumberFormat("en-IN").format(getTotalAmount(productsArray).toFixed(2))}
                 </td>
               </tr>
             </tfoot>

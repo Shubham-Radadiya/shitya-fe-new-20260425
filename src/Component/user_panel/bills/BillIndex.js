@@ -23,7 +23,7 @@ import { useBill } from "../../../store/bill/reducer";
 import { toast } from "react-toastify";
 import { REQUEST_CREATE_INVOICE } from "../../../store/invoice/InvoiceAction";
 
-const Bills = ({ returnMode, setReturnMode, invoice }) => {
+const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
 
   const items = useSelector((state) => state.cart.items || []);
@@ -61,9 +61,9 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
 
   console.log("reprintBill", items);
 
-  useEffect(() => {
-    console.log(invoice, "come from reports");
-  }, []);
+  // useEffect(() => {
+  //   console.log(invoice, "come from reports");
+  // }, []);
   const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = items.reduce(
     (total, item) => total + item.quantity * item.price,
@@ -244,12 +244,12 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
           >
             R
           </NavLink>
-          <NavLink
+          {/* <NavLink
             // to="/purchaseReport"
             className="screen-list-circle purchase-report-circle"
           >
             
-          </NavLink>
+          </NavLink> */}
         </div>
         <hr style={{ border: "1px solid #808080" }} />
         <h3
@@ -381,7 +381,7 @@ const Bills = ({ returnMode, setReturnMode, invoice }) => {
           {showReprintBill ? (
             <div className="table-container">
               <table className="bill_table">
-                <thead>
+                <thead> 
                   <tr>
                     <th style={{ width: "45px" }}>ID</th>
                     <th style={{ width: "100px" }}>Item</th>

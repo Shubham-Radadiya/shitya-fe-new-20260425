@@ -187,7 +187,7 @@ const PurchaseReport = () => {
       .slice(1)
       .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
 
-    const totalRow = ["", "", "", "Total:", `₹${Amount.toFixed(2)}`];
+    const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
 
     // Create a new workbook and append the worksheet
@@ -241,19 +241,6 @@ const PurchaseReport = () => {
       <div className="user-template">
         <div className="user-container">
           <div className="userreport-box" style={{justifyContent:"flex-end"}}>
-            {/* <div style={{ display: "flex", gap: "35px" }}>
-              <NavLink to="/stock">
-                <div
-                  className="back-btn"
-                  style={{
-                    color: "rgb(87 15 119)",
-                    fontSize: "xx-large",
-                  }}
-                >
-                  <IoArrowBack />
-                </div>
-              </NavLink>
-            </div> */}
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -665,9 +652,9 @@ const PurchaseReport = () => {
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
                         <td>{product._id.name}</td>
-                        <td>₹ {product.price}</td>
+                        <td> {product.price}</td>
                         <td>{product.quantity}</td>
-                        <td>₹ {product.price * product.quantity}</td>
+                        <td> {product.price * product.quantity}</td>
                       </tr>
                     ))}
                   </tbody>

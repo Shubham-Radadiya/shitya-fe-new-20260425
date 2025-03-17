@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import Login from "../login/LoginIndex";
 import Home from "./home/HomeIndex";
 import PurchaseReport from "../report/PurchaseReport";
-import Demo from "../report/Demo";
 import ReportsDashboard from "../report/ReportDashboard";
 
 
@@ -17,7 +16,6 @@ const UserIndex = () => {
         <Route path="/report" element={<ReportsDashboard />} />
         <Route path="/purchaseReport" element={<PurchaseReport />} />
         <Route path="/stock" element={<Home />}/>
-        <Route path="/demo" element={<Demo />}/>
       </Routes>
       </div>
     </>
