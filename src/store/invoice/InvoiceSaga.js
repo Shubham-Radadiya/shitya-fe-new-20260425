@@ -32,7 +32,11 @@ function* requestInvoiceData(action) {
 
 function* requestEditInvoice(action) {
   try {
-    const data = yield call(invoiceServices.editInvoice, action.id, action.payload);
+    const data = yield call(
+      invoiceServices.editInvoice,
+      action.id,
+      action.payload
+    );
     toast.success("Invoice updated successfully");
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
@@ -42,7 +46,11 @@ function* requestEditInvoice(action) {
 
 function* requestCreateReturnInvoice(action) {
   try {
-    const data = yield call(invoiceServices.createReturnInvoice, action.payload);
+    const data = yield call(
+      invoiceServices.createReturnInvoice,
+      action.payload,
+      action.id
+    );
     toast.success("Return invoice created successfully");
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
