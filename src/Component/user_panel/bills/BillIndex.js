@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import {
   ADD_TO_CART,
@@ -30,6 +30,7 @@ import {
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const items = useSelector((state) => state.cart.items || []);
   const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
   const { billNo } = useBill();
@@ -100,6 +101,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
     });
 
     setTimeout(() => {
+      navigate("/stock", { state: null });
       setIsButtonDisabled(false);
     }, 5000);
   };
@@ -273,7 +275,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
   useEffect(() => {
     const fetchData = async () => {
       const number = await fetchInvoiceNumber(false);
-      setInvoiceNumber(number);
+      {
+        currentLocation.state?.returnEdit
+          ? setInvoiceNumber(currentLocation.state.invoiceId)
+          : setInvoiceNumber(number);
+      }
     };
     fetchData();
   }, []);
@@ -286,10 +292,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     const number = await fetchInvoiceNumber(true);
     setInvoiceNumber(`R${number}`);
   };
-
-  useEffect(() => {
-    console.log(invoiceId, "invoiceId");
-  }, [currentLocation.state]);
   const displayInvoice = returnEdit ? invoiceId : invoiceNumber;
   return (
     <div className="bill-container">

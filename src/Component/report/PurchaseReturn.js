@@ -67,7 +67,9 @@ const PurchaseReturn = () => {
     }));
 
     if (data) {
-      navigate("/stock", { state: { returnEdit: true, id: data?._id } });
+      navigate("/stock", {
+        state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },
+      });
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
