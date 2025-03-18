@@ -880,7 +880,9 @@ const PurchaseReport = () => {
                 fontWeight: "bold",
               }}
             >
-              {new Intl.NumberFormat("en-IN").format(selectedInvoice?.totalAmount)}
+              {new Intl.NumberFormat("en-IN").format(
+                selectedInvoice?.totalAmount
+              )}
             </p>
           </div>
 

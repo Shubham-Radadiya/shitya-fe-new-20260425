@@ -16,10 +16,13 @@ const apiRequest = async (method, url, payload = null) => {
   }
 };
 
-export const createInvoice = (payload) => apiRequest("post", "/invoice", payload);
-export const getInvoices = (isReturned = false) => apiRequest("get", `/invoice?isReturned=${isReturned}`);
-export const editInvoice = (id, payload) => apiRequest("patch", `/invoice/${id}`, payload);
-export const createReturnInvoice = (payload) =>
-  apiRequest("post", "/invoice/return", payload);
+export const createInvoice = (payload) =>
+  apiRequest("post", "/invoice", payload);
+export const getInvoices = (isReturned = false) =>
+  apiRequest("get", `/invoice?isReturned=${isReturned}`);
+export const editInvoice = (id, payload) =>
+  apiRequest("patch", `/invoice/${id}`, payload);
+export const createReturnInvoice = (payload, id) =>
+  apiRequest("patch", `/invoice/return/${id}`, payload);
 
 export default { createInvoice, getInvoices, editInvoice, createReturnInvoice };

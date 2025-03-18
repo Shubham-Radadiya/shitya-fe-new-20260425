@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import ReactToPrint from "react-to-print";
 import * as XLSX from "xlsx";
-import {
-  GET_DAILY_REPORTS_REQUEST,
-} from "../../store/user_report/UserReportAction";
+import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
 import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
@@ -51,10 +49,26 @@ const PurchaseReturn = () => {
 
   const fetchInvoiceDataForStock = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
+    console.log("data", data);
+
+    const transformedArray = data?.productId.map((item) => ({
+      _id: item?._id?._id,
+      name: item?._id?.name,
+      productId: item?._id?.productId,
+      price: item?.price,
+      image: item?._id?.image,
+      rate: item?._id?.rate,
+      remark: item?._id?.remark,
+      createdAt: item?._id?.createdAt,
+      updatedAt: item?._id?.updatedAt,
+      __v: item?._id?.__v,
+      isDeActive: item?._id?.item?._id?.updatedAt,
+      quantity: item?.quantity,
+    }));
 
     if (data) {
-      navigate("/stock");
-      dispatch({ type: EDIT_PURCHASE_DATA, payload: data?.productId });
+      navigate("/stock", { state: { returnEdit: true, id: data?._id } });
+      dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
 
@@ -230,7 +244,7 @@ const PurchaseReturn = () => {
                         className="stocktable"
                         style={{ width: "9%", textAlign: "center" }}
                       >
-                       R. INV. No.
+                        R. INV. No.
                       </th>
                       <th
                         className="stocktable"
@@ -630,8 +644,8 @@ const PurchaseReturn = () => {
                   <h2>Invoice: R{selectedInvoice.invoiceId}</h2>
 
                   <p>
-                    <strong>Total Amount:</strong> {" "}
-                   -{selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                    <strong>Total Amount:</strong> -
+                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
                 <h3>Products:</h3>
@@ -817,7 +831,8 @@ const PurchaseReturn = () => {
                     className="product_price_report"
                     style={{ fontSize: "15px", textAlign: "center" }}
                   >
-                    -{new Intl.NumberFormat("en-IN").format(
+                    -
+                    {new Intl.NumberFormat("en-IN").format(
                       product.price * product.quantity
                     )}
                   </p>
@@ -867,7 +882,10 @@ const PurchaseReturn = () => {
                 fontWeight: "bold",
               }}
             >
-              -{new Intl.NumberFormat("en-IN").format(selectedInvoice?.totalAmount)}
+              -
+              {new Intl.NumberFormat("en-IN").format(
+                selectedInvoice?.totalAmount
+              )}
             </p>
           </div>
 

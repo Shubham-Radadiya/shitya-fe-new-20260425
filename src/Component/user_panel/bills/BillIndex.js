@@ -120,10 +120,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       if (returnMode) {
         dispatch({
-          type:
-            currentLocation.pathname === "/stock"
-              ? REQUEST_CREATE_RETURN_INVOICE //
-              : REQUEST_RETURN_BILL,
+          type: REQUEST_RETURN_BILL,
           payload,
         });
       } else {
@@ -133,6 +130,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
         ) {
           dispatch({
             type: REQUEST_EDIT_INVOICE_DATA,
+            payload,
+            id: currentLocation.state?.id,
+          });
+        } else if (
+          currentLocation.pathname === "/stock" &&
+          currentLocation.state?.returnEdit
+        ) {
+          dispatch({
+            type: REQUEST_CREATE_RETURN_INVOICE,
             payload,
             id: currentLocation.state?.id,
           });
@@ -570,7 +576,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                                 onClick={() => openModal(product)}
                                 style={{ cursor: "pointer" }}
                               >
-                                {returnMode
+                                {currentLocation.state?.returnEdit
                                   ? -new Intl.NumberFormat("en-IN").format(
                                       product.quantity
                                     )
@@ -601,7 +607,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                               textOverflow: "none",
                             }}
                           >
-                            {returnMode ? "-" : null}
+                            {currentLocation.state?.returnEdit ? "-" : null}
                             {new Intl.NumberFormat("en-IN").format(
                               product.price * product.quantity
                             )}
@@ -715,9 +721,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
                     </td>
                     <td style={{ fontWeight: "bolder", width: "39px" }}>
                       {currentLocation.pathname === "/stock"
-                        ? new Intl.NumberFormat("en-IN").format(
-                            totalPurchaseQuantity
-                          )
+                        ? currentLocation.state?.returnEdit
+                          ? -new Intl.NumberFormat("en-IN").format(
+                              totalPurchaseQuantity
+                            )
+                          : new Intl.NumberFormat("en-IN").format(
+                              totalPurchaseQuantity
+                            )
                         : returnMode
                         ? -new Intl.NumberFormat("en-IN").format(totalQuantity)
                         : new Intl.NumberFormat("en-IN").format(totalQuantity)}
@@ -733,7 +743,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       }}
                     >
                       {" "}
-                      {returnMode ? "-" : null}₹{" "}
+                      {returnMode || currentLocation.state?.returnEdit
+                        ? "-"
+                        : null}
+                      ₹{" "}
                       {currentLocation.pathname === "/stock"
                         ? new Intl.NumberFormat("en-IN").format(
                             totalPurchaseprice
