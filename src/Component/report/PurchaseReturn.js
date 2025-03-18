@@ -143,7 +143,7 @@ const PurchaseReturn = () => {
     // Add the title and date rows only
     const currentDate = new Date().toLocaleDateString();
     const titleAndDate = [
-      ["Daily Report"], // First row: Title
+      ["Purchase Return Report"], // First row: Title
       [`Date: ${currentDate}`], // Second row: Date
     ];
 

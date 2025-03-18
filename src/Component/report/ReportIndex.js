@@ -68,9 +68,9 @@ const ReportIndex = () => {
   const filteredProducts = currentReport[0]?.products || [];
 
   const filteredCategory =
-    currentReport[0]?.categories?.filter(
-      (categorie) => categorie.totalQuantity > 0
-    ) || [];
+  currentReport[0]?.categories?.filter(
+    (categorie) => categorie.totalQuantity !== 0
+  ) || [];  
 
   const calculateTotalAmount = () => {
     if (reportType === "daily") {
@@ -178,7 +178,7 @@ const ReportIndex = () => {
   };
 
   useEffect(() => {
-    console.log(filteredProducts, "filteredProducts");
+    console.log(filteredProducts,currentReport,filteredCategory, "filteredProducts");
   }, []);
 
   const closeModal = () => {
