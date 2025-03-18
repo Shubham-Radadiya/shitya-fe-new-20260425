@@ -1,29 +1,25 @@
 import axios from "axios";
 import { API_URL } from "../constant/config";
 
-const createInvoice = async (payload) => {
-  const response = await axios.post(`${API_URL}/invoice`, payload, {
-    headers: { Authorization: localStorage.getItem("access_token") },
-  });
-  return response.data;
+const apiRequest = async (method, url, payload = null) => {
+  try {
+    const response = await axios({
+      method,
+      url: `${API_URL}${url}`,
+      data: payload,
+      headers: { Authorization: localStorage.getItem("access_token") },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error in API call: ${method.toUpperCase()} ${url}`, error);
+    throw error;
+  }
 };
 
-const invoiceData = async () => {
-  const response = await axios.get(`${API_URL}/invoice`, {
-    headers: { Authorization: localStorage.getItem("access_token") },
-  });
-  return response.data;
-};
+export const createInvoice = (payload) => apiRequest("post", "/invoice", payload);
+export const getInvoices = (isReturned = false) => apiRequest("get", `/invoice?isReturned=${isReturned}`);
+export const editInvoice = (id, payload) => apiRequest("patch", `/invoice/${id}`, payload);
+export const createReturnInvoice = (payload) =>
+  apiRequest("post", "/invoice/return", payload);
 
-const editInvoiceData = async (id, payload) => {
-  const response = await axios.patch(`${API_URL}/invoice/${id}`, payload, {
-    headers: { Authorization: localStorage.getItem("access_token") },
-  });
-  return response.data;
-};
-
-export default {
-  createInvoice,
-  invoiceData,
-  editInvoiceData,
-};
+export default { createInvoice, getInvoices, editInvoice, createReturnInvoice };

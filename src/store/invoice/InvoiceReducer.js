@@ -14,13 +14,12 @@ const initialState = {
 
 const invoiceReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_CREATE_INVOICE: {
+    case SET_CREATE_INVOICE:
       return {
         ...state,
         busy: false,
         invoice: [...state.invoice, action.payload],
       };
-    }
     case SET_INVOICE_DATA:
       return {
         ...state,

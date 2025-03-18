@@ -16,7 +16,7 @@ import ReactToPrint from "react-to-print";
 const PurchaseReport = () => {
   const componentRef = useRef();
   const dispatch = useDispatch();
-  const { invoiceData } = useInvoice();
+  const { invoiceData } = useInvoice(false);
   const { dailyReport } = useReport();
   const [reportType, setReportType] = useState("daily");
   const printRef = useRef();

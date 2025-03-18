@@ -4,14 +4,9 @@ import ReactToPrint from "react-to-print";
 import * as XLSX from "xlsx";
 import {
   GET_DAILY_REPORTS_REQUEST,
-  GET_MONTHLY_REPORTS_REQUEST,
-  GET_YEARLY_REPORTS_REQUEST,
 } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
-import { IoArrowBack } from "react-icons/io5";
-import { NavLink } from "react-router-dom";
-import axios from "axios";
 import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
@@ -20,25 +15,12 @@ import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 
-const initialData = [
-  { currency: "500", count: 0 },
-  { currency: "200", count: 0 },
-  { currency: "100", count: 0 },
-  { currency: "50", count: 0 },
-  { currency: "20", count: 0 },
-  { currency: "10", count: 0 },
-  { currency: "5", count: 0 },
-  { currency: "2", count: 0 },
-  { currency: "1", count: 0 },
-];
-
 const PurchaseReturn = () => {
   const componentRef = useRef();
   const dispatch = useDispatch();
-  const { invoiceData } = useInvoice();
+  const { invoiceData } = useInvoice(true);
   const { dailyReport } = useReport();
   const [reportType, setReportType] = useState("daily");
-  const printRef = useRef();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -84,10 +66,6 @@ const PurchaseReturn = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   useEffect(() => {
     dispatch({ type: REQUEST_INVOICE_DATA });
   }, []);
@@ -129,11 +107,6 @@ const PurchaseReturn = () => {
 
   const filteredProducts = currentReport[0]?.products || [];
 
-  const filteredCategory =
-    currentReport[0]?.categories?.filter(
-      (categorie) => categorie.totalQuantity > 0
-    ) || [];
-
   const calculateTotalAmount = () => {
     if (reportType === "daily") {
       return filteredProducts.reduce((sum, item) => {
@@ -151,7 +124,6 @@ const PurchaseReturn = () => {
 
   const Amount =
     reportType === "daily" ? calculateTotalAmount() : calculateTotalAmount();
-  const totalAmount = reportType === "daily" ? calculateTotalAmount() : Amount;
 
   const exportToExcel = () => {
     const table = document.querySelector(".userreport-table");
@@ -219,22 +191,10 @@ const PurchaseReturn = () => {
     document.body.removeChild(a);
   };
 
-  const now = new Date();
-
   const totalQuantity = filteredProducts?.reduce(
     (total, item) => total + item.totalBuyingCount,
     0
   );
-  const currentDateTime = () => {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-indexed
-    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year} (${hours}:${minutes})`;
-  };
 
   useEffect(() => {
     console.log(selectedInvoice, "selectedINV");
@@ -247,19 +207,6 @@ const PurchaseReturn = () => {
             className="userreport-box"
             style={{ justifyContent: "flex-end" }}
           >
-            {/* <div style={{ display: "flex", gap: "35px" }}>
-              <NavLink to="/stock">
-                <div
-                  className="back-btn"
-                  style={{
-                    color: "rgb(87 15 119)",
-                    fontSize: "xx-large",
-                  }}
-                >
-                  <IoArrowBack />
-                </div>
-              </NavLink>
-            </div> */}
             <div className="tfootgroup">
               <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel

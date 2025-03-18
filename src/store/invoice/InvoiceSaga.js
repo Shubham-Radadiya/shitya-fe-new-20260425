@@ -3,6 +3,7 @@ import invoiceServices from "../../services/invoice.services";
 import {
   ERROR_CREATE_INVOICE,
   REQUEST_CREATE_INVOICE,
+  REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_INVOICE_DATA,
   SET_CREATE_INVOICE,
@@ -19,9 +20,10 @@ function* requestCreateInvoice(action) {
   }
 }
 
-function* requestInvoiceData() {
+function* requestInvoiceData(action) {
   try {
-    const data = yield call(invoiceServices.invoiceData);
+    console.log("Fetching invoices with isReturned:", action.payload);
+    const data = yield call(invoiceServices.getInvoices, action.payload);
     yield put({ type: SET_INVOICE_DATA, payload: data });
   } catch (error) {
     yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
@@ -30,25 +32,32 @@ function* requestInvoiceData() {
 
 function* requestEditInvoice(action) {
   try {
-    const data = yield call(
-      invoiceServices.editInvoiceData,
-      action.id,
-      action.payload
-    );
+    const data = yield call(invoiceServices.editInvoice, action.id, action.payload);
     toast.success("Invoice updated successfully");
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
     yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
   }
 }
+
+function* requestCreateReturnInvoice(action) {
+  try {
+    const data = yield call(invoiceServices.createReturnInvoice, action.payload);
+    toast.success("Return invoice created successfully");
+    yield put({ type: SET_CREATE_INVOICE, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+  }
+}
+
 function handleError(error) {
-  let message = "Something went wrong, please try again after some time.";
+  let message = "Something went wrong, please try again later.";
   if (error.response) {
     const { status, data } = error.response;
     if (status === 500) {
-      message = "Something happened wrong, try again after some time.";
+      message = "Server error. Try again later.";
     } else if (status === 422 || status === 415) {
-      message = data.message || "Please provide valid content.";
+      message = data.message || "Invalid data.";
     }
   }
   return message;
@@ -57,6 +66,7 @@ function handleError(error) {
 export function* invoiceSaga() {
   yield all([
     takeLatest(REQUEST_CREATE_INVOICE, requestCreateInvoice),
+    takeLatest(REQUEST_CREATE_RETURN_INVOICE, requestCreateReturnInvoice),
     takeLatest(REQUEST_INVOICE_DATA, requestInvoiceData),
     takeLatest(REQUEST_EDIT_INVOICE_DATA, requestEditInvoice),
   ]);

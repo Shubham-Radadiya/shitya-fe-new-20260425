@@ -24,6 +24,7 @@ import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
 import {
   REQUEST_CREATE_INVOICE,
+  REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
 } from "../../../store/invoice/InvoiceAction";
 
@@ -63,9 +64,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     return text;
   };
 
-  // useEffect(() => {
-  //   console.log(invoice, "come from reports");
-  // }, []);
   const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
   const totalPurchaseQuantity = purchaseItems.reduce(
     (total, item) => total + item.quantity,
@@ -91,7 +89,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
     setIsButtonDisabled(true);
 
-    // Perform the print operation and set localStorage items
     printDiv(currentLocation.pathname === "/stock" ? purchaseItems : items);
     localStorage.setItem("billData", JSON.stringify(items));
     localStorage.setItem("billId", reportData);
@@ -102,10 +99,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
           : CLEAR_CART,
     });
 
-    // Re-enable the button after a few seconds (e.g., 5 seconds)
     setTimeout(() => {
-      setIsButtonDisabled(false); // Re-enable the button
-    }, 5000); // Adjust the time as per your requirement
+      setIsButtonDisabled(false);
+    }, 5000);
   };
 
   const printDiv = (items) => {
@@ -124,7 +120,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       if (returnMode) {
         dispatch({
-          type: REQUEST_RETURN_BILL,
+          type:
+            currentLocation.pathname === "/stock"
+              ? REQUEST_CREATE_RETURN_INVOICE //
+              : REQUEST_RETURN_BILL,
           payload,
         });
       } else {
@@ -132,10 +131,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
           currentLocation.pathname === "/stock" &&
           currentLocation.state?.edit === true
         ) {
-          console.log("call functuion");
           dispatch({
             type: REQUEST_EDIT_INVOICE_DATA,
-            payload: payload,
+            payload,
             id: currentLocation.state?.id,
           });
         } else {
@@ -152,18 +150,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
     }
   };
 
-  const handleReturnBill = () => {
-    dispatch({ type: CLEAR_CART });
-    dispatch({ type: RETURN_BILL_NO });
-    setReturnMode(true);
-  };
-
-  const handleAfterPrint = () => {
+  const handleAfterPrint = async () => {
     dispatch({ type: CLEAR_CART });
     setShowReprintBill(false);
     setShowPrintBill(false);
     dispatch({ type: REQUEST_BILL_NO });
     setReturnMode(false);
+
+    const number = await fetchInvoiceNumber(false);
+    setInvoiceNumber(number);
   };
 
   const openModal = (item) => {
@@ -241,6 +236,51 @@ const Bills = ({ returnMode, setReturnMode }) => {
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
 
+  const token = localStorage.getItem("access_token");
+
+  const fetchInvoiceNumber = async (isReturned = false) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3010/invoice/getInvoiceNo?isReturned=${isReturned}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch invoice number");
+      }
+
+      const data = await response.json();
+      return data.invoiceNumber;
+    } catch (error) {
+      console.error("Error fetching invoice number:", error);
+    }
+  };
+
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const number = await fetchInvoiceNumber(false);
+      setInvoiceNumber(number);
+    };
+    fetchData();
+  }, []);
+
+  const handleReturnBill = async () => {
+    dispatch({ type: CLEAR_CART });
+    dispatch({ type: RETURN_BILL_NO });
+    setReturnMode(true);
+
+    const number = await fetchInvoiceNumber(true);
+    setInvoiceNumber(`R${number}`);
+  };
+
   return (
     <div className="bill-container">
       <div className="bills">
@@ -257,12 +297,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             R
           </NavLink>
-          {/* <NavLink
-            // to="/purchaseReport"
-            className="screen-list-circle purchase-report-circle"
-          >
-            
-          </NavLink> */}
         </div>
         <hr style={{ border: "1px solid #808080" }} />
         <h3
@@ -276,25 +310,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
         </h3>
 
         <div className="Homebuttons">
-          {/* <button
-            className={
-              currentLocation.pathname === "/stock"
-                ? "purchase_icon-button"
-                : "icon-button"
-            }
-          >
-            <Link
-              to={
-                currentLocation.pathname === "/stock"
-                  ? "/purchaseReport"
-                  : // "/demo"
-                    "/report"
-              }
-              style={{ textDecoration: "none", color: "var(--white-color)" }}
-            >
-              Report
-            </Link>
-          </button> */}
           <button
             className={
               currentLocation.pathname === "/stock"
@@ -413,7 +428,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
             <h8>
               {currentLocation.pathname === "/stock"
-                ? `INV.No: ${billNo && billNo?.billId}`
+                ? `INV.No: ${invoiceNumber}`
                 : `Sr.No: ${billNo && billNo?.billId}`}
             </h8>
           </div>
@@ -759,7 +774,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
               paddingRight: "5px",
             }}
           >
-            Sr.No: {billNo && billNo?.billId}
+            {currentLocation.pathname === "/stock"
+              ? `INV.No: ${invoiceNumber}`
+              : `Sr.No: ${billNo && billNo?.billId}`}
           </h8>
         </div>
         <div className="bill_header_main"></div>
