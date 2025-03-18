@@ -29,7 +29,7 @@ const PurchaseReturn = () => {
     try {
       const token = localStorage.getItem("access_token");
       const response = await fetch(
-        `http://localhost:3010/invoice/${invoiceId}`,
+        `http://localhost:3010/invoice/${invoiceId}?isReturned=true`,
         {
           method: "GET",
           headers: {
@@ -346,7 +346,7 @@ const PurchaseReturn = () => {
 
                           return (
                             <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>{invoiceId}</td>
+                              <td style={{ width: "9%" }}>R{invoiceId}</td>
                               <td style={{ width: "12%", textAlign: "end" }}>
                                 {formattedDate}
                               </td>
@@ -627,11 +627,11 @@ const PurchaseReturn = () => {
                     <strong>Date:</strong>{" "}
                     {new Date(selectedInvoice.createdAt).toLocaleDateString()}
                   </p>
-                  <h2>Invoice: {selectedInvoice.invoiceId}</h2>
+                  <h2>Invoice: R{selectedInvoice.invoiceId}</h2>
 
                   <p>
-                    <strong>Total Amount:</strong>
-                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                    <strong>Total Amount:</strong> {" "}
+                   -{selectedInvoice.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
                 <h3>Products:</h3>
@@ -649,8 +649,8 @@ const PurchaseReturn = () => {
                       <tr key={i}>
                         <td>{product._id.name}</td>
                         <td>{product.price}</td>
-                        <td>{product.quantity}</td>
-                        <td>{product.price * product.quantity}</td>
+                        <td>-{product.quantity}</td>
+                        <td>-{product.price * product.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -706,7 +706,7 @@ const PurchaseReturn = () => {
               paddingRight: "5px",
             }}
           >
-            Sr.No: {selectedInvoice?.invoiceId}
+            INV.No: R{selectedInvoice?.invoiceId}
           </h8>
         </div>
         <div className="bill_header_main"></div>
@@ -810,14 +810,14 @@ const PurchaseReturn = () => {
                   </h3>
                   <div className="pavti_data_quantity">
                     <span style={{ fontSize: "15px" }}>
-                      {new Intl.NumberFormat("en-IN").format(product.quantity)}
+                      -{new Intl.NumberFormat("en-IN").format(product.quantity)}
                     </span>
                   </div>
                   <p
                     className="product_price_report"
                     style={{ fontSize: "15px", textAlign: "center" }}
                   >
-                    {new Intl.NumberFormat("en-IN").format(
+                    -{new Intl.NumberFormat("en-IN").format(
                       product.price * product.quantity
                     )}
                   </p>
@@ -867,7 +867,7 @@ const PurchaseReturn = () => {
                 fontWeight: "bold",
               }}
             >
-              {new Intl.NumberFormat("en-IN").format(5000)}
+              -{new Intl.NumberFormat("en-IN").format(selectedInvoice?.totalAmount)}
             </p>
           </div>
 
