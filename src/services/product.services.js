@@ -39,6 +39,20 @@ const deleteProduct = async (id) => {
   return response.data;
 };
 
-const productService = { createProduct, getProduct, deleteProduct, updateProduct, updateStockQuantity };
+const getStock = async () => {
+  const response = await axios.get(`${API_URL}/stock`, {
+    headers: { Authorization: localStorage.getItem("access_token") },
+  });
+  return response.data;
+};
+
+const productService = {
+  createProduct,
+  getProduct,
+  deleteProduct,
+  updateProduct,
+  updateStockQuantity,
+  getStock,
+};
 
 export default productService;
