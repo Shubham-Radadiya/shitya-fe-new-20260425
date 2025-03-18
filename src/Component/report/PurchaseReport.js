@@ -8,13 +8,14 @@ import "./index.css";
 import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
 
 const PurchaseReport = () => {
   const componentRef = useRef();
+  
   const dispatch = useDispatch();
   const { invoiceData } = useInvoice(false);
   const { dailyReport } = useReport();
@@ -23,6 +24,7 @@ const PurchaseReport = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  
 
   const fetchInvoiceData = async (invoiceId) => {
     try {
@@ -50,6 +52,8 @@ const PurchaseReport = () => {
 
   const fetchInvoiceDataForStock = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
+    // console.log(data, "data2");
+
     const transformedArray = data?.productId.map((item) => ({
       _id: item?._id?._id,
       name: item?._id?.name,
@@ -66,7 +70,10 @@ const PurchaseReport = () => {
     }));
 
     if (data) {
-      navigate("/stock", { state: { edit: true, id: data?._id } });
+      navigate("/stock", {
+        state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },
+      });
+
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
@@ -168,10 +175,6 @@ const PurchaseReport = () => {
     );
     XLSX.utils.sheet_add_aoa(worksheet, tableData, { origin: "A3" });
 
-    const totalAmount = tableData
-      .slice(1)
-      .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
-
     const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
 
@@ -198,7 +201,7 @@ const PurchaseReport = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "DailyReport.xlsx";
+    a.download = "PurchaseReport.xlsx";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -212,6 +215,7 @@ const PurchaseReport = () => {
   useEffect(() => {
     console.log(selectedInvoice, "selectedINV");
   }, [selectedInvoice]);
+
   return (
     <>
       <div className="user-template">

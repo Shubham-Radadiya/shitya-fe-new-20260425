@@ -30,7 +30,6 @@ import {
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
-
   const items = useSelector((state) => state.cart.items || []);
   const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
   const { billNo } = useBill();
@@ -48,6 +47,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   console.log("purchaseItems", currentLocation);
+  const { returnEdit, id, invoiceId } = currentLocation.state || {};
 
   useEffect(() => {
     dispatch({ type: REQUEST_BILL_NO });
@@ -234,8 +234,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const currentDateTime = () => {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-indexed
-    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = String(now.getFullYear()).slice(-2);
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
 
@@ -287,6 +287,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setInvoiceNumber(`R${number}`);
   };
 
+  useEffect(() => {
+    console.log(invoiceId, "invoiceId");
+  }, [currentLocation.state]);
+  const displayInvoice = returnEdit ? invoiceId : invoiceNumber;
   return (
     <div className="bill-container">
       <div className="bills">
@@ -434,7 +438,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
             <h8>
               {currentLocation.pathname === "/stock"
-                ? `INV.No: ${invoiceNumber}`
+                ? `INV.No: ${displayInvoice}`
                 : `Sr.No: ${billNo && billNo?.billId}`}
             </h8>
           </div>
