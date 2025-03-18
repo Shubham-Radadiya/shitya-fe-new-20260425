@@ -13,13 +13,17 @@ import YearlyReport from "../report_page/YearlyReport";
 import MonthlyReport from "../report_page/MonthlyReport";
 import PurchaseReport from "../../report/PurchaseReport";
 import StockTable from "../../report/StockTable";
+import PurchaseReturn from "../../report/PurchaseReturn";
+import { useInvoice } from "../../../store/invoice/InvoiceReducer";
+import { fetchInvoices } from "../../../store/invoice/InvoiceAction";
 
 const ReportScreen = () => {
   const [activeReport, setActiveReport] = useState("purchase");
-  const [reportType, setReportType] = useState("daily");
+  const [reportType, setReportType] = useState("purchasebill");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openDropdown, setOpenDropdown] = useState(null);
   const dispatch = useDispatch();
+  const { invoiceData } = useInvoice();
 
   useEffect(() => {
     if (reportType === "daily") {
@@ -34,13 +38,9 @@ const ReportScreen = () => {
   }, [reportType, selectedDate]);
 
   const getDailyReport = (date) => {
-    const data = {
-      startDate: date,
-      endDate: date,
-    };
+    const data = { startDate: date, endDate: date };
     dispatch({ type: REQUEST_TODAY_PRODUCT, payload: data });
-    console.log("fsdfds");
-
+    console.log("Fetching Daily Report for:", date);
     setReportType("daily");
   };
 
@@ -80,11 +80,31 @@ const ReportScreen = () => {
     setReportType("yearly");
   };
 
+  useEffect(() => {
+    if (reportType === "purchasebill") {
+      dispatch(fetchInvoices(false));
+    } else if (reportType === "purchaseReturn") {
+      dispatch(fetchInvoices(true));
+    }
+  }, [reportType, dispatch]);
+
   const reportOptions = [
     {
       key: "purchase",
       label: "Purchase Report",
-      component: <PurchaseReport />,
+      hasSubReports: true,
+      subReports: [
+        {
+          key: "purchasebill",
+          label: "Purchase Bill",
+          component: <PurchaseReport invoiceData={invoiceData} />,
+        },
+        {
+          key: "purchaseReturn",
+          label: "Purchase Return",
+          component: <PurchaseReturn invoiceData={invoiceData} />,
+        },
+      ],
     },
     {
       key: "sales",
@@ -92,16 +112,16 @@ const ReportScreen = () => {
       hasSubReports: true,
       subReports: [
         { key: "daily", label: "Daily Report", component: <DailyReport /> },
-        {
-          key: "monthly",
-          label: "Monthly Report",
-          component: <MonthlyReport />,
-        },
+        { key: "monthly", label: "Monthly Report", component: <MonthlyReport /> },
         { key: "yearly", label: "Yearly Report", component: <YearlyReport /> },
       ],
     },
     { key: "stock", label: "Stock Report", component: <StockTable /> },
   ];
+
+  console.log("Active Report:", activeReport);
+  console.log("Report Type:", reportType);
+  console.log("Invoice Data:", invoiceData);
 
   return (
     <div className="flexbetween report-screen" style={{ height: "97vh" }}>
@@ -109,41 +129,39 @@ const ReportScreen = () => {
         <Header />
       </div>
       <div className="report-dashboard">
+        {/* Left Sidebar */}
         <div className="report-left-side" style={{ gap: "0" }}>
           {reportOptions.map((report) => (
             <div key={report.key}>
               <button
-                className={`sidebar-link ${
-                  activeReport === report.key ? "active" : ""
-                }`}
+                className={`sidebar-link ${activeReport === report.key ? "active" : ""}`}
                 onClick={() => {
                   setActiveReport(report.key);
                   if (report.hasSubReports) {
-                    setOpenDropdown(
-                      openDropdown === report.key ? null : report.key
-                    );
+                    setOpenDropdown(openDropdown === report.key ? null : report.key);
+                    setReportType(report.subReports[0].key); // Default to first subReport
                   } else {
                     setOpenDropdown(null);
+                    setReportType(report.key); // Ensure direct report selection
                   }
                 }}
               >
                 {report.label}{" "}
                 {report.hasSubReports && (
-                  <span className="arrow">
-                    {openDropdown === report.key ? "▲" : "▼"}
-                  </span>
+                  <span className="arrow">{openDropdown === report.key ? "▲" : "▼"}</span>
                 )}
               </button>
+
+              {/* Dropdown for Sub Reports */}
               {openDropdown === report.key && report.hasSubReports && (
                 <div className="dropdown-menu">
                   {report.subReports.map((sub) => (
                     <button
                       key={sub.key}
-                      className={`dropdown-item ${
-                        reportType === sub.key ? "active" : ""
-                      }`}
+                      className={`dropdown-item ${reportType === sub.key ? "active" : ""}`}
                       onClick={() => {
                         setReportType(sub.key);
+                        console.log("Selected Report Type:", sub.key);
                       }}
                     >
                       {sub.label}
@@ -155,10 +173,11 @@ const ReportScreen = () => {
           ))}
         </div>
 
+        {/* Right Side Content */}
         <div className="report-right-side">
-          {activeReport === "sales"
+          {reportOptions.some((r) => r.key === activeReport && r.hasSubReports)
             ? reportOptions
-                .find((r) => r.key === "sales")
+                .find((r) => r.key === activeReport)
                 ?.subReports.find((s) => s.key === reportType)?.component
             : reportOptions.find((r) => r.key === activeReport)?.component}
         </div>
