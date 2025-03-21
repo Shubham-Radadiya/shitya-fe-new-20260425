@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
+import Report from "../../images/report.jpg";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import {
@@ -30,25 +31,64 @@ import {
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const items = useSelector((state) => state.cart.items || []);
   const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
   const { billNo } = useBill();
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
-  const [reportData, setReportData] = useState(null);
+  const [reportData] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const [newQuantity, setNewQuantity] = useState("");
   const [reprintModalOpen, setReprintModalOpen] = useState(false);
   const [reprintField, setReprintField] = useState("");
-  const [reprintDate, setReprintDate] = useState(moment().format("YYYY-MM-DD"));
   const [showReprintBill, setShowReprintBill] = useState(false);
-  const [showPrintBill, setShowPrintBill] = useState(false);
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  console.log("purchaseItems", currentLocation);
-  const { returnEdit, id, invoiceId } = currentLocation.state || {};
+  const { returnEdit, invoiceId } = currentLocation.state || {};
+
+  const [pin, setPin] = useState("");
+  const [showPinPrompt, setShowPinPrompt] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const correctPin = "2898";
+
+  const handlePinChange = (e) => {
+    setPin(e.target.value);
+  };
+
+  const handlePinSubmit = () => {
+    if (pin === correctPin && showPinPrompt) {
+      navigate(`/${showPinPrompt}`);
+      setShowPinPrompt(null);
+      setPin("");
+    } else {
+      alert("Incorrect PIN");
+    }
+  };
+
+  const handleButtonClick = (screen) => {
+    if (location.pathname !== `/${screen}`) {
+      setShowPinPrompt(screen);
+    }
+  };
+
+  useEffect(() => {
+    document.querySelectorAll("input").forEach((input) => {
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute(
+        "name",
+        "random-" + Math.random().toString(36).substr(2, 10)
+      );
+    });
+  }, []);
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handlePinSubmit();
+    }
+  };
 
   useEffect(() => {
     dispatch({ type: REQUEST_BILL_NO });
@@ -101,7 +141,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     });
 
     setTimeout(() => {
-      navigate("/stock", { state: null });
       setIsButtonDisabled(false);
     }, 5000);
   };
@@ -154,14 +193,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
           });
         }
       }
-      setShowPrintBill(true);
     }
   };
 
   const handleAfterPrint = async () => {
     dispatch({ type: CLEAR_CART });
     setShowReprintBill(false);
-    setShowPrintBill(false);
     dispatch({ type: REQUEST_BILL_NO });
     setReturnMode(false);
 
@@ -207,7 +244,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   const closeReprintModal = () => {
     setReprintModalOpen(false);
-    setReprintDate(moment().format("YYYY-MM-DD"));
   };
 
   const handleReprintSubmit = () => {
@@ -230,7 +266,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   useEffect(() => {
     setShowReprintBill(false);
-    setShowPrintBill(false);
   }, [items]);
 
   const currentDateTime = () => {
@@ -297,17 +332,27 @@ const Bills = ({ returnMode, setReturnMode }) => {
     <div className="bill-container">
       <div className="bills">
         <div className="screen-list">
-          <NavLink to="/stock" className="screen-list-circle purchase-circle">
-            P
-          </NavLink>
           <NavLink to="/dashboard" className="screen-list-circle sales-circle">
             S
           </NavLink>
-          <NavLink
-            to="/report"
+          {/* <button
             className="screen-list-circle sales-report-circle"
+            style={{ background: "rgb(34 78 8)" }}
+            onClick={() => handleButtonClick("bhet")}
           >
-            R
+            B
+          </button> */}
+          <button
+            className="screen-list-circle purchase-circle"
+            onClick={() => handleButtonClick("stock")}
+          >
+            P
+          </button>
+          <NavLink
+            className="screen-list-circle sales-report-circle"
+            to="/report"
+          >
+            R{/* <img style={{ width: "20px" }} src={Report} alt="edit" /> */}
           </NavLink>
         </div>
         <hr style={{ border: "1px solid #808080" }} />
@@ -331,7 +376,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
             onClick={() => {
               dispatch({ type: CLEAR_CART });
               setShowReprintBill(false);
-              setShowPrintBill(false);
               setReturnMode(false);
             }}
           >
@@ -1218,6 +1262,40 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showPinPrompt && (
+        <div className="pin-prompt">
+          <div className="modal-content">
+            <h3>Enter PIN for {showPinPrompt.toUpperCase()}</h3>
+            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={pin}
+                name="custom-pin"
+                onChange={handlePinChange}
+                placeholder="Enter PIN"
+                autoFocus
+                onKeyDown={handleKeyPress}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{
+                  WebkitTextSecurity: "disc",
+                }}
+              />
+            </form>
+            <p className="button-group">
+              <button onClick={handlePinSubmit}>Submit</button>
+              <button
+                className="close-btn"
+                onClick={() => setShowPinPrompt(null)}
+              >
+                X
+              </button>
+            </p>
           </div>
         </div>
       )}

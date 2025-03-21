@@ -27,7 +27,6 @@ const AddStockModal = ({ closeModal, isEdit = false, initialData = {} }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("Initial Data for Edit:", initialData);
     if (isEdit && initialData) {
       setProductData(initialData);
 

@@ -22,7 +22,6 @@ function* requestCreateInvoice(action) {
 
 function* requestInvoiceData(action) {
   try {
-    console.log("Fetching invoices with isReturned:", action.payload);
     const data = yield call(invoiceServices.getInvoices, action.payload);
     yield put({ type: SET_INVOICE_DATA, payload: data });
   } catch (error) {

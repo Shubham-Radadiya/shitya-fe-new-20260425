@@ -7,7 +7,7 @@ import img2 from "../../images/raja_home.png";
 import { CgLogOut } from "react-icons/cg";
 import { useLocation } from "react-router-dom";
 
-const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
+const Menu = ({ updateName, sendData, setSelectedCategory }) => {
   const dispatch = useDispatch();
   const [initialized, setInitialized] = useState(false);
   const [click, setClick] = useState("");
@@ -27,23 +27,14 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
       setClick(categories[0].name);
       updateName(categories[0].name);
       sendData(categories[0]);
-      stateUpdate(false);
       setSelectedCategory(categories[0]);
     }
-  }, [
-    categories,
-    click,
-    updateName,
-    sendData,
-    stateUpdate,
-    setSelectedCategory,
-  ]);
+  }, [categories, click, updateName, sendData, setSelectedCategory]);
 
   const handleClick = (item) => {
     setClick(item.name);
     updateName(item.name);
     sendData(item);
-    stateUpdate(false);
     setSelectedCategory(item);
   };
 
@@ -55,24 +46,7 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
     <div className="menu-container">
       <div className="menu_list">
         <div className="menu_icon">
-          {/* {currentLocation.pathname === "/stock" ? (
-            <NavLink to="/dashboard">
-              <div
-                className="back-btn"
-                style={{
-                  color: "rgb(87 15 119)",
-                  height: "14vh",
-                  display: "flex",
-                  alignItems: "center",
-                  fontSize: "xx-large",
-                }}
-              >
-                <IoArrowBack />
-              </div>
-            </NavLink>
-          ) : ( */}
           <img src={img2} alt="Menu Logo" className="raja-home" />
-          {/* )} */}
         </div>
         <div className="menu_box">
           <div className="menu_lists">
@@ -82,6 +56,10 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
                   className={
                     currentLocation.pathname === "/stock"
                       ? `purchase_category_name ${
+                          item.name === click ? "active" : ""
+                        }`
+                      : currentLocation.pathname === "/bhet"
+                      ? `bhet_category_name ${
                           item.name === click ? "active" : ""
                         }`
                       : `category_name ${item.name === click ? "active" : ""}`
@@ -100,7 +78,7 @@ const Menu = ({ updateName, sendData, stateUpdate, setSelectedCategory }) => {
               style={{
                 background:
                   currentLocation.pathname === "/stock"
-                    ? "rgb(87 15 119)"
+                    ? "rgb(87 15 119)" : currentLocation.pathname === "/bhet" ? "blue"
                     : "rgb(97, 37, 17)",
               }}
             >

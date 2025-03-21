@@ -40,15 +40,8 @@ const ReportScreen = () => {
   const getDailyReport = (date) => {
     const data = { startDate: date, endDate: date };
     dispatch({ type: REQUEST_TODAY_PRODUCT, payload: data });
-    console.log("Fetching Daily Report for:", date);
     setReportType("daily");
   };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    getDailyReport(date);
-  };
-
   const getMonthlyReport = () => {
     setReportType("monthly");
   };
@@ -119,10 +112,6 @@ const ReportScreen = () => {
     { key: "stock", label: "Stock Report", component: <StockTable /> },
   ];
 
-  console.log("Active Report:", activeReport);
-  console.log("Report Type:", reportType);
-  console.log("Invoice Data:", invoiceData);
-
   return (
     <div className="flexbetween report-screen" style={{ height: "97vh" }}>
       <div className="header">
@@ -161,7 +150,6 @@ const ReportScreen = () => {
                       className={`dropdown-item ${reportType === sub.key ? "active" : ""}`}
                       onClick={() => {
                         setReportType(sub.key);
-                        console.log("Selected Report Type:", sub.key);
                       }}
                     >
                       {sub.label}

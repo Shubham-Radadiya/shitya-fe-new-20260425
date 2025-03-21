@@ -16,6 +16,7 @@ const UserIndex = () => {
         <Route path="/report" element={<ReportsDashboard />} />
         <Route path="/purchaseReport" element={<PurchaseReport />} />
         <Route path="/stock" element={<Home />}/>
+        <Route path="/bhet" element={<Home />}/>
       </Routes>
       </div>
     </>

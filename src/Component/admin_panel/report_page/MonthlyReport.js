@@ -57,12 +57,10 @@ export default function MonthlyReport() {
     : monthlyreport;
 
   const getMonths = (report) => {
-    console.log(report, "report2");
     return report?.flatMap((item) => item.data || []);
   };
 
   const productsArray = getMonths(filteredReport);
-  console.log(productsArray, "productsArray");
 
   const getUniqueDates = (data) => {
     const dates = new Set();
@@ -366,7 +364,6 @@ export default function MonthlyReport() {
 
     for (let i = 0; i < 12; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      console.log(date, "date");
 
       const monthYear = `${date.toLocaleString("default", {
         month: "long",
@@ -382,46 +379,31 @@ export default function MonthlyReport() {
   };
 
   const months = getLast12Months();
-  console.log(months, "months");
 
   const handleChange = (event) => {
     const selectedValue = event.target.value;
     const [monthName, year] = selectedValue.split(" ");
-
-    // Create a new Date object with the first day of the selected month
     const start = new Date(`${monthName} 1, ${year}`);
-    console.log(start, "start date");
-
-    // Calculate the end date: last day of the selected month
     const end = new Date(start);
-    end.setMonth(end.getMonth() + 1); // Move to the next month
-    end.setDate(0); // Set to the last day of the previous month
+    end.setMonth(end.getMonth() + 1);
+    end.setDate(0);
 
-    // Format dates to YYYY-MM-DD format
     const formatDate = (date) => {
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+      const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     };
-
-    console.log(formatDate(start), formatDate(end), "formated");
 
     setSelectedMonth(selectedValue);
     setDate({ start: formatDate(start), end: formatDate(end) });
   };
 
   const exportToExcel = () => {
-    // Create a new workbook and add a worksheet
     const wb = XLSX.utils.book_new();
-
-    // Initialize variables to track previous values
     let lastCategory = "";
     let lastSubCategory = "";
-
-    // Prepare header row
     const wsData = [
-      // Header Row
       [
         "Sr No",
         "Category",

@@ -1,228 +1,354 @@
 export const StockData = [
-    {
-      "category": "Electronics",
-      "amount": 50000,
-      "quantity": 100,
-      "subcategory": [
-        {
-          "name": "Mobile Phones",
-          "amount": 30000,
-          "quantity": 60,
-          "products": [
-            {
-              "name": "iPhone 13",
-              "amount": 15000,
-              "quantity": 20
-            },
-            {
-              "name": "Samsung Galaxy S22",
-              "amount": 10000,
-              "quantity": 15
-            },
-            {
-              "name": "OnePlus 10",
-              "amount": 5000,
-              "quantity": 25
-            }
-          ]
-        },
-        {
-          "name": "Laptops",
-          "amount": 20000,
-          "quantity": 40,
-          "products": [
-            {
-              "name": "MacBook Pro",
-              "amount": 12000,
-              "quantity": 10
-            },
-            {
-              "name": "Dell XPS 13",
-              "amount": 5000,
-              "quantity": 15
-            },
-            {
-              "name": "HP Spectre x360",
-              "amount": 3000,
-              "quantity": 15
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "category": "Furniture",
-      "amount": 40000,
-      "quantity": 80,
-      "subcategory": [
-        {
-          "name": "Chairs",
-          "amount": 15000,
-          "quantity": 40,
-          "products": [
-            {
-              "name": "Office Chair",
-              "amount": 7000,
-              "quantity": 20
-            },
-            {
-              "name": "Gaming Chair",
-              "amount": 5000,
-              "quantity": 10
-            },
-            {
-              "name": "Recliner Chair",
-              "amount": 3000,
-              "quantity": 10
-            }
-          ]
-        },
-        {
-          "name": "Tables",
-          "amount": 25000,
-          "quantity": 40,
-          "products": [
-            {
-              "name": "Dining Table",
-              "amount": 10000,
-              "quantity": 15
-            },
-            {
-              "name": "Coffee Table",
-              "amount": 8000,
-              "quantity": 10
-            },
-            {
-              "name": "Work Desk",
-              "amount": 7000,
-              "quantity": 15
-            }
-          ]
-        }
-      ]
-    }, {
-        "category": "wooden",
-        "amount": 50000,
-        "quantity": 100,
-        "subcategory": [
+  {
+    data: [
+      {
+        categories: [
           {
-            "name": "Mobile Phones",
-            "amount": 30000,
-            "quantity": 60,
-            "products": [
+            categoryId: "6532af47739f3dd7d4fdc7b6",
+            categoryName: "મુર્તિ",
+            categoryIndex: 1,
+            subCategories: [
               {
-                "name": "iPhone 13",
-                "amount": 15000,
-                "quantity": 20
+                subCategoryId: "6532ad10171fdf11192cfa49",
+                subCategoryName: "સિહાસન",
+                products: [
+                  {
+                    productId: "M-016",
+                    name: "મોટા વુડન સિહાસન",
+                    price: 15000,
+                    quantity: -2,
+                    totalBuyingCount: -2,
+                    totalBuyingAmount: 0,
+                  },
+                  {
+                    productId: "M-017",
+                    name: "નાના વુડન સિહાસન",
+                    price: 12500,
+                    quantity: 12,
+                    totalBuyingCount: 10,
+                    totalBuyingAmount: 175000,
+                  },
+                  {
+                    productId: "M-018",
+                    name: "મોટુ ગોલ્ડન સિહાસન",
+                    price: 20000,
+                    quantity: 2,
+                    totalBuyingCount: 0,
+                    totalBuyingAmount: 160000,
+                  },
+                  {
+                    productId: "M-024",
+                    name: "ટપુજી સિહાસન",
+                    price: 1000,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 1000,
+                  },
+                ],
+                totalBuyingCount: 9,
+                totalBuyingAmount: 336000,
               },
               {
-                "name": "Samsung Galaxy S22",
-                "amount": 10000,
-                "quantity": 15
+                subCategoryId: "6532ad10171fdf11192cfa3f",
+                subCategoryName: "બાલુડા",
+                products: [
+                  {
+                    productId: "M-005",
+                    name: "રીયલ-3",
+                    price: 3200,
+                    quantity: 0,
+                    totalBuyingCount: 0,
+                    totalBuyingAmount: 0,
+                  },
+                  {
+                    productId: "M-006",
+                    name: "વાઇટ-3",
+                    price: 3200,
+                    quantity: -4,
+                    totalBuyingCount: -4,
+                    totalBuyingAmount: -12800,
+                  },
+                ],
+                totalBuyingCount: -4,
+                totalBuyingAmount: -12800,
               },
               {
-                "name": "OnePlus 10",
-                "amount": 5000,
-                "quantity": 25
-              }
-            ]
+                subCategoryId: "6532ad10171fdf11192cfa45",
+                subCategoryName: "રાજાધિરાજ",
+                products: [
+                  {
+                    productId: "M-007",
+                    name: "નાના રાજાધિરાજ",
+                    price: 2500,
+                    quantity: 0,
+                    totalBuyingCount: 0,
+                    totalBuyingAmount: 0,
+                  },
+                  {
+                    productId: "M-008",
+                    name: "મોટા રાજાધિરાજ",
+                    price: 18000,
+                    quantity: 3,
+                    totalBuyingCount: 3,
+                    totalBuyingAmount: 198000,
+                  },
+                ],
+                totalBuyingCount: 3,
+                totalBuyingAmount: 198000,
+              },
+              {
+                subCategoryId: "6532ad10171fdf11192cfa4b",
+                subCategoryName: "અન્ય",
+                products: [
+                  {
+                    productId: "M-009",
+                    name: "બેઠા વર્ણી",
+                    price: 400,
+                    quantity: -1,
+                    totalBuyingCount: -3,
+                    totalBuyingAmount: 1200,
+                  },
+                  {
+                    productId: "M-014",
+                    name: "વડોદરાવાસી ઘનશ્યામ (આરસ)",
+                    price: 15000,
+                    quantity: -1,
+                    totalBuyingCount: -1,
+                    totalBuyingAmount: -15000,
+                  },
+                  {
+                    productId: "M-015",
+                    name: "3D હરિકૃષ્ણ મહારાજ",
+                    price: 1300,
+                    quantity: 2,
+                    totalBuyingCount: 2,
+                    totalBuyingAmount: 2600,
+                  },
+                  {
+                    productId: "M-023",
+                    name: "બેઠા બાલુડા",
+                    price: 650,
+                    quantity: 3,
+                    totalBuyingCount: 3,
+                    totalBuyingAmount: 1950,
+                  },
+                  {
+                    productId: "M-013",
+                    name: "ચરણાવિંદ",
+                    price: 1000,
+                    quantity: -1,
+                    totalBuyingCount: -1,
+                    totalBuyingAmount: -1000,
+                  },
+                ],
+                totalBuyingCount: 0,
+                totalBuyingAmount: -10250,
+              },
+            ],
+            totalBuyingCountPerCategory: 8,
+            totalBuyingAmountPerCategory: 510950,
           },
-          {
-            "name": "Laptops",
-            "amount": 20000,
-            "quantity": 40,
-            "products": [
-              {
-                "name": "MacBook Pro",
-                "amount": 12000,
-                "quantity": 10
-              },
-              {
-                "name": "Dell XPS 13",
-                "amount": 5000,
-                "quantity": 15
-              },
-              {
-                "name": "HP Spectre x360",
-                "amount": 3000,
-                "quantity": 15
-              }
-            ]
-          }
-        ]
+        ],
       },
       {
-        "category": "glass",
-        "amount": 50000,
-        "quantity": 100,
-        "subcategory": [
+        categories: [
           {
-            "name": "Mobile Phones",
-            "amount": 30000,
-            "quantity": 60,
-            "products": [
+            categoryId: "6532af47739f3dd7d4fdc7ba",
+            categoryName: "ઘરેણા",
+            categoryIndex: 3,
+            subCategories: [
               {
-                "name": "iPhone 13",
-                "amount": 15000,
-                "quantity": 20
+                subCategoryId: "6532ad10171fdf11192cfa65",
+                subCategoryName: "1_ઘરેણા",
+                products: [
+                  {
+                    productId: "G1-001",
+                    name: "1 કડા",
+                    price: 120,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 120,
+                  },
+                  {
+                    productId: "G1-002",
+                    name: "1 તોડા",
+                    price: 130,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 130,
+                  },
+                  {
+                    productId: "G1-003",
+                    name: "1 મોજડી ગોલ્ડન",
+                    price: 120,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 120,
+                  },
+                  {
+                    productId: "G1-010",
+                    name: "1 તિલક",
+                    price: 20,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 20,
+                  },
+                  {
+                    productId: "G1-011",
+                    name: "1 બુટ્ટી 15",
+                    price: 15,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 15,
+                  },
+                  {
+                    productId: "G1-012",
+                    name: "1 બુટ્ટી 25",
+                    price: 25,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 25,
+                  },
+                ],
+                totalBuyingCount: 6,
+                totalBuyingAmount: 430,
               },
-              {
-                "name": "Samsung Galaxy S22",
-                "amount": 10000,
-                "quantity": 15
-              },
-              {
-                "name": "OnePlus 10",
-                "amount": 5000,
-                "quantity": 25
-              }
-            ]
+            ],
+            totalBuyingCountPerCategory: 6,
+            totalBuyingAmountPerCategory: 430,
           },
+        ],
+      },
+      {
+        categories: [
           {
-            "name": "Laptops",
-            "amount": 20000,
-            "quantity": 40,
-            "products": [
+            categoryId: "6532af47739f3dd7d4fdc7bc",
+            categoryName: "પુસ્તક",
+            categoryIndex: 5,
+            subCategories: [
               {
-                "name": "MacBook Pro",
-                "amount": 12000,
-                "quantity": 10
+                subCategoryId: "653636fe2407d7d61a4a89a8",
+                subCategoryName: "સંપ્રદાયના_ગ્રંથો",
+                products: [
+                  {
+                    productId: "B-013",
+                    name: "શ્રીમદ ગીતા ભાષ્ય",
+                    price: 70,
+                    quantity: 0,
+                    totalBuyingCount: 0,
+                    totalBuyingAmount: 0,
+                  },
+                  {
+                    productId: "B-015",
+                    name: "વેદરસ",
+                    price: 50,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 50,
+                  },
+                  {
+                    productId: "B-012",
+                    name: "શુકાનંદ સ્વામીના ગ્રંથો",
+                    price: 60,
+                    quantity: -1,
+                    totalBuyingCount: -1,
+                    totalBuyingAmount: -60,
+                  },
+                  {
+                    productId: "B-014",
+                    name: "શ્રીહરીકૃષ્ણસ્વરૂપભક્તિ નિર્ણય",
+                    price: 100,
+                    quantity: -1,
+                    totalBuyingCount: -1,
+                    totalBuyingAmount: -100,
+                  },
+                ],
+                totalBuyingCount: -1,
+                totalBuyingAmount: -110,
               },
               {
-                "name": "Dell XPS 13",
-                "amount": 5000,
-                "quantity": 15
+                subCategoryId: "6532ad10171fdf11192cfa7b",
+                subCategoryName: "ચરિત્રના_પુસ્તકો",
+                products: [
+                  {
+                    productId: "B-022",
+                    name: "શ્રી હ.ચ.સાગર 06",
+                    price: 160,
+                    quantity: 3,
+                    totalBuyingCount: 3,
+                    totalBuyingAmount: 480,
+                  },
+                  {
+                    productId: "B-023",
+                    name: "શ્રી હ.ચ.સાગર 07",
+                    price: 160,
+                    quantity: 2,
+                    totalBuyingCount: 2,
+                    totalBuyingAmount: 320,
+                  },
+                  {
+                    productId: "B-024",
+                    name: "શ્રી હ.ચ.સાગર 08",
+                    price: 160,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 160,
+                  },
+                  {
+                    productId: "B-026",
+                    name: "શ્રી હ.ચ.સાગર 10",
+                    price: 160,
+                    quantity: 1,
+                    totalBuyingCount: 1,
+                    totalBuyingAmount: 160,
+                  },
+                ],
+                totalBuyingCount: 7,
+                totalBuyingAmount: 1120,
               },
-              {
-                "name": "HP Spectre x360",
-                "amount": 3000,
-                "quantity": 15
-              }
-            ]
+            ],
+            totalBuyingCountPerCategory: 6,
+            totalBuyingAmountPerCategory: 1010,
           },
+        ],
+      },
+      {
+        categories: [
           {
-            "name": "Smart Phones",
-            "amount": 30000,
-            "quantity": 60,
-            "products": [
+            categoryId: "6532af47739f3dd7d4fdc7c0",
+            categoryName: "જનરલ",
+            categoryIndex: 6,
+            subCategories: [
               {
-                "name": "iPhone 13",
-                "amount": 15000,
-                "quantity": 20
+                subCategoryId: "6532ad10171fdf11192cfa9f",
+                subCategoryName: "લેમીનેશન_વિભાગ",
+                products: [
+                  {
+                    productId: "O-002",
+                    name: "મંત્રવીટિ 130",
+                    price: 130,
+                    quantity: 3,
+                    totalBuyingCount: 3,
+                    totalBuyingAmount: 390,
+                  },
+                  {
+                    productId: "O-003",
+                    name: "મંત્રવીટી 400",
+                    price: 400,
+                    quantity: 4,
+                    totalBuyingCount: 4,
+                    totalBuyingAmount: 1600,
+                  },
+                ],
+                totalBuyingCount: 7,
+                totalBuyingAmount: 1990,
               },
-              {
-                "name": "Samsung Galaxy S22",
-                "amount": 10000,
-                "quantity": 15
-              },
-              {
-                "name": "OnePlus 10",
-                "amount": 5000,
-                "quantity": 25
-              }
-            ]
-          }
-        ]
-      }
-  ];
-  
+            ],
+            totalBuyingCountPerCategory: 7,
+            totalBuyingAmountPerCategory: 1990,
+          },
+        ],
+      },
+    ],
+  },
+];

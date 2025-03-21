@@ -1,62 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SlArrowDown } from "react-icons/sl";
 import * as XLSX from "xlsx"; // Import xlsx library
-import { StockData } from "./StockMockData"; // Import stock data
 import "./index.css";
+import { useDispatch, useSelector } from "react-redux";
+import { REQUEST_GET_STOCk } from "../../store/product/ProductAction";
 
 const StockTable = () => {
   const [showDetailState, setShowDetailState] = useState(null);
   const [showProductState, setShowProductState] = useState(null);
+  const dispatch = useDispatch();
 
+  // Accessing stock data from redux state and ensuring it defaults to an empty array if undefined
+  const stock = useSelector((state) => state.product?.stock?.data || []);
+
+  useEffect(() => {
+    dispatch({ type: REQUEST_GET_STOCk });
+  }, [dispatch]);
+
+  // Toggle category details
   const toggleDetailState = (categoryName) => {
     setShowDetailState(showDetailState === categoryName ? null : categoryName);
   };
 
+  // Toggle subcategory details
   const toggleProductState = (subcategoryName) => {
-    setShowProductState(showProductState === subcategoryName ? null : subcategoryName);
+    setShowProductState(
+      showProductState === subcategoryName ? null : subcategoryName
+    );
   };
 
+  // Export to Excel function
   const exportToExcel = () => {
     const data = [];
 
-    StockData.forEach((category) => {
-      data.push({
-        Category: category.category,
-        "Sub Category": "",
-        Product: "",
-        Stock: category.quantity,
-        Amount: `₹${category.amount}`,
-      });
-
-      category.subcategory.forEach((subcategory) => {
-        data.push({
-          Category: "",
-          "Sub Category": subcategory.name,
-          Product: "",
-          Stock: subcategory.quantity,
-          Amount: `₹${subcategory.amount}`,
-        });
-
-        subcategory.products.forEach((product) => {
+    stock.forEach((categoryData) => {
+      categoryData?.categories?.forEach((category) => {
+        category?.subCategories?.forEach((subcategory) => {
+          // Adding subcategory info
           data.push({
-            Category: "",
-            "Sub Category": "",
-            Product: product.name,
-            Stock: product.quantity,
-            Amount: `₹${product.amount}`,
+            Category: category.categoryName,
+            "Sub Category": subcategory.subCategoryName,
+            Product: "",
+            Stock: subcategory.totalBuyingCount,
+            Amount: `₹${subcategory.totalBuyingAmount}`,
+          });
+
+          // Adding product info
+          subcategory?.products?.forEach((product) => {
+            data.push({
+              Category: "",
+              "Sub Category": "",
+              Product: product.name,
+              Stock: product.totalBuyingCount,
+              Amount: `₹${product.totalBuyingAmount}`,
+            });
           });
         });
       });
     });
 
-    // Convert JSON to worksheet
     const ws = XLSX.utils.json_to_sheet(data);
-
-    // Create a new workbook and append worksheet
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
-
-    // Save as an Excel file
     XLSX.writeFile(wb, "StockReport.xlsx");
   };
 
@@ -70,6 +75,7 @@ const StockTable = () => {
         </div>
         <div className="userreport-table-wrapper">
           <table className="userreport-table">
+            {/* Table Header - Display only once */}
             <thead>
               <tr>
                 <th>Category</th>
@@ -80,47 +86,95 @@ const StockTable = () => {
               </tr>
             </thead>
             <tbody>
-              {StockData.map((category) => (
-                <React.Fragment key={category.category}>
-                  <tr>
-                    <td onClick={() => toggleDetailState(category.category)}>
-                      <div style={{ display: "flex", gap: "1rem", cursor: "pointer", alignItems:"center" }}>
-                        <SlArrowDown size={14}/> {category.category}
-                      </div>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td>{category.quantity}</td>
-                    <td>₹{category.amount}</td>
-                  </tr>
-                  {showDetailState === category.category &&
-                    category.subcategory.map((subcategory) => (
-                      <React.Fragment key={subcategory.name}>
+              {Array.isArray(stock) &&
+                stock.map((categoryData, index) => (
+                  <React.Fragment key={index}>
+                    {categoryData?.categories?.map((category) => (
+                      <React.Fragment key={category.categoryId}>
+                        {/* Category row */}
                         <tr>
-                          <td></td>
-                          <td onClick={() => toggleProductState(subcategory.name)}>
-                            <div style={{ display: "flex", gap: "1rem", cursor: "pointer",  alignItems:"center" }}>
-                              <SlArrowDown size={14}/> {subcategory.name}
+                          <td
+                            onClick={() =>
+                              toggleDetailState(category.categoryName)
+                            }
+                            style={{ cursor: "pointer", fontWeight: "bold" }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "1rem",
+                                alignItems: "center",
+                              }}
+                            >
+                              <SlArrowDown size={14} />
+                              {category.categoryName}
                             </div>
                           </td>
-                          <td></td>
-                          <td>{subcategory.quantity}</td>
-                          <td>₹{subcategory.amount}</td>
+                          <td colSpan="2"></td>
+                          <td>{category.totalBuyingCountPerCategory}</td>
+                          <td>{category.totalBuyingAmountPerCategory}</td>
                         </tr>
-                        {showProductState === subcategory.name &&
-                          subcategory.products.map((product) => (
-                            <tr key={product.name}>
-                              <td></td>
-                              <td></td>
-                              <td>{product.name}</td>
-                              <td>{product.quantity}</td>
-                              <td>₹{product.amount}</td>
-                            </tr>
+
+                        {/* Subcategory and Product rows */}
+                        {showDetailState === category.categoryName &&
+                          category?.subCategories?.map((subcategory) => (
+                            <React.Fragment key={subcategory.subCategoryId}>
+                              {/* Subcategory row */}
+                              <tr>
+                                <td></td>
+                                <td
+                                  onClick={() =>
+                                    toggleProductState(
+                                      subcategory.subCategoryName
+                                    )
+                                  }
+                                  style={{
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      gap: "1rem",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <SlArrowDown size={14} />
+                                    {subcategory.subCategoryName}
+                                  </div>
+                                </td>
+                                <td></td>
+                                <td style={{ textAlign: "right" }}>
+                                  {subcategory.totalBuyingCount}
+                                </td>
+                                <td style={{ textAlign: "right" }}>
+                                  ₹{subcategory.totalBuyingAmount}
+                                </td>
+                              </tr>
+
+                              {/* Product rows (inside subcategory) */}
+                              {showProductState ===
+                                subcategory.subCategoryName &&
+                                subcategory?.products?.map((product) => (
+                                  <tr key={product.productId}>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{product.name}</td>
+                                    <td style={{ textAlign: "right" }}>
+                                      {product.quantity}
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>
+                                      ₹{product.totalBuyingAmount}
+                                    </td>
+                                  </tr>
+                                ))}
+                            </React.Fragment>
                           ))}
                       </React.Fragment>
                     ))}
-                </React.Fragment>
-              ))}
+                  </React.Fragment>
+                ))}
             </tbody>
           </table>
         </div>

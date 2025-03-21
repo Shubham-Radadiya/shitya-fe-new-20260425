@@ -5,7 +5,6 @@ const getTodayProduct = async (data) => {
   const response = await axios.post(`${API_URL}/report/daily/admin`, data, {
     headers: { Authorization: localStorage.getItem("access_token") },
   });
-  console.log(data, "data_reducer_daily");
   return response.data;
 };
 

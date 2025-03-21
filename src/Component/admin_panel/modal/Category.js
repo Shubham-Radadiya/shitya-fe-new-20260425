@@ -14,7 +14,7 @@ const Category = ({ closeModal }) => {
   };
   const HandleCreateCategory = async () => {
     try {
-      await dispatch({ type: CREATE_CATEGORY_REQUEST, payload: categoryData });
+      dispatch({ type: CREATE_CATEGORY_REQUEST, payload: categoryData });
       closeModal();
     } catch (error) {
       throw error;

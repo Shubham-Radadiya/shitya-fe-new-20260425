@@ -39,7 +39,6 @@ const ReportIndex = () => {
     if (type === "daily") {
       const startDate = new Date();
       const endDate = new Date();
-      console.log(startDate, "endDate");
 
       dispatch({
         type: GET_DAILY_REPORTS_REQUEST,
@@ -177,10 +176,6 @@ const ReportIndex = () => {
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
 
-  useEffect(() => {
-    console.log(filteredProducts,currentReport,filteredCategory, "filteredProducts");
-  }, []);
-
   const closeModal = () => {
     setSilakOpen(false);
   };
@@ -258,8 +253,6 @@ const ReportIndex = () => {
       });
 
       if (response.data.data.length > 0) {
-        console.log(response.data.data.length, "response.data.length");
-
         const formattedData = response.data.data.map((item) => ({
           currency: item.currency || "",
           count: item.count || 0,
@@ -273,14 +266,12 @@ const ReportIndex = () => {
         setCloseSilak(response.data.closeSilak || 0);
         setJamaRakam(response.data.jamaRakam || 0);
       } else {
-        console.log("No valid data returned from API");
         setSalesData(initialData);
         setExistingData([]);
       }
     } catch (error) {
-      console.error("Error fetching data from the API", error);
-      setSalesData(initialData); // Set to initial data on error
-      setExistingData([]); // Clear existing data
+      setSalesData(initialData);
+      setExistingData([]);
       setOpenSilak(0);
       setCloseSilak(0);
       setJamaRakam(0);
@@ -289,13 +280,12 @@ const ReportIndex = () => {
 
   useEffect(() => {
     fetchUpdatedData();
-    console.log(salesData, "SalesData");
   }, []);
 
   const handleValueChange = (index, value) => {
     const updatedSalesData = [...salesData];
-    updatedSalesData[index].count = parseInt(value, 10) || 0; // Ensure it's a valid number
-    setSalesData(updatedSalesData); // Update state with new values
+    updatedSalesData[index].count = parseInt(value, 10) || 0;
+    setSalesData(updatedSalesData);
   };
 
   const handleSubmit = () => {
@@ -309,40 +299,24 @@ const ReportIndex = () => {
       jamaRakam: parseInt(jamaRakam, 10),
     };
 
-    console.log("Payload to be sent:", payload);
-
     const token = localStorage.getItem("access_token");
-
-    // Check the length of existingData directly
     if (existingData.length > 0) {
       axios
         .patch(`http://localhost:3010/daily-currency/${id}`, payload, {
           headers: { Authorization: token },
         })
         .then((patchResponse) => {
-          console.log(
-            "Data successfully updated via PATCH",
-            patchResponse.data
-          );
-          fetchUpdatedData(); // Refresh data
+          fetchUpdatedData();
         })
-        .catch((error) => {
-          console.error("Error in updating data via PATCH", error);
-        });
     } else {
       axios
         .post("http://localhost:3010/daily-currency", payload, {
           headers: { Authorization: token },
         })
         .then((response) => {
-          console.log("Data successfully sent to the API", response.data);
-          fetchUpdatedData(); // Refresh data
+          fetchUpdatedData();
         })
-        .catch((error) => {
-          console.error("Error in sending data to the API", error);
-        });
     }
-
     closeModal();
   };
 

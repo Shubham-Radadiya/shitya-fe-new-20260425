@@ -8,7 +8,6 @@ import "./index.css";
 import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
-import { CiEdit } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
@@ -49,7 +48,6 @@ const PurchaseReturn = () => {
 
   const fetchInvoiceDataForStock = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
-    console.log("data", data);
 
     const transformedArray = data?.productId.map((item) => ({
       _id: item?._id?._id,
@@ -95,7 +93,6 @@ const PurchaseReturn = () => {
     if (type === "daily") {
       const startDate = new Date();
       const endDate = new Date();
-      console.log(startDate, "endDate");
 
       dispatch({
         type: GET_DAILY_REPORTS_REQUEST,
@@ -145,8 +142,6 @@ const PurchaseReturn = () => {
     const table = document.querySelector(".userreport-table");
     const tableClone = table.cloneNode(true);
     const rows = tableClone.querySelectorAll("tr");
-
-    // Remove footer or any other unwanted rows
     rows.forEach((row) => {
       if (row.querySelector(".tfootgroup")) {
         row.parentNode.removeChild(row);
@@ -213,7 +208,6 @@ const PurchaseReturn = () => {
   );
 
   useEffect(() => {
-    console.log(selectedInvoice, "selectedINV");
   }, [selectedInvoice]);
   return (
     <>

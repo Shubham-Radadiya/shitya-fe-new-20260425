@@ -52,7 +52,6 @@ const PurchaseReport = () => {
 
   const fetchInvoiceDataForStock = async (invoiceId) => {
     const data = await fetchInvoiceData(invoiceId);
-    // console.log(data, "data2");
 
     const transformedArray = data?.productId.map((item) => ({
       _id: item?._id?._id,
@@ -99,7 +98,6 @@ const PurchaseReport = () => {
     if (type === "daily") {
       const startDate = new Date();
       const endDate = new Date();
-      console.log(startDate, "endDate");
 
       dispatch({
         type: GET_DAILY_REPORTS_REQUEST,
@@ -213,7 +211,6 @@ const PurchaseReport = () => {
   );
 
   useEffect(() => {
-    console.log(selectedInvoice, "selectedINV");
   }, [selectedInvoice]);
 
   return (

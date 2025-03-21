@@ -2,10 +2,8 @@ import React from "react";
 import "./index.css";
 import Maharaj from "../../images/maharaj.png";
 import Header from "../header/HeaderIndex";
-import { useLocation } from "react-router-dom";
 
 const Dashboard = ({ component }) => {
-  const location = useLocation();
 
   return (
     <div className="flexbetween admin-dashboard">

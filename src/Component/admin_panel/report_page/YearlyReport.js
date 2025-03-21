@@ -59,12 +59,10 @@ export default function YearlyReport() {
     : yearlyreport;
 
   const getMonths = (report) => {
-    console.log(report, "report2");
     return report?.flatMap((item) => item.data || []);
   };
 
   const productsArray = getMonths(filteredReport);
-  console.log(productsArray, "productsArray");
 
   const getUniqueDates = (data) => {
     const dates = new Set();

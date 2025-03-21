@@ -13,7 +13,6 @@ const Home = () => {
   const [showReprintBill, setShowReprintBill] = useState(false);
   const [returnMode, setReturnMode] = useState(false);
   const [name, setName] = useState("");
-  const [newState, setNewState] = useState(false);
   const invoiceData = currentLocation.state?.invoiceData;
   const [product, setProduct] = useState({
     name: "",
@@ -36,12 +35,6 @@ const Home = () => {
   const sendData = (data) => {
     setMain(data);
   };
-
-  const stateUpdate = (state) => {
-    setNewState(state);
-  };
-  console.log("invoiceData", invoiceData);
-
   return (
     <>
       <div className="container_flex" style={{ height: "100vh" }}>
@@ -49,7 +42,6 @@ const Home = () => {
           name={name}
           updateName={updateName}
           sendData={sendData}
-          stateUpdate={stateUpdate}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
         />
@@ -59,7 +51,7 @@ const Home = () => {
             style={{
               color:
                 currentLocation.pathname === "/stock"
-                  ? "rgb(87 15 119)"
+                  ? "rgb(87 15 119)" : currentLocation.pathname === "/bhet" ? "blue"
                   : "rgb(97, 37, 17)",
             }}
           >
@@ -69,14 +61,12 @@ const Home = () => {
             <MenuVariety
               name={name}
               updateProduct={updateProduct}
-              stateUpdate={stateUpdate}
               selectedCategory={selectedCategory}
               setSelectedSubCategory={setSelectedSubCategoryId}
             />
           </div>
           <AddList
             main={main}
-            // product={product}
             selectedSubCategoryId={selectedSubCategoryId}
             setShowReprintBill={setShowReprintBill}
           />

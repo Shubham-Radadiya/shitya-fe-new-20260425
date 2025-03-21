@@ -15,7 +15,6 @@ function* getdailyreports(action) {
   function* getmonthlyeports(action) {
     try {
      const data= yield call(reportServices.getMonthlyProduct, action.payload);
-     console.log(action.payload, "action.payload");
      
       yield put({ type: FETCH_MONTHLY_PRODUCT,payload: data});
     } catch (error) {

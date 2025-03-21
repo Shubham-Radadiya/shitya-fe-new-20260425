@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Bills from "../../user_panel/bills/BillIndex";
 import AddList from "../../user_panel/add_list/AddListIndex";
-// import "./home.css";
 import MenuVariety from "../../user_panel/menu_variety/MenuVariety";
 import Menu from "../../user_panel/menu/MenuIndex";
-import { useLocation } from "react-router-dom";
+import { useInvoice } from "../../../store/invoice/InvoiceReducer";
 
 const StockIndex = () => {
-  
+  const { invoiceData } = useInvoice();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
-  const [showReprintBill, setShowReprintBill] = useState(false);
   const [returnMode, setReturnMode] = useState(false);
   const [name, setName] = useState("");
-  const [newState, setNewState] = useState(false);
   const [product, setProduct] = useState({
     name: "",
     payload: {
@@ -37,10 +34,6 @@ const StockIndex = () => {
     setMain(data);
   };
 
-  const stateUpdate = (state) => {
-    setNewState(state);
-  };
-
   return (
     <>
       <div className="container_flex" style={{ height: "100vh" }}>
@@ -48,7 +41,6 @@ const StockIndex = () => {
           name={name}
           updateName={updateName}
           sendData={sendData}
-          stateUpdate={stateUpdate}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
         />
@@ -62,16 +54,13 @@ const StockIndex = () => {
             <MenuVariety
               name={name}
               updateProduct={updateProduct}
-              stateUpdate={stateUpdate}
               selectedCategory={selectedCategory}
               setSelectedSubCategory={setSelectedSubCategoryId}
             />
           </div>
           <AddList
             main={main}
-            // product={product}
             selectedSubCategoryId={selectedSubCategoryId}
-            setShowReprintBill={setShowReprintBill}
           />
         </div>
         <Bills returnMode={returnMode} setReturnMode={setReturnMode} invoice={invoiceData} />

@@ -56,6 +56,18 @@
   border-radius: 0.5rem;
 }
 
+.bhet_category_name {
+  width: 100%;
+  text-align: center;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  color: var(--bhet-bg);;
+  border: 1px solid var(--bhet-bg);;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-radius: 0.5rem;
+}
+
 .stock_category_name{
   width: 100%;
   text-align: center;
@@ -76,6 +88,12 @@
 
 .purchase_category_name.active {
   background-color: var(--purchase-bg);
+  color: var(--white-color);
+  border-radius: 0.5rem;
+}
+
+.bhet_category_name.active {
+  background-color: var(--bhet-bg);
   color: var(--white-color);
   border-radius: 0.5rem;
 }

@@ -29,12 +29,10 @@ const AddList = ({
     return a.productId - b.productId;
   }
 
-  // Show all products initially if no subcategory is selected
   const allProducts = main.subCategory.flatMap(
     (sub) => sub.products?.sort(sortBySubId) || []
   );
 
-  // Filter products by selected subcategory
   const filteredProducts = selectedSubCategoryId
     ? main.subCategory
         ?.filter((sub) => sub._id === selectedSubCategoryId)
@@ -73,13 +71,13 @@ const AddList = ({
                   style={{
                     userSelect: "none",
                     background:
-                      currentLocation.pathname === "/stock" && "rgb(87 15 119)",
+                      currentLocation.pathname === "/stock" ? "rgb(113 48 142)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)" : "rgb(97, 37, 17)" ,
                   }}
                 >
                   {new Intl.NumberFormat("en-IN").format(product.price)}
                 </p>
                 <div>
-                  <div className="product-name" style={{ userSelect: "none" }}>
+                  <div className="product-name" style={{ userSelect: "none"}}>
                     <p
                       title={product.name}
                       style={{
@@ -110,7 +108,7 @@ const AddList = ({
                   style={{
                     userSelect: "none",
                     background:
-                      currentLocation.pathname === "/stock" && "rgb(87 15 119)",
+                    currentLocation.pathname === "/stock" ? "rgb(113 48 142)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)" : "rgb(97, 37, 17)",
                   }}
                 >
                   ₹ {new Intl.NumberFormat("en-IN").format(product.price)}
@@ -121,8 +119,8 @@ const AddList = ({
                     style={{
                       userSelect: "none",
                       color:
-                        currentLocation.pathname === "/stock" &&
-                        "rgb(87 15 119)",
+                        currentLocation.pathname === "/stock" ? "rgb(113 48 142)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)" : "rgb(97, 37, 17)",
+                         background:currentLocation.pathname === "/bhet" && "rgb(34 78 8 / 2%)"
                     }}
                   >
                     <p
@@ -140,8 +138,7 @@ const AddList = ({
                     style={{
                       userSelect: "none",
                       background:
-                        currentLocation.pathname === "/stock" &&
-                        "rgb(87 15 119)",
+                        currentLocation.pathname === "/stock" ? "rgb(113 48 142)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)" : "rgb(97, 37, 17)"
                     }}
                   >
                     {truncateText(product.productId, 10)}

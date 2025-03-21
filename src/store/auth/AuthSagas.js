@@ -8,10 +8,10 @@ function* loginSaga(action) {
         const { data, headers } = yield call(userServices.userLogin, action.payload);
         localStorage.setItem("role", data?.userType);
         localStorage.setItem("access_token", headers["x-auth-token"]);
-        if (data?.userType === "SUPER ADMIN") {
+        if (data?.userType === "SUPER ADMIN" || data?.userType === "MANAGER") {
             window.location.href = "/dashboard";
         } else {
-            window.location.href = "/stock";
+            window.location.href = "/dashboard";
         }
     } catch (error) {
         toast.error("enter valid userName address and password");

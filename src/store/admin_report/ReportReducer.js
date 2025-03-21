@@ -24,8 +24,6 @@ const ReportReducers = (state = initialState, action) => {
           customereport:action.payload
         }
       case FETCH_MONTHLY_PRODUCT:
-
-        console.log(action.payload, "action.payload");
         return {
           ...state,
           monthlyreport: action.payload,

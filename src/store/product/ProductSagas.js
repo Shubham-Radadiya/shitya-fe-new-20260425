@@ -1,13 +1,15 @@
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import productServices from "../../services/product.services";
-import { 
-  CREATE_PRODUCT_REQUEST, 
-  DELETE_PRODUCT, 
-  ERROR_PRODUCT, 
-  PRODUCT_REQUEST, 
-  REQUEST_UPDATE_PRODUCT, 
-  REQUEST_STOCK_QUANTITY, 
-  SET_PRODUCT 
+import {
+  CREATE_PRODUCT_REQUEST,
+  DELETE_PRODUCT,
+  ERROR_PRODUCT,
+  PRODUCT_REQUEST,
+  REQUEST_UPDATE_PRODUCT,
+  REQUEST_STOCK_QUANTITY,
+  SET_PRODUCT,
+  REQUEST_GET_STOCk,
+  GET_STOCK,
 } from "./ProductAction";
 import { toast } from "react-toastify";
 
@@ -64,6 +66,15 @@ function* deleteProductSaga(action) {
   }
 }
 
+function* requestStockSaga() {
+  try {
+    const data = yield call(productServices.getStock);
+    yield put({ type: GET_STOCK, payload: data });
+  } catch (error) {
+    toast.error("Failed to fetch products", error);
+  }
+}
+
 const productSaga = function* () {
   yield all([
     takeLatest(CREATE_PRODUCT_REQUEST, createProductSaga),
@@ -71,6 +82,7 @@ const productSaga = function* () {
     takeLatest(DELETE_PRODUCT, deleteProductSaga),
     takeLatest(REQUEST_UPDATE_PRODUCT, updateProductSaga),
     takeLatest(REQUEST_STOCK_QUANTITY, updateStockQuantitySaga),
+    takeLatest(REQUEST_GET_STOCk, requestStockSaga),
   ]);
 };
 

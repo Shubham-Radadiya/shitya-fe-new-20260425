@@ -49,13 +49,10 @@ const DailyReport = () => {
     : dailyreport;
 
   const productsArray = getProducts(filteredReport);
-  console.log(productsArray, dailyreport, "productsArray");
 
   const isDataAvailable = productsArray.length > 0;
 
   const handleUserChange = (user) => {
-    console.log(user, "user");
-
     setSelectedUser(user);
     dispatch({
       type: FILTER_DAILY,

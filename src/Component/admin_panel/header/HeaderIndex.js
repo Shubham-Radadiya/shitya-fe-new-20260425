@@ -1,19 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import "./index.css";
 import MaharajHeader from "../../images/maharaj-header.png";
 import GurujiHeader from "../../images/guruji-header.png";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { LOGOUT_REQUEST } from "../../../store/auth/AuthAction";
 import { CgLogOut } from "react-icons/cg";
 import { useDispatch } from "react-redux";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const [activeLink, setActiveLink] = useState("Home");
-  const currentLocation = useLocation();
-  const handleLinkClick = (link) => {
-    setActiveLink(link);
-  };
 
   const handleLogout = () => {
     dispatch({ type: LOGOUT_REQUEST });
@@ -53,11 +48,6 @@ const Header = () => {
           >
             Report
           </NavLink>
-          {/* {currentLocation.pathname !== "/stock" && (
-            <NavLink to="/stock"  className={({ isActive }) => `${isActive ? "active" : ""}`}>
-              Purchase
-            </NavLink>
-          )} */}
           </div>
           
           <button className="logout-btn" onClick={handleLogout}>
