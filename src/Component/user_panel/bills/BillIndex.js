@@ -310,6 +310,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   useEffect(() => {
     const fetchData = async () => {
       const number = await fetchInvoiceNumber(false);
+      // eslint-disable-next-line no-lone-blocks
       {
         currentLocation.state?.returnEdit
           ? setInvoiceNumber(currentLocation.state.invoiceId)
