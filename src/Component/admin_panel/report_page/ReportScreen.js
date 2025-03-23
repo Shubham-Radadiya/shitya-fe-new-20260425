@@ -16,6 +16,8 @@ import StockTable from "../../report/StockTable";
 import PurchaseReturn from "../../report/PurchaseReturn";
 import { useInvoice } from "../../../store/invoice/InvoiceReducer";
 import { fetchInvoices } from "../../../store/invoice/InvoiceAction";
+import SilakMonthlyReport from "../../report/SilakMonthlyReport";
+import SilakYearlyReport from "../../report/SilakYearlyReport";
 
 const ReportScreen = () => {
   const [activeReport, setActiveReport] = useState("purchase");
@@ -96,6 +98,23 @@ const ReportScreen = () => {
           key: "purchaseReturn",
           label: "Purchase Return",
           component: <PurchaseReturn invoiceData={invoiceData} />,
+        },
+      ],
+    },
+    {
+      key: "silak",
+      label: "Silak Report",
+      hasSubReports: true,
+      subReports: [
+        {
+          key: "SilakReport",
+          label: "Silak Report Monthly",
+          component: <SilakMonthlyReport/>,
+        },
+        {
+          key: "purchaseReturn",
+          label: "Silak Report Yearly",
+          component: <SilakYearlyReport/>,
         },
       ],
     },

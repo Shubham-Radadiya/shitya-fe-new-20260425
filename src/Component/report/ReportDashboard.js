@@ -7,6 +7,8 @@ import PurchaseReport from "./PurchaseReport";
 import ReportIndex from "./ReportIndex";
 import PurchaseReturn from "./PurchaseReturn";
 import StockTable from "./StockTable";
+import SilakYearlyReport from "./SilakYearlyReport";
+import SilakMonthlyReport from "./SilakMonthlyReport";
 
 const ReportsDashboard = () => {
   const dispatch = useDispatch();
@@ -86,6 +88,23 @@ const ReportsDashboard = () => {
       ],
     },
     { key: "stock", label: "Stock Report", component: <StockTable /> },
+    {
+      key: "silak",
+      label: "Silak Report",
+      hasSubReports: true,
+      subReports: [
+        {
+          key: "SilakReport",
+          label: "Silak Report Monthly",
+          component: <SilakMonthlyReport/>,
+        },
+        {
+          key: "purchaseReturn",
+          label: "Silak Report Yearly",
+          component: <SilakYearlyReport/>,
+        },
+      ],
+    },
   ];
 
   return (
