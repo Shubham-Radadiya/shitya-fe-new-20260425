@@ -11,6 +11,7 @@ import "./index.css";
 import { SlArrowDown } from "react-icons/sl";
 import InnerTable from "./InnerTable";
 import Category from "../modal/Category";
+import { REQUEST_ADMIN_EXCEL } from "../../../store/excel/excelAction";
 
 const Product = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,16 @@ const Product = () => {
   };
 
   const categories = useSelector((state) => state.category.categories);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("excelFile", file);
+
+      dispatch({ type: REQUEST_ADMIN_EXCEL, payload: { data: formData } });
+    }
+  };
 
   useEffect(() => {
     dispatch({ type: REQUEST_CATEGORY });
@@ -74,6 +85,12 @@ const Product = () => {
             <IoIosAddCircle className="add-icon" />
             Product
           </button>
+          <label className="custom-file-upload">
+        <span>Upload Excel</span>
+        <input type="file" onChange={handleFileChange} />
+      </label>
+
+
         </div>
       </div>
       <div className="table-container">
