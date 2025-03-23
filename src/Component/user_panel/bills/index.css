@@ -507,3 +507,23 @@ tr {
   display: flex;
   gap: 15px;
 }
+
+.purchase-file-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--purchase-bg); 
+  color: var(--white-color);
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: small;
+  transition: background 0.3s ease;
+}
+
+.purchase-file-upload input[type="file"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}

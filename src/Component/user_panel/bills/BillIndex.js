@@ -28,6 +28,9 @@ import {
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
 } from "../../../store/invoice/InvoiceAction";
+import { toast } from "react-toastify";
+import { REQUEST_USER_EXCEL } from "../../../store/excel/excelAction";
+import ExcelBillPrint from "./ExcelBillPrint";
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
@@ -36,16 +39,20 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const { billNo } = useBill();
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
+  const excelBill = useSelector((state) => state.excel.excelResponse);
   const [reportData] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [excelModalOpen, setExcelModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const [newQuantity, setNewQuantity] = useState("");
+  const [excelBillPrint, setExcelBillPrint] = useState("");
   const [reprintModalOpen, setReprintModalOpen] = useState(false);
   const [reprintField, setReprintField] = useState("");
   const [showReprintBill, setShowReprintBill] = useState(false);
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { returnEdit, invoiceId } = currentLocation.state || {};
+  const fileInputRef = useRef(null);
 
   const [pin, setPin] = useState("");
   const [showPinPrompt, setShowPinPrompt] = useState(null);
@@ -56,6 +63,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   const handlePinChange = (e) => {
     setPin(e.target.value);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("excelFile", file);
+
+      dispatch({ type: REQUEST_USER_EXCEL, payload: { data: formData } });
+    }
   };
 
   const handlePinSubmit = () => {
@@ -196,6 +213,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
     }
   };
 
+  useEffect(() => {
+    if (excelBill) {
+      setExcelBillPrint(excelBill); // Store data for printing
+      setExcelModalOpen(true); // Open modal or navigate
+    }
+  }, [excelBill]);
+
   const handleAfterPrint = async () => {
     dispatch({ type: CLEAR_CART });
     setShowReprintBill(false);
@@ -319,6 +343,38 @@ const Bills = ({ returnMode, setReturnMode }) => {
     fetchData();
   }, []);
 
+  const ExcelBillTable = React.forwardRef((props, ref) => {
+    const excelBill = useSelector((state) => state.excelData); // Assume this comes from Redux
+  
+    return (
+      <div ref={ref} className="p-4">
+        <h2 className="text-lg font-bold text-center mb-4">Invoice Bill</h2>
+        <table className="table-auto w-full border-collapse border border-gray-400">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border border-gray-400 px-4 py-2">#</th>
+              <th className="border border-gray-400 px-4 py-2">Quantity</th>
+              <th className="border border-gray-400 px-4 py-2">Price</th>
+              <th className="border border-gray-400 px-4 py-2">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {excelBill?.map((item, index) => (
+              <tr key={item._id} className="text-center">
+                <td className="border border-gray-400 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-400 px-4 py-2">{item.quantity}</td>
+                <td className="border border-gray-400 px-4 py-2">{item.price}</td>
+                <td className="border border-gray-400 px-4 py-2">
+                  {item.quantity * item.price}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  });
+
   const handleReturnBill = async () => {
     dispatch({ type: CLEAR_CART });
     dispatch({ type: RETURN_BILL_NO });
@@ -335,13 +391,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
           <NavLink to="/dashboard" className="screen-list-circle sales-circle">
             S
           </NavLink>
-          {/* <button
+          <button
             className="screen-list-circle sales-report-circle"
             style={{ background: "rgb(34 78 8)" }}
             onClick={() => handleButtonClick("bhet")}
           >
             B
-          </button> */}
+          </button>
           <button
             className="screen-list-circle purchase-circle"
             onClick={() => handleButtonClick("stock")}
@@ -381,7 +437,33 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             Reset
           </button>
-
+          {currentLocation.pathname === "/stock" && (
+            <>
+          {/* <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".xls,.xlsx,.csv"
+          /> */}
+            <label className="purchase-file-upload">
+            <span>Excel</span>
+            <input type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".xls,.xlsx,.csv" />
+          </label>
+          {/* // <button
+          //   className={
+            //     currentLocation.pathname === "/stock"
+            //       ? "purchase_icon-button"
+            //       : "icon-button"
+            //   }
+            //   onClick={handleFileChange}
+            // >
+            //   Export Excel
+            // </button> */}
+            </>
+          )}
           <button
             className={
               currentLocation.pathname === "/stock"
@@ -477,6 +559,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
             </button>
           )}
         </div>
+
+        
 
         <div className="bill_index">
           <h4 style={{ textAlign: "center" }}>Jay Swaminarayan</h4>
@@ -1265,6 +1349,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
           </div>
         </div>
       )}
+
+{excelModalOpen && <ExcelBillPrint excelBill={excelBillPrint} onClose={() => setModalOpen(false)} />}
+
 
       {showPinPrompt && (
         <div className="pin-prompt">
