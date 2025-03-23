@@ -524,6 +524,18 @@
   cursor: pointer;
   padding: 0.3rem;
 }
+.bhet_icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  border-radius: var(--btn-radius);
+  background-color: var(--bhet-bg);
+  color: var(--white-color);
+  cursor: pointer;
+  padding: 0.3rem;
+}
 .khulti-shilak-model-title {
   color: white;
   width: 100%;

@@ -20,6 +20,7 @@ import {
   REPRINT_BILL,
   RETURN_BILL_NO,
   SET_BILL_NO,
+  REQUEST_BHET_BILL_NO,
 } from "../../../store/bill/billActionType";
 import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
@@ -90,7 +91,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
       setShowPinPrompt(screen);
     }
   };
-
+  useEffect(() => {  
+  if (location.pathname === "/bhet") {
+    dispatch({ type: REQUEST_BHET_BILL_NO });
+  }
+}, []);
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -215,8 +220,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   useEffect(() => {
     if (excelBill) {
-      setExcelBillPrint(excelBill); // Store data for printing
-      setExcelModalOpen(true); // Open modal or navigate
+      setExcelBillPrint(excelBill);
+      setExcelModalOpen(true);
     }
   }, [excelBill]);
 
@@ -343,38 +348,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     fetchData();
   }, []);
 
-  const ExcelBillTable = React.forwardRef((props, ref) => {
-    const excelBill = useSelector((state) => state.excelData); // Assume this comes from Redux
-  
-    return (
-      <div ref={ref} className="p-4">
-        <h2 className="text-lg font-bold text-center mb-4">Invoice Bill</h2>
-        <table className="table-auto w-full border-collapse border border-gray-400">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-400 px-4 py-2">#</th>
-              <th className="border border-gray-400 px-4 py-2">Quantity</th>
-              <th className="border border-gray-400 px-4 py-2">Price</th>
-              <th className="border border-gray-400 px-4 py-2">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {excelBill?.map((item, index) => (
-              <tr key={item._id} className="text-center">
-                <td className="border border-gray-400 px-4 py-2">{index + 1}</td>
-                <td className="border border-gray-400 px-4 py-2">{item.quantity}</td>
-                <td className="border border-gray-400 px-4 py-2">{item.price}</td>
-                <td className="border border-gray-400 px-4 py-2">
-                  {item.quantity * item.price}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  });
-
   const handleReturnBill = async () => {
     dispatch({ type: CLEAR_CART });
     dispatch({ type: RETURN_BILL_NO });
@@ -427,6 +400,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
             className={
               currentLocation.pathname === "/stock"
                 ? "purchase_icon-button"
+                : currentLocation.pathname === "/bhet"
+                ? "bhet_icon-button"
                 : "icon-button"
             }
             onClick={() => {
@@ -437,33 +412,19 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             Reset
           </button>
+
           {currentLocation.pathname === "/stock" && (
-            <>
-          {/* <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".xls,.xlsx,.csv"
-          /> */}
             <label className="purchase-file-upload">
-            <span>Excel</span>
-            <input type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".xls,.xlsx,.csv" />
-          </label>
-          {/* // <button
-          //   className={
-            //     currentLocation.pathname === "/stock"
-            //       ? "purchase_icon-button"
-            //       : "icon-button"
-            //   }
-            //   onClick={handleFileChange}
-            // >
-            //   Export Excel
-            // </button> */}
-            </>
+              <span>Excel</span>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".xls,.xlsx,.csv"
+              />
+            </label>
           )}
+          {currentLocation.pathname !== "/bhet" && (
           <button
             className={
               currentLocation.pathname === "/stock"
@@ -474,6 +435,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             Return
           </button>
+          )}
           {currentLocation.pathname === "/stock" ? (
             purchaseItems.length > 0 ? (
               <div
@@ -539,14 +501,20 @@ const Bills = ({ returnMode, setReturnMode }) => {
             </div>
           ) : (
             <p
-              className="icon-button"
+              className={
+                currentLocation.pathname === "/stock"
+                  ? "purchase_icon-button"
+                  : currentLocation.pathname === "/bhet"
+                  ? "bhet_icon-button"
+                  : "icon-button"
+              }
               style={{ fontSize: "0.82rem", color: "gray", userSelect: "none" }}
             >
               Print Bill
             </p>
           )}
 
-          {currentLocation.pathname !== "/stock" && (
+          {currentLocation.pathname !== "/bhet" && (
             <button
               className={
                 currentLocation.pathname === "/stock"
@@ -560,17 +528,17 @@ const Bills = ({ returnMode, setReturnMode }) => {
           )}
         </div>
 
-        
-
         <div className="bill_index">
           <h4 style={{ textAlign: "center" }}>Jay Swaminarayan</h4>
           <div className="bill_header_sub">
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
             <h8>
-              {currentLocation.pathname === "/stock"
-                ? `INV.No: ${displayInvoice}`
-                : `Sr.No: ${billNo && billNo?.billId}`}
-            </h8>
+  {currentLocation.pathname === "/stock"
+    ? `INV.No: ${displayInvoice}`
+    : currentLocation.pathname === "/bhet"
+    ? `Bhet.No: ${billNo?.billId}`
+    : `Sr.No: ${billNo?.billId}`}
+</h8>
           </div>
 
           {showReprintBill ? (
@@ -1350,8 +1318,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
         </div>
       )}
 
-{excelModalOpen && <ExcelBillPrint excelBill={excelBillPrint} onClose={() => setModalOpen(false)} />}
-
+      {excelModalOpen && (
+        <ExcelBillPrint
+          excelBill={excelBillPrint}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
 
       {showPinPrompt && (
         <div className="pin-prompt">
