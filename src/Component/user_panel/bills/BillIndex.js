@@ -14,6 +14,8 @@ import {
   CLEAR_PURCHASE_CART,
   CLEAR_BHET_CART,
   ADD_TO_UPDATEPURCHASECART,
+  ADD_TO_BHET_CART,
+  REMOVE_FROM_BHET_CART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -41,6 +43,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const items = useSelector((state) => state.cart.items || []);
   const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
   const bhetItems = useSelector((state) => state.cart.bhetItems || []);
+  const bhetNo = useSelector((state) => state.bill.billNo || []);
   const { billNo } = useBill();
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
@@ -58,11 +61,14 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { returnEdit, invoiceId } = currentLocation.state || {};
   const fileInputRef = useRef(null);
+  const [bhetNumber, setBhetNumber] = useState("");
 
   const [pin, setPin] = useState("");
   const [showPinPrompt, setShowPinPrompt] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  console.log("--------", bhetNo?.bhetNo);
 
   const correctPin = "2898";
 
@@ -97,8 +103,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
   };
   useEffect(() => {
     dispatch({ type: REQUEST_BHET_BILL_NO });
-  }, [showPinPrompt]);
-
+    setBhetNumber(bhetNo?.bhetNo);
+  }, [bhetNumber]);
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -185,6 +191,18 @@ const Bills = ({ returnMode, setReturnMode }) => {
       setIsButtonDisabled(false);
     }, 5000);
   };
+  const handleReset = () => {
+    if (currentLocation.pathname === "/stock") {
+      dispatch({ type: CLEAR_PURCHASE_CART });
+    } else if (currentLocation.pathname === "/bhet") {
+      dispatch({ type: CLEAR_BHET_CART });
+    } else {
+      dispatch({ type: CLEAR_CART });
+    }
+    setShowReprintBill(false);
+    setReturnMode(false);
+  };
+  
 
   const printDiv = (items) => {
     const payload = {
@@ -409,7 +427,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
               <button
                 onClick={() => {
                   dispatch({
-                    type: ADD_TO_PURCHASE_CART,
+                    type:
+                      currentLocation.pathname === "/bhet"
+                        ? ADD_TO_BHET_CART
+                        : ADD_TO_PURCHASE_CART,
                     payload: product,
                   });
                   setShowReprintBill(false);
@@ -417,6 +438,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
               >
                 +
               </button>
+
               <span
                 onClick={() => openModal(product)}
                 style={{ cursor: "pointer" }}
@@ -428,7 +450,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
               <button
                 onClick={() => {
                   dispatch({
-                    type: REMOVE_FROM_PURCHASE_CART,
+                    type:
+                      currentLocation.pathname === "/bhet"
+                        ? REMOVE_FROM_BHET_CART
+                        : REMOVE_FROM_PURCHASE_CART,
                     payload: product._id,
                   });
                   setShowReprintBill(false);
@@ -502,11 +527,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 ? "bhet_icon-button"
                 : "icon-button"
             }
-            onClick={() => {
-              dispatch({ type: CLEAR_CART });
-              setShowReprintBill(false);
-              setReturnMode(false);
-            }}
+            onClick={handleReset}
           >
             Reset
           </button>
@@ -578,7 +599,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
             <div
               className={`
                  icon-button
-               ${isButtonDisabled ? "disabled" : ""}`}
+               ${isButtonDisabled ? "disabled" : "bhet_icon-button"}`}
               onClick={handlePrintClick}
               style={
                 isButtonDisabled
@@ -634,7 +655,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
               {currentLocation.pathname === "/stock"
                 ? `INV.No: ${displayInvoice}`
                 : currentLocation.pathname === "/bhet"
-                ? `Bhet.No: ${billNo?.billId}`
+                ? `Bhet. No: ${bhetNumber}`
                 : `Sr.No: ${billNo?.billId}`}
             </h8>
           </div>
@@ -698,6 +719,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
                     >
                       {currentLocation.pathname === "/stock"
                         ? "Total Purchase"
+                        : currentLocation.pathname === "/bhet"
+                        ? "Total Bhet"
                         : "Total"}
                     </td>
                     <td></td>
@@ -758,6 +781,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
                     >
                       {currentLocation.pathname === "/stock"
                         ? "Total Purchase"
+                        : currentLocation.pathname === "/bhet"
+                        ? "Total Bhet"
                         : "Total"}
                     </td>
                     <td style={{ fontWeight: "bolder", width: "39px" }}>
@@ -769,6 +794,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
                           : new Intl.NumberFormat("en-IN").format(
                               totalPurchaseQuantity
                             )
+                        : currentLocation.pathname === "/bhet"
+                        ? new Intl.NumberFormat("en-IN").format(
+                            totalBhetQuantity
+                          )
                         : returnMode
                         ? -new Intl.NumberFormat("en-IN").format(totalQuantity)
                         : new Intl.NumberFormat("en-IN").format(totalQuantity)}
@@ -792,6 +821,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         ? new Intl.NumberFormat("en-IN").format(
                             totalPurchaseprice
                           )
+                        : currentLocation.pathname === "/bhet"
+                        ? new Intl.NumberFormat("en-IN").format(totalBhetprice)
                         : new Intl.NumberFormat("en-IN").format(totalPrice)}
                     </td>
                   </tr>
@@ -830,7 +861,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
           >
             {currentLocation.pathname === "/stock"
               ? `INV.No: ${invoiceNumber}`
-              : `Sr.No: ${billNo && billNo?.billId}`}
+              : currentLocation.pathname === "/bhet"
+              ? `Bhet.No: ${bhetNumber}`
+              : billNo && billNo.billId
+              ? `Sr.No: ${billNo.billId}`
+              : ""}
           </h8>
         </div>
         <div className="bill_header_main"></div>
@@ -1253,6 +1288,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 ₹{" "}
                 {currentLocation.pathname === "/stock"
                   ? new Intl.NumberFormat("en-IN").format(totalPurchaseprice)
+                  : currentLocation.pathname === "/bhet"
+                  ? new Intl.NumberFormat("en-IN").format(totalBhetprice)
                   : new Intl.NumberFormat("en-IN").format(totalPrice)}
               </p>
             </div>

@@ -3,6 +3,7 @@ import {
   ADD_TO_BHET_CART,
   ADD_TO_CART,
   ADD_TO_PURCHASE_CART,
+  ADD_TO_UPDATEBHETCART,
   ADD_TO_UPDATEDCART,
   ADD_TO_UPDATEPURCHASECART,
   CLEAR_BHET_CART,
@@ -124,6 +125,24 @@ case ADD_TO_UPDATEPURCHASECART:
           purchaseItems: action.payload,
         };
       }
+case ADD_TO_UPDATEBHETCART:
+ const existingItemIndexs2 = state.bhetItems.findIndex(
+        (item) => item.productId === action.payload.productId
+      );
+      if (existingItemIndexs2 !== -1) {
+        const updatedItems = [...state.items];
+        updatedItems[existingItemIndexs2].quantity += 1;
+
+        return {
+          ...state,
+          purchaseItems: updatedItems,
+        };
+      } else {
+        return {
+          ...state,
+          bhetItems: action.payload,
+        };
+      }
       
     case REMOVE_FROM_CART:
       const exitingIndex = state.items.findIndex(
@@ -168,12 +187,12 @@ case ADD_TO_UPDATEPURCHASECART:
         (item) => item._id === action.payload
       );
 
-      if (exitingIndex1 !== -1) {
+      if (exitingIndex2 !== -1) {
         const updatedItems = [...state.bhetItems];
-        if (updatedItems[exitingIndex1].quantity > 1) {
-          updatedItems[exitingIndex1].quantity -= 1;
+        if (updatedItems[exitingIndex2].quantity > 1) {
+          updatedItems[exitingIndex2].quantity -= 1;
         } else {
-          updatedItems.splice(exitingIndex1, 1);
+          updatedItems.splice(exitingIndex2, 1);
         }
         return {
           ...state,
@@ -202,7 +221,7 @@ case ADD_TO_UPDATEPURCHASECART:
     case EDIT_BHET_DATA:
       return {
         ...state,
-        purchaseItems: action.payload,
+        bhetItems: action.payload,
       };
     default:
       return state;
