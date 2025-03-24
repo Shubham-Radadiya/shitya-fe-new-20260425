@@ -4,6 +4,7 @@ import {
   ADD_TO_CART,
   ADD_TO_PURCHASE_CART,
   ADD_TO_UPDATEDCART,
+  ADD_TO_UPDATEPURCHASECART,
   CLEAR_BHET_CART,
   CLEAR_CART,
   CLEAR_PURCHASE_CART,
@@ -105,6 +106,25 @@ const cartReducer = (state = initialState, action) => {
         };
       }
 
+case ADD_TO_UPDATEPURCHASECART:
+ const existingItemIndexs1 = state.purchaseItems.findIndex(
+        (item) => item.productId === action.payload.productId
+      );
+      if (existingItemIndexs1 !== -1) {
+        const updatedItems = [...state.items];
+        updatedItems[existingItemIndexs1].quantity += 1;
+
+        return {
+          ...state,
+          purchaseItems: updatedItems,
+        };
+      } else {
+        return {
+          ...state,
+          purchaseItems: action.payload,
+        };
+      }
+      
     case REMOVE_FROM_CART:
       const exitingIndex = state.items.findIndex(
         (item) => item._id === action.payload

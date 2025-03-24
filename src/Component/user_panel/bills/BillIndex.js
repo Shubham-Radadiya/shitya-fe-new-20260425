@@ -12,6 +12,7 @@ import {
   ADD_TO_PURCHASE_CART,
   REMOVE_FROM_PURCHASE_CART,
   CLEAR_PURCHASE_CART,
+  ADD_TO_UPDATEPURCHASECART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -91,11 +92,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
       setShowPinPrompt(screen);
     }
   };
-  useEffect(() => {  
-  if (location.pathname === "/bhet") {
-    dispatch({ type: REQUEST_BHET_BILL_NO });
-  }
-}, []);
+  useEffect(() => {
+    if (location.pathname === "/bhet") {
+      dispatch({ type: REQUEST_BHET_BILL_NO });
+    }
+  }, []);
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -256,13 +257,23 @@ const Bills = ({ returnMode, setReturnMode }) => {
       ...currentItem,
       quantity: Number(newQuantity),
     };
+    if (currentLocation.pathname === "/stock") {
+      dispatch({
+        type: ADD_TO_UPDATEPURCHASECART,
+        payload: purchaseItems.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
+    } else {
+      dispatch({
+        type: ADD_TO_UPDATEDCART,
+        payload: items.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
+    }
 
-    dispatch({
-      type: ADD_TO_UPDATEDCART,
-      payload: items.map((item) =>
-        item._id === updatedItem._id ? updatedItem : item
-      ),
-    });
+  
     closeModal();
   };
 
@@ -426,16 +437,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
             </label>
           )}
           {currentLocation.pathname !== "/bhet" && (
-          <button
-            className={
-              currentLocation.pathname === "/stock"
-                ? "purchase_icon-button"
-                : "icon-button"
-            }
-            onClick={handleReturnBill}
-          >
-            Return
-          </button>
+            <button
+              className={
+                currentLocation.pathname === "/stock"
+                  ? "purchase_icon-button"
+                  : "icon-button"
+              }
+              onClick={handleReturnBill}
+            >
+              Return
+            </button>
           )}
           {currentLocation.pathname === "/stock" ? (
             purchaseItems.length > 0 ? (
@@ -534,12 +545,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
           <div className="bill_header_sub">
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
             <h8>
-  {currentLocation.pathname === "/stock"
-    ? `INV.No: ${displayInvoice}`
-    : currentLocation.pathname === "/bhet"
-    ? `Bhet.No: ${billNo?.billId}`
-    : `Sr.No: ${billNo?.billId}`}
-</h8>
+              {currentLocation.pathname === "/stock"
+                ? `INV.No: ${displayInvoice}`
+                : currentLocation.pathname === "/bhet"
+                ? `Bhet.No: ${billNo?.billId}`
+                : `Sr.No: ${billNo?.billId}`}
+            </h8>
           </div>
 
           {showReprintBill ? (
