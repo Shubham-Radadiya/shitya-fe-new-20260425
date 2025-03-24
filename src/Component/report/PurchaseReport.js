@@ -15,7 +15,7 @@ import ReactToPrint from "react-to-print";
 
 const PurchaseReport = () => {
   const componentRef = useRef();
-  
+
   const dispatch = useDispatch();
   const { invoiceData } = useInvoice(false);
   const { dailyReport } = useReport();
@@ -24,7 +24,6 @@ const PurchaseReport = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  
 
   const fetchInvoiceData = async (invoiceId) => {
     try {
@@ -210,8 +209,7 @@ const PurchaseReport = () => {
     0
   );
 
-  useEffect(() => {
-  }, [selectedInvoice]);
+  useEffect(() => {}, [selectedInvoice]);
 
   return (
     <>
@@ -314,9 +312,15 @@ const PurchaseReport = () => {
                       .map((user, userIndex) =>
                         user.data.map((invoice, invoiceIndex) => {
                           const { invoiceId, createdAt, categories } = invoice;
-                          const formattedDate = new Date(
-                            createdAt
-                          ).toLocaleDateString();
+                          const formattedDate = new Date(createdAt)
+                            .toISOString()
+                            .split("T")[0]
+                            .split("-")
+                            .reverse()
+                            .map((item, index) =>
+                              index === 2 ? item.slice(-2) : item
+                            )
+                            .join("-");
 
                           let murtiAmount = 0,
                             vaghaAmount = 0,

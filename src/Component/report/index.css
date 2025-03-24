@@ -262,16 +262,6 @@
 
 .userreport-table-wrapper {
   flex: 1;
-  /* max-height: 500px; */
-  /* overflow: auto; */
-}
-
-.userreport-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-weight: 400;
-  border: 1px solid black;
-  position: relative;
 }
 
 .userreport-table thead,
