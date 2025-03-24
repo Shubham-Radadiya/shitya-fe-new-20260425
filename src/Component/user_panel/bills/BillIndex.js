@@ -36,7 +36,6 @@ import {
   REQUEST_EDIT_INVOICE_DATA,
 } from "../../../store/invoice/InvoiceAction";
 import { REQUEST_USER_EXCEL } from "../../../store/excel/excelAction";
-import ExcelBillPrint from "./ExcelBillPrint";
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
@@ -60,15 +59,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { returnEdit, invoiceId } = currentLocation.state || {};
-  const fileInputRef = useRef(null);
   const [bhetNumber, setBhetNumber] = useState("");
 
   const [pin, setPin] = useState("");
   const [showPinPrompt, setShowPinPrompt] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-
-  console.log("--------", bhetNo?.bhetNo);
 
   const correctPin = "2898";
 
@@ -272,9 +268,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setShowReprintBill(false);
     dispatch({ type: REQUEST_BILL_NO });
     setReturnMode(false);
-
+    dispatch({ type: REQUEST_BHET_BILL_NO });
+    
     const number = await fetchInvoiceNumber(false);
-
+    
+    setBhetNumber(bhetNo?.bhetNo);
     setInvoiceNumber(number);
   };
 
@@ -551,7 +549,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
               <span>Excel</span>
               <input
                 type="file"
-                ref={fileInputRef}
                 onChange={handleFileChange}
                 accept=".xls,.xlsx,.csv"
               />
@@ -609,11 +606,51 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 Print Invoice
               </p>
             )
+          ) : currentLocation.pathname === "/bhet" ? (
+            bhetItems.length > 0 ? (
+              <div
+                className={`bhet_icon-button ${
+                  isButtonDisabled ? "disabled" : ""
+                }`}
+                onClick={handlePrintClick}
+                style={
+                  isButtonDisabled
+                    ? {
+                        pointerEvents: "none",
+                        opacity: 0.6,
+                        userSelect: "none",
+                      }
+                    : {}
+                }
+              >
+                <ReactToPrint
+                  trigger={() => (
+                    <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+                      Print bhet
+                    </p>
+                  )}
+                  content={() => componentRef.current}
+                  onAfterPrint={handleAfterPrint}
+                  removeAfterPrint={false}
+                />
+              </div>
+            ) : (
+              <p
+                className="bhet_icon-button"
+                style={{
+                  fontSize: "0.82rem",
+                  color: "gray",
+                  userSelect: "none",
+                }}
+              >
+                Print bhet
+              </p>
+            )
           ) : items.length || reprintBill?.productId?.length > 0 ? (
             <div
               className={`
                  icon-button
-               ${isButtonDisabled ? "disabled" : "bhet_icon-button"}`}
+               ${isButtonDisabled ? "disabled" : ""}`}
               onClick={handlePrintClick}
               style={
                 isButtonDisabled
@@ -1355,13 +1392,14 @@ const Bills = ({ returnMode, setReturnMode }) => {
           </div>
         </div>
       )}
-
+{/* 
       {excelModalOpen && (
         <ExcelBillPrint
           excelBill={excelBillPrint}
           onClose={() => setModalOpen(false)}
+          componentRef={componentRef}
         />
-      )}
+      )} */}
 
       {showPinPrompt && (
         <div className="pin-prompt">
