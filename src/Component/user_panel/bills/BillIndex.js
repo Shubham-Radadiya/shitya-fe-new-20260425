@@ -306,6 +306,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
           item._id === updatedItem._id ? updatedItem : item
         ),
       });
+    } else if (currentLocation.pathname === "/bhet") {
+      dispatch({
+        type: ADD_TO_UPDATEBHETCART,
+        payload: bhetItems.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
     } else {
       dispatch({
         type: ADD_TO_UPDATEDCART,
@@ -530,8 +537,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 ? dispatch({ type: CLEAR_PURCHASE_CART })
                 : currentLocation.pathname === "/bhet"
                 ? dispatch({ type: CLEAR_BHET_CART })
-                : dispatch({ type: CLEAR_CART })
-              
+                : dispatch({ type: CLEAR_CART });
+
               setShowReprintBill(false);
               setReturnMode(false);
             }}
