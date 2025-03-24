@@ -27,6 +27,7 @@ import {
 import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
 import {
+  REQUEST_CREATE_BHET,
   REQUEST_CREATE_INVOICE,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
@@ -87,18 +88,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       alert("Incorrect PIN");
     }
-  };  
+  };
 
   const handleButtonClick = (screen) => {
     if (location.pathname !== `/${screen}`) {
       setShowPinPrompt(screen);
     }
   };
-  // useEffect(() => {
-  //   if (showPinPrompt === "bhet") {
-  //     dispatch({ type: REQUEST_BHET_BILL_NO });
-  //   }
-  // }, [showPinPrompt]);
+  useEffect(() => {
+    dispatch({ type: REQUEST_BHET_BILL_NO });
+  }, [showPinPrompt]);
 
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
@@ -175,11 +174,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
     localStorage.setItem("billId", reportData);
     dispatch({
       type:
-      currentLocation.pathname === "/stock"
-        ? CLEAR_PURCHASE_CART
-        : currentLocation.pathname === "/bhet"
-        ? CLEAR_BHET_CART
-        : CLEAR_CART,
+        currentLocation.pathname === "/stock"
+          ? CLEAR_PURCHASE_CART
+          : currentLocation.pathname === "/bhet"
+          ? CLEAR_BHET_CART
+          : CLEAR_CART,
     });
 
     setTimeout(() => {
@@ -195,11 +194,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
         price: item.price,
       })),
       totalAmount:
-      currentLocation.pathname === "/stock"
-        ? totalPurchaseprice
-        : currentLocation.pathname === "/bhet"
-        ? totalBhetprice
-        : totalPrice,    
+        currentLocation.pathname === "/stock"
+          ? totalPurchaseprice
+          : currentLocation.pathname === "/bhet"
+          ? totalBhetprice
+          : totalPrice,
     };
 
     if (showReprintBill) {
@@ -234,6 +233,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
             type:
               currentLocation.pathname === "/stock"
                 ? REQUEST_CREATE_INVOICE
+                : currentLocation.pathname === "/bhet"
+                ? REQUEST_CREATE_BHET
                 : REQUEST_CREATE_BILL,
             payload,
           });
@@ -256,6 +257,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setReturnMode(false);
 
     const number = await fetchInvoiceNumber(false);
+
     setInvoiceNumber(number);
   };
 
@@ -296,7 +298,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
       });
     }
 
-  
     closeModal();
   };
 
@@ -392,6 +393,68 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setInvoiceNumber(`R${number}`);
   };
   const displayInvoice = returnEdit ? invoiceId : invoiceNumber;
+
+  const renderProductRows = (productList) => {
+    return productList.length > 0 ? (
+      productList.map((product) => (
+        <tr key={product._id}>
+          <td title={product.productId} style={{ width: "48px", padding: 0 }}>
+            {truncateText(product.productId, 8)}
+          </td>
+          <td title={product.name} style={{ width: "100px", padding: 0 }}>
+            {truncateText(product.name, 15)}
+          </td>
+          <td style={{ padding: 0 }}>
+            <div className="quantity_control">
+              <button
+                onClick={() => {
+                  dispatch({
+                    type: ADD_TO_PURCHASE_CART,
+                    payload: product,
+                  });
+                  setShowReprintBill(false);
+                }}
+              >
+                +
+              </button>
+              <span
+                onClick={() => openModal(product)}
+                style={{ cursor: "pointer" }}
+              >
+                {returnMode
+                  ? -new Intl.NumberFormat("en-IN").format(product.quantity)
+                  : new Intl.NumberFormat("en-IN").format(product.quantity)}
+              </span>
+              <button
+                onClick={() => {
+                  dispatch({
+                    type: REMOVE_FROM_PURCHASE_CART,
+                    payload: product._id,
+                  });
+                  setShowReprintBill(false);
+                }}
+              >
+                -
+              </button>
+            </div>
+          </td>
+          <td style={{ fontWeight: "bolder", textAlign: "center", padding: 0 }}>
+            {returnMode ? "-" : null}
+            {new Intl.NumberFormat("en-IN").format(
+              product.price * product.quantity
+            )}
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="4" className="no-data">
+          No Data Available
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <div className="bill-container">
       <div className="bills">
@@ -675,170 +738,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentLocation.pathname === "/stock" ? (
-                    purchaseItems.length > 0 ? (
-                      purchaseItems.map((product) => (
-                        <tr key={product._id}>
-                          <td
-                            title={product.productId}
-                            style={{ width: "48px", padding: 0 }}
-                          >
-                            {truncateText(product.productId, 8)}
-                          </td>
-                          <td
-                            title={product.name}
-                            style={{
-                              width: "100px",
-                              textAlign: "start",
-
-                              padding: 0,
-                            }}
-                          >
-                            {truncateText(product.name, 15)}
-                          </td>
-                          <td style={{ padding: 0 }}>
-                            <div className="quantity_control">
-                              <button
-                                onClick={() => {
-                                  dispatch({
-                                    type: ADD_TO_PURCHASE_CART,
-                                    payload: product,
-                                  });
-                                  setShowReprintBill(false);
-                                }}
-                              >
-                                +
-                              </button>
-                              <span
-                                onClick={() => openModal(product)}
-                                style={{ cursor: "pointer" }}
-                              >
-                                {currentLocation.state?.returnEdit
-                                  ? -new Intl.NumberFormat("en-IN").format(
-                                      product.quantity
-                                    )
-                                  : new Intl.NumberFormat("en-IN").format(
-                                      product.quantity
-                                    )}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  dispatch({
-                                    type: REMOVE_FROM_PURCHASE_CART,
-                                    payload: product._id,
-                                  });
-                                  setShowReprintBill(false);
-                                }}
-                              >
-                                -
-                              </button>
-                            </div>
-                          </td>
-                          <td
-                            style={{
-                              fontWeight: "bolder",
-                              padding: 0,
-                              textAlign: "center",
-                              textWrap: "nowrap",
-                              overflow: "visible  ",
-                              textOverflow: "none",
-                            }}
-                          >
-                            {currentLocation.state?.returnEdit ? "-" : null}
-                            {new Intl.NumberFormat("en-IN").format(
-                              product.price * product.quantity
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="4" className="no-data">
-                          No Data Available
-                        </td>
-                      </tr>
-                    )
-                  ) : items.length > 0 ? (
-                    items.map((product) => (
-                      <tr key={product._id}>
-                        <td
-                          title={product.productId}
-                          style={{ width: "48px", padding: 0 }}
-                        >
-                          {truncateText(product.productId, 8)}
-                        </td>
-                        <td
-                          title={product.name}
-                          style={{
-                            width: "100px",
-                            textAlign: "start",
-                            padding: 0,
-                          }}
-                        >
-                          {truncateText(product.name, 15)}
-                        </td>
-                        <td style={{ padding: 0 }}>
-                          <div className="quantity_control">
-                            <button
-                              onClick={() => {
-                                dispatch({
-                                  type: ADD_TO_CART,
-                                  payload: product,
-                                });
-                                setShowReprintBill(false);
-                              }}
-                            >
-                              +
-                            </button>
-                            <span
-                              onClick={() => openModal(product)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              {returnMode
-                                ? -new Intl.NumberFormat("en-IN").format(
-                                    product.quantity
-                                  )
-                                : new Intl.NumberFormat("en-IN").format(
-                                    product.quantity
-                                  )}
-                            </span>
-                            <button
-                              onClick={() => {
-                                dispatch({
-                                  type: REMOVE_FROM_CART,
-                                  payload: product._id,
-                                });
-                                setShowReprintBill(false);
-                              }}
-                            >
-                              -
-                            </button>
-                          </div>
-                        </td>
-                        <td
-                          style={{
-                            fontWeight: "bolder",
-                            padding: 0,
-                            textAlign: "center",
-                            textWrap: "nowrap",
-                            overflow: "visible  ",
-                            textOverflow: "none",
-                          }}
-                        >
-                          {returnMode ? "-" : null}
-                          {new Intl.NumberFormat("en-IN").format(
-                            product.price * product.quantity
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="no-data">
-                        No Data Available
-                      </td>
-                    </tr>
-                  )}
+                  {currentLocation.pathname === "/stock"
+                    ? renderProductRows(purchaseItems)
+                    : currentLocation.pathname === "/bhet"
+                    ? renderProductRows(bhetItems)
+                    : renderProductRows(items)}
                 </tbody>
                 <tfoot
                   style={{ display: "flex", justifyContent: "flex-start" }}
@@ -1164,6 +1068,54 @@ const Bills = ({ returnMode, setReturnMode }) => {
             {currentLocation.pathname === "/stock"
               ? purchaseItems.length > 0
                 ? purchaseItems.map((product) => (
+                    <div key={product._id}>
+                      <div className="pavti_data_1" style={{ width: "380px" }}>
+                        <p
+                          title={product.productId}
+                          className="pavti_product_Id_1"
+                          style={{
+                            textAlign: "left",
+                            width: "52px",
+                            borderRight: "1px solid",
+                            fontSize: "15px",
+                          }}
+                        >
+                          {product.productId}
+                        </p>
+                        <h3
+                          className="pavti_product_name_1"
+                          style={{
+                            width: "208px",
+                            borderRight: "1px solid",
+                            paddingLeft: "4px",
+                            fontSize: "15px",
+                          }}
+                        >
+                          {" "}
+                          {product.name}
+                        </h3>
+                        <div className="pavti_data_quantity">
+                          <span style={{ fontSize: "15px" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              product.quantity
+                            )}
+                          </span>
+                        </div>
+                        <p
+                          className="product_price_report"
+                          style={{ fontSize: "15px", textAlign: "center" }}
+                        >
+                          {new Intl.NumberFormat("en-IN").format(
+                            product.price * product.quantity
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                : "no data"
+              : currentLocation.pathname === "/bhet"
+              ? bhetItems.length > 0
+                ? bhetItems.map((product) => (
                     <div key={product._id}>
                       <div className="pavti_data_1" style={{ width: "380px" }}>
                         <p
