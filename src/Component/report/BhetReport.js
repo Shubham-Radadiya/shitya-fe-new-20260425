@@ -409,7 +409,7 @@ const BhetReport = () => {
                                   verticalAlign: "middle",
                                 }}
                               >
-                                <span
+                                {/* <span
                                   style={{
                                     fontSize: "26px",
                                     cursor: "pointer",
@@ -419,7 +419,7 @@ const BhetReport = () => {
                                   }
                                 >
                                   <AiOutlinePrinter />
-                                </span>
+                                </span> */}
                               </td>
                               <td
                                 style={{
