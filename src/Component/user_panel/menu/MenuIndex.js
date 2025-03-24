@@ -78,7 +78,7 @@ const Menu = ({ updateName, sendData, setSelectedCategory }) => {
               style={{
                 background:
                   currentLocation.pathname === "/stock"
-                    ? "rgb(87 15 119)" : currentLocation.pathname === "/bhet" ? "blue"
+                    ? "rgb(87 15 119)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)"
                     : "rgb(97, 37, 17)",
               }}
             >
