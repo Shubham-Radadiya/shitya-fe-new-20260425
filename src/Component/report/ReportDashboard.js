@@ -9,6 +9,7 @@ import PurchaseReturn from "./PurchaseReturn";
 import StockTable from "./StockTable";
 import SilakYearlyReport from "./SilakYearlyReport";
 import SilakMonthlyReport from "./SilakMonthlyReport";
+import BhetReport from "./BhetReport";
 
 const ReportsDashboard = () => {
   const dispatch = useDispatch();
@@ -17,7 +18,6 @@ const ReportsDashboard = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const { invoiceData } = useInvoice();
-
   const [pin, setPin] = useState("");
   const [showPinPrompt, setShowPinPrompt] = useState(null);
   const navigate = useNavigate();
@@ -44,6 +44,7 @@ const ReportsDashboard = () => {
       setShowPinPrompt(screen);
     }
   };
+
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -96,15 +97,16 @@ const ReportsDashboard = () => {
         {
           key: "SilakReport",
           label: "Silak Report Monthly",
-          component: <SilakMonthlyReport/>,
+          component: <SilakMonthlyReport />,
         },
         {
-          key: "purchaseReturn",
+          key: "SilakYearlyReport",
           label: "Silak Report Yearly",
-          component: <SilakYearlyReport/>,
+          component: <SilakYearlyReport />,
         },
       ],
     },
+    { key: "bhet", label: "Bhet Report", component: <BhetReport /> },
   ];
 
   return (
@@ -119,13 +121,6 @@ const ReportsDashboard = () => {
             >
               S
             </NavLink>
-            {/* <button
-                      className="screen-list-circle sales-report-circle"
-                      style={{ background: "rgb(34 78 8)" }}
-                      onClick={() => handleButtonClick("bhet")}
-                    >
-                      B
-                    </button> */}
             <button
               className="screen-list-circle purchase-circle"
               onClick={() => handleButtonClick("stock")}
@@ -136,7 +131,7 @@ const ReportsDashboard = () => {
               className="screen-list-circle sales-report-circle"
               to="/report"
             >
-              R{/* <img style={{ width: "20px" }} src={Report} alt="edit" /> */}
+              R
             </NavLink>
           </div>
         </div>
@@ -161,6 +156,11 @@ const ReportsDashboard = () => {
                           : report.key
                         : null
                     );
+
+                    // ✅ If it has subReports, default to the first sub-report
+                    if (report.hasSubReports) {
+                      setReportType(report.subReports[0].key);
+                    }
                   }}
                 >
                   {report.label}

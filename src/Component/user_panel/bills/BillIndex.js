@@ -13,6 +13,7 @@ import {
   REMOVE_FROM_PURCHASE_CART,
   CLEAR_PURCHASE_CART,
   CLEAR_BHET_CART,
+  ADD_TO_UPDATEPURCHASECART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -279,13 +280,23 @@ const Bills = ({ returnMode, setReturnMode }) => {
       ...currentItem,
       quantity: Number(newQuantity),
     };
+    if (currentLocation.pathname === "/stock") {
+      dispatch({
+        type: ADD_TO_UPDATEPURCHASECART,
+        payload: purchaseItems.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
+    } else {
+      dispatch({
+        type: ADD_TO_UPDATEDCART,
+        payload: items.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
+    }
 
-    dispatch({
-      type: ADD_TO_UPDATEDCART,
-      payload: items.map((item) =>
-        item._id === updatedItem._id ? updatedItem : item
-      ),
-    });
+  
     closeModal();
   };
 

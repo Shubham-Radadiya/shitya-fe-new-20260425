@@ -1,32 +1,36 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import ReactToPrint from "react-to-print";
 import * as XLSX from "xlsx";
 import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
+
 import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
+import ReactToPrint from "react-to-print";
 
-const PurchaseReturn = () => {
+const BhetReport = () => {
   const componentRef = useRef();
+  
   const dispatch = useDispatch();
-  const { invoiceData } = useInvoice(true);
+  const { invoiceData } = useInvoice(false);
   const { dailyReport } = useReport();
   const [reportType, setReportType] = useState("daily");
+  const printRef = useRef();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  
 
   const fetchInvoiceData = async (invoiceId) => {
     try {
       const token = localStorage.getItem("access_token");
       const response = await fetch(
-        `http://localhost:3010/invoice/${invoiceId}?isReturned=true`,
+        `http://localhost:3010/invoice/${invoiceId}`,
         {
           method: "GET",
           headers: {
@@ -68,6 +72,7 @@ const PurchaseReturn = () => {
       navigate("/stock", {
         state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },
       });
+
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
@@ -119,7 +124,6 @@ const PurchaseReturn = () => {
   const currentReport = getCurrentReportData();
 
   const filteredProducts = currentReport[0]?.products || [];
-
   const calculateTotalAmount = () => {
     if (reportType === "daily") {
       return filteredProducts.reduce((sum, item) => {
@@ -137,11 +141,14 @@ const PurchaseReturn = () => {
 
   const Amount =
     reportType === "daily" ? calculateTotalAmount() : calculateTotalAmount();
+  const totalAmount = reportType === "daily" ? calculateTotalAmount() : Amount;
 
   const exportToExcel = () => {
     const table = document.querySelector(".userreport-table");
     const tableClone = table.cloneNode(true);
     const rows = tableClone.querySelectorAll("tr");
+
+    // Remove footer or any other unwanted rows
     rows.forEach((row) => {
       if (row.querySelector(".tfootgroup")) {
         row.parentNode.removeChild(row);
@@ -154,7 +161,7 @@ const PurchaseReturn = () => {
     // Add the title and date rows only
     const currentDate = new Date().toLocaleDateString();
     const titleAndDate = [
-      ["Purchase Return Report"], // First row: Title
+      ["Purchase Report"], // First row: Title
       [`Date: ${currentDate}`], // Second row: Date
     ];
 
@@ -165,10 +172,6 @@ const PurchaseReturn = () => {
       Array.from(row.querySelectorAll("th, td")).map((cell) => cell.textContent)
     );
     XLSX.utils.sheet_add_aoa(worksheet, tableData, { origin: "A3" });
-
-    const totalAmount = tableData
-      .slice(1)
-      .reduce((sum, row) => sum + parseFloat(row[3]) || 0, 0);
 
     const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
     XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
@@ -196,19 +199,20 @@ const PurchaseReturn = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "DailyReport.xlsx";
+    a.download = "PurchaseReport.xlsx";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
-  const totalQuantity = filteredProducts?.reduce(
-    (total, item) => total + item.totalBuyingCount,
+  const totalQuantity = selectedInvoice?.productId.reduce(
+    (total, item) => total + item.quantity,
     0
   );
 
   useEffect(() => {
   }, [selectedInvoice]);
+
   return (
     <>
       <div className="user-template">
@@ -240,7 +244,7 @@ const PurchaseReturn = () => {
                         className="stocktable"
                         style={{ width: "9%", textAlign: "center" }}
                       >
-                        R. INV. No.
+                        INV. No.
                       </th>
                       <th
                         className="stocktable"
@@ -362,7 +366,7 @@ const PurchaseReturn = () => {
 
                           return (
                             <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>R{invoiceId}</td>
+                              <td style={{ width: "9%" }}>{invoiceId}</td>
                               <td style={{ width: "12%", textAlign: "end" }}>
                                 {formattedDate}
                               </td>
@@ -643,10 +647,10 @@ const PurchaseReturn = () => {
                     <strong>Date:</strong>{" "}
                     {new Date(selectedInvoice.createdAt).toLocaleDateString()}
                   </p>
-                  <h2>Invoice: R{selectedInvoice.invoiceId}</h2>
+                  <h2>Invoice: {selectedInvoice.invoiceId}</h2>
 
                   <p>
-                    <strong>Total Amount:</strong> -
+                    <strong>Total Amount:</strong>
                     {selectedInvoice.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
@@ -665,8 +669,8 @@ const PurchaseReturn = () => {
                       <tr key={i}>
                         <td>{product._id.name}</td>
                         <td>{product.price}</td>
-                        <td>-{product.quantity}</td>
-                        <td>-{product.price * product.quantity}</td>
+                        <td>{product.quantity}</td>
+                        <td>{product.price * product.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -722,7 +726,7 @@ const PurchaseReturn = () => {
               paddingRight: "5px",
             }}
           >
-            INV.No: R{selectedInvoice?.invoiceId}
+            Sr.No: {selectedInvoice?.invoiceId}
           </h8>
         </div>
         <div className="bill_header_main"></div>
@@ -826,14 +830,13 @@ const PurchaseReturn = () => {
                   </h3>
                   <div className="pavti_data_quantity">
                     <span style={{ fontSize: "15px" }}>
-                      -{new Intl.NumberFormat("en-IN").format(product.quantity)}
+                      {new Intl.NumberFormat("en-IN").format(product.quantity)}
                     </span>
                   </div>
                   <p
                     className="product_price_report"
                     style={{ fontSize: "15px", textAlign: "center" }}
                   >
-                    -
                     {new Intl.NumberFormat("en-IN").format(
                       product.price * product.quantity
                     )}
@@ -884,7 +887,6 @@ const PurchaseReturn = () => {
                 fontWeight: "bold",
               }}
             >
-              -
               {new Intl.NumberFormat("en-IN").format(
                 selectedInvoice?.totalAmount
               )}
@@ -899,4 +901,4 @@ const PurchaseReturn = () => {
   );
 };
 
-export default PurchaseReturn;
+export default BhetReport;
