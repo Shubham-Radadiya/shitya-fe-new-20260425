@@ -14,6 +14,7 @@ import {
   CLEAR_PURCHASE_CART,
   CLEAR_BHET_CART,
   ADD_TO_UPDATEPURCHASECART,
+  ADD_TO_BHET_CART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -289,6 +290,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
           item._id === updatedItem._id ? updatedItem : item
         ),
       });
+    } else if (currentLocation.pathname === "/bhet") {
+      dispatch({
+        type: ADD_TO_BHET_CART,
+        payload: bhetItems.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
+      console.log(bhetItems,"bhetItems");
+      
     } else {
       dispatch({
         type: ADD_TO_UPDATEDCART,
@@ -297,7 +307,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
         ),
       });
     }
-
     closeModal();
   };
 
@@ -479,7 +488,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
             className="screen-list-circle sales-report-circle"
             to="/report"
           >
-            R{/* <img style={{ width: "20px" }} src={Report} alt="edit" /> */}
+            R
           </NavLink>
         </div>
         <hr style={{ border: "1px solid #808080" }} />
@@ -503,7 +512,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 : "icon-button"
             }
             onClick={() => {
-              dispatch({ type: CLEAR_CART });
+              dispatch(
+                currentLocation.pathname === "/stock"
+                  ? { type: CLEAR_PURCHASE_CART }
+                  : currentLocation.pathname === "/bhet"
+                  ? { type: CLEAR_BHET_CART }
+                  : { type: CLEAR_CART }
+              );
               setShowReprintBill(false);
               setReturnMode(false);
             }}

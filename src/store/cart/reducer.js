@@ -113,7 +113,6 @@ case ADD_TO_UPDATEPURCHASECART:
       if (existingItemIndexs1 !== -1) {
         const updatedItems = [...state.items];
         updatedItems[existingItemIndexs1].quantity += 1;
-
         return {
           ...state,
           purchaseItems: updatedItems,

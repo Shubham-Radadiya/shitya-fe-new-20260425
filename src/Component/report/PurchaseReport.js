@@ -24,6 +24,7 @@ const PurchaseReport = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [sortedInvoiceData, setSortedInvoiceData] = useState([]);
 
   const fetchInvoiceData = async (invoiceId) => {
     try {
@@ -210,6 +211,30 @@ const PurchaseReport = () => {
   );
 
   useEffect(() => {}, [selectedInvoice]);
+  useEffect(() => {
+    if (invoiceData.length > 0) {
+      // Combine all data before sorting
+      const sortedData = invoiceData.map((user) => ({
+        ...user,
+        data: [...user.data].sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          const numA = parseInt(a.invoiceId.replace(/\D/g, ""), 10) || 0;
+          const numB = parseInt(b.invoiceId.replace(/\D/g, ""), 10) || 0;
+
+          // First, sort by date (latest first)
+          if (dateB !== dateA) return dateB - dateA;
+
+          // Then, sort by invoiceId (largest first)
+          return numB - numA;
+        }),
+      }));
+
+      console.log("✅ Final Sorted Data:", sortedData);
+      setSortedInvoiceData(sortedData);
+    }
+  }, [invoiceData]);
 
   return (
     <>
@@ -302,155 +327,148 @@ const PurchaseReport = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoiceData
-                      .map((user) => ({
-                        ...user,
-                        data: [...user.data].sort(
-                          (a, b) => Number(b.invoiceId) - Number(a.invoiceId)
-                        ),
-                      }))
-                      .map((user, userIndex) =>
-                        user.data.map((invoice, invoiceIndex) => {
-                          const { invoiceId, createdAt, categories } = invoice;
-                          const formattedDate = new Date(createdAt)
-                            .toISOString()
-                            .split("T")[0]
-                            .split("-")
-                            .reverse()
-                            .map((item, index) =>
-                              index === 2 ? item.slice(-2) : item
-                            )
-                            .join("-");
+                    {sortedInvoiceData.map((user, userIndex) =>
+                      user.data.map((invoice, invoiceIndex) => {
+                        const { invoiceId, createdAt, categories } = invoice;
+                        const formattedDate = new Date(createdAt)
+                          .toISOString()
+                          .split("T")[0]
+                          .split("-")
+                          .reverse()
+                          .map((item, index) =>
+                            index === 2 ? item.slice(-2) : item
+                          )
+                          .join("-");
 
-                          let murtiAmount = 0,
-                            vaghaAmount = 0,
-                            gharenaAmount = 0,
-                            pujaAmount = 0,
-                            pustakAmount = 0,
-                            generalAmount = 0;
+                        let murtiAmount = 0,
+                          vaghaAmount = 0,
+                          gharenaAmount = 0,
+                          pujaAmount = 0,
+                          pustakAmount = 0,
+                          generalAmount = 0;
 
-                          categories.forEach((category) => {
-                            switch (category.categoryName) {
-                              case "મુર્તિ":
-                                murtiAmount = category.totalBuyingAmount;
-                                break;
-                              case "વાઘા":
-                                vaghaAmount = category.totalBuyingAmount;
-                                break;
-                              case "ઘરેણા":
-                                gharenaAmount = category.totalBuyingAmount;
-                                break;
-                              case "પુજા":
-                                pujaAmount = category.totalBuyingAmount;
-                                break;
-                              case "પુસ્તક":
-                                pustakAmount = category.totalBuyingAmount;
-                                break;
-                              case "જનરલ":
-                                generalAmount = category.totalBuyingAmount;
-                                break;
-                              default:
-                                break;
-                            }
-                          });
+                        categories.forEach((category) => {
+                          switch (category.categoryName) {
+                            case "મુર્તિ":
+                              murtiAmount = category.totalBuyingAmount;
+                              break;
+                            case "વાઘા":
+                              vaghaAmount = category.totalBuyingAmount;
+                              break;
+                            case "ઘરેણા":
+                              gharenaAmount = category.totalBuyingAmount;
+                              break;
+                            case "પુજા":
+                              pujaAmount = category.totalBuyingAmount;
+                              break;
+                            case "પુસ્તક":
+                              pustakAmount = category.totalBuyingAmount;
+                              break;
+                            case "જનરલ":
+                              generalAmount = category.totalBuyingAmount;
+                              break;
+                            default:
+                              break;
+                          }
+                        });
 
-                          const totalAmount =
-                            murtiAmount +
-                            vaghaAmount +
-                            gharenaAmount +
-                            pujaAmount +
-                            pustakAmount +
-                            generalAmount;
+                        const totalAmount =
+                          murtiAmount +
+                          vaghaAmount +
+                          gharenaAmount +
+                          pujaAmount +
+                          pustakAmount +
+                          generalAmount;
 
-                          return (
-                            <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>{invoiceId}</td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {formattedDate}
-                              </td>
-                              <td style={{ textAlign: "end", width: "12%" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  murtiAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  vaghaAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  gharenaAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  pujaAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  pustakAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  generalAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  totalAmount
-                                ) || 0}
-                              </td>
-                              <td
+                        return (
+                          <tr key={`${userIndex}-${invoiceIndex}`}>
+                            <td style={{ width: "9%" }}>{invoiceId}</td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {formattedDate}
+                            </td>
+                            <td style={{ textAlign: "end", width: "12%" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                murtiAmount || 0
+                              )}
+                            </td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                vaghaAmount || 0
+                              )}
+                            </td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                gharenaAmount || 0
+                              )}
+                            </td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                pujaAmount || 0
+                              )}
+                            </td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                pustakAmount || 0
+                              )}
+                            </td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                generalAmount || 0
+                              )}
+                            </td>
+                            <td style={{ width: "12%", textAlign: "end" }}>
+                              {new Intl.NumberFormat("en-IN").format(
+                                totalAmount
+                              ) || 0}
+                            </td>
+                            <td
+                              style={{
+                                width: "5.9%",
+                                padding: "0px",
+                                textAlign: "center",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              <span
                                 style={{
-                                  width: "5.9%",
-                                  padding: "0px",
-                                  textAlign: "center",
-                                  verticalAlign: "middle",
+                                  fontSize: "26px",
+                                  cursor: "pointer",
                                 }}
+                                onClick={() =>
+                                  fetchInvoiceDataForModal(invoice.invoiceId)
+                                }
                               >
-                                <span
-                                  style={{
-                                    fontSize: "26px",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() =>
-                                    fetchInvoiceDataForModal(invoice.invoiceId)
-                                  }
-                                >
-                                  <AiOutlinePrinter />
-                                </span>
-                              </td>
-                              <td
+                                <AiOutlinePrinter />
+                              </span>
+                            </td>
+                            <td
+                              style={{
+                                width: "5.9%",
+                                padding: "0px",
+                                textAlign: "center",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              <span
                                 style={{
-                                  width: "5.9%",
-                                  padding: "0px",
-                                  textAlign: "center",
-                                  verticalAlign: "middle",
+                                  fontSize: "26px",
+                                  cursor: "pointer",
                                 }}
+                                onClick={() =>
+                                  fetchInvoiceDataForStock(invoice.invoiceId)
+                                }
                               >
-                                <span
-                                  style={{
-                                    fontSize: "26px",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() =>
-                                    fetchInvoiceDataForStock(invoice.invoiceId)
-                                  }
-                                >
-                                  <img
-                                    style={{ width: "20px" }}
-                                    src={Edit}
-                                    alt="edit"
-                                  />
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
+                                <img
+                                  style={{ width: "20px" }}
+                                  src={Edit}
+                                  alt="edit"
+                                />
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                   <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                     <tr>

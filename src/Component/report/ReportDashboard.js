@@ -122,6 +122,13 @@ const ReportsDashboard = () => {
               S
             </NavLink>
             <button
+            className="screen-list-circle sales-report-circle"
+            style={{ background: "rgb(34 78 8)" }}
+            onClick={() => handleButtonClick("bhet")}
+          >
+            B
+          </button>
+            <button
               className="screen-list-circle purchase-circle"
               onClick={() => handleButtonClick("stock")}
             >
