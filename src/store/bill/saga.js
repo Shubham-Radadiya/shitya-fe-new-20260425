@@ -17,6 +17,7 @@ import {
   REPRINT_BILL,
   SET_REPRINT_BILL,
   ERROR_REPRINT_BILL,
+  REQUEST_BHET_BILL_NO,
 } from "./billActionType";
 
 function* requestCreateBill(action) {
@@ -32,6 +33,15 @@ function* requestCreateBill(action) {
 function* requestBillNo() {
   try {
     const { data } = yield call(billServices.getBillNo);
+    yield put({ type: SET_BILL_NO, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
+  }
+}
+
+function* requestBhetBillNo() {
+  try {
+    const { data } = yield call(billServices.getBhetBillNo);
     yield put({ type: SET_BILL_NO, payload: data });
   } catch (error) {
     yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
@@ -90,10 +100,10 @@ export function* billSaga() {
   yield all([
     takeLatest(REQUEST_CREATE_BILL, requestCreateBill),
     takeLatest(REQUEST_BILL_NO, requestBillNo),
+    takeLatest(REQUEST_BHET_BILL_NO, requestBhetBillNo),
     takeLatest(REQUEST_BILL_DETAILS, requestBillDetails),
     takeLatest(REQUEST_RETURN_BILL, requestReturnBill),
     takeLatest(REPRINT_BILL, requestReprintBill),
     takeLatest(RETURN_BILL_NO, requestreturnBillNo),
-
   ]);
 }

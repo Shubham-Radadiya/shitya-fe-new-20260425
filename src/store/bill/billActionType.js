@@ -1,6 +1,7 @@
 export const REQUEST_BILL_NO = "REQUEST_BILL_NO";
 export const REQUEST_BILL = "REQUEST_BILL";
 export const RETURN_BILL_NO ="RETURN_BILL_NO";
+export const REQUEST_BHET_BILL_NO = "REQUEST_BHET_BILL_NO";
 
 export const SET_BILL_NO = "SET_BILL_NO";
 export const ERROR_BILL_NO = "ERROR_BILL_NO";

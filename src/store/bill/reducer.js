@@ -14,6 +14,7 @@ import {
   ERROR_REPRINT_BILL,
   SET_REPRINT_BILL,
   RETURN_BILL_NO,
+  REQUEST_BHET_BILL_NO,
 } from "./billActionType";
 
 const initialState = {
@@ -33,6 +34,7 @@ const bill = (state = initialState, action) => {
     case REQUEST_BILL_DETAILS:
     case REQUEST_CREATE_BILL:
     case REQUEST_BILL:
+    case REQUEST_BHET_BILL_NO:
       return {
         ...state,
         busy: true,

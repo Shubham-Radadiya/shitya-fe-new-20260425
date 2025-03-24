@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import {
+  ADD_TO_BHET_CART,
   ADD_TO_CART,
   ADD_TO_PURCHASE_CART,
 } from "../../../store/cart/cartActionType";
@@ -18,10 +19,11 @@ const AddList = ({
   const handleAddToCart = (product) => {
     if (currentLocation.pathname === "/stock") {
       dispatch({ type: ADD_TO_PURCHASE_CART, payload: product });
+    } else if(currentLocation.pathname === "/bhet"){
+      dispatch({ type: ADD_TO_BHET_CART, payload: product });
     } else {
       dispatch({ type: ADD_TO_CART, payload: product });
     }
-
     setShowReprintBill(false);
   };
 

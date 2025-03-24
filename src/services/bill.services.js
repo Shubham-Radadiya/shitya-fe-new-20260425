@@ -19,6 +19,18 @@ export const getBillNo = async () => {
     headers: response.headers,
   };
 };
+
+export const getBhetBillNo = async () => {
+  const response = await axios.get(`${API_URL}/bill/getBhateNo`, {
+    headers: { Authorization: localStorage.getItem("access_token") },
+  });
+  return {
+    data: response.data,
+    status: response.status,
+    headers: response.headers,
+  };
+};
+
 export const getReturnBillNo = async () => {
   const response = await axios.get(`${API_URL}/bill/return-bill-no`, {
     headers: { Authorization: localStorage.getItem("access_token") },

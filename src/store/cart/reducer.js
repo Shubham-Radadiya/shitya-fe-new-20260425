@@ -1,11 +1,15 @@
 import { useSelector } from "react-redux";
 import {
+  ADD_TO_BHET_CART,
   ADD_TO_CART,
   ADD_TO_PURCHASE_CART,
   ADD_TO_UPDATEDCART,
+  CLEAR_BHET_CART,
   CLEAR_CART,
   CLEAR_PURCHASE_CART,
+  EDIT_BHET_DATA,
   EDIT_PURCHASE_DATA,
+  REMOVE_FROM_BHET_CART,
   REMOVE_FROM_CART,
   REMOVE_FROM_PURCHASE_CART,
 } from "./cartActionType";
@@ -14,6 +18,7 @@ const initialState = {
   items: [],
   quantity: 0,
   purchaseItems: [],
+  bhetItems: []
 };
 
 const cartReducer = (state = initialState, action) => {
@@ -58,6 +63,28 @@ const cartReducer = (state = initialState, action) => {
           ],
         };
       }
+
+      case ADD_TO_BHET_CART:
+        const existingItemIndex2 = state.bhetItems.findIndex(
+          (item) => item.productId === action.payload.productId
+        );
+        if (existingItemIndex2 !== -1) {
+          const updatedItems = [...state.bhetItems];
+          updatedItems[existingItemIndex1].quantity += 1;
+  
+          return {
+            ...state,
+            bhetItems: updatedItems,
+          };
+        } else {
+          return {
+            ...state,
+            bhetItems: [
+              ...state.bhetItems,
+              { ...action.payload, quantity: 1 },
+            ],
+          };
+        }
 
     case ADD_TO_UPDATEDCART:
       const existingItemIndexs = state.items.findIndex(
@@ -116,6 +143,25 @@ const cartReducer = (state = initialState, action) => {
       }
       break;
 
+      case REMOVE_FROM_BHET_CART:
+      const exitingIndex2 = state.bhetItems.findIndex(
+        (item) => item._id === action.payload
+      );
+
+      if (exitingIndex1 !== -1) {
+        const updatedItems = [...state.bhetItems];
+        if (updatedItems[exitingIndex1].quantity > 1) {
+          updatedItems[exitingIndex1].quantity -= 1;
+        } else {
+          updatedItems.splice(exitingIndex1, 1);
+        }
+        return {
+          ...state,
+          bhetItems: updatedItems,
+        };
+      }
+      break;
+
     case CLEAR_CART:
       return {
         ...state,
@@ -125,7 +171,15 @@ const cartReducer = (state = initialState, action) => {
     case CLEAR_PURCHASE_CART:
       return { ...state, purchaseItems: [] };
 
+    case CLEAR_BHET_CART:
+      return { ...state, bhetItems: [] };
+
     case EDIT_PURCHASE_DATA:
+      return {
+        ...state,
+        purchaseItems: action.payload,
+      };
+    case EDIT_BHET_DATA:
       return {
         ...state,
         purchaseItems: action.payload,
