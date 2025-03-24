@@ -20,7 +20,7 @@ const initialState = {
   items: [],
   quantity: 0,
   purchaseItems: [],
-  bhetItems: []
+  bhetItems: [],
 };
 
 const cartReducer = (state = initialState, action) => {
@@ -66,27 +66,24 @@ const cartReducer = (state = initialState, action) => {
         };
       }
 
-      case ADD_TO_BHET_CART:
-        const existingItemIndex2 = state.bhetItems.findIndex(
-          (item) => item.productId === action.payload.productId
-        );
-        if (existingItemIndex2 !== -1) {
-          const updatedItems = [...state.bhetItems];
-          updatedItems[existingItemIndex2].quantity += 1;
-  
-          return {
-            ...state,
-            bhetItems: updatedItems,
-          };
-        } else {
-          return {
-            ...state,
-            bhetItems: [
-              ...state.bhetItems,
-              { ...action.payload, quantity: 1 },
-            ],
-          };
-        }
+    case ADD_TO_BHET_CART:
+      const existingItemIndex2 = state.bhetItems.findIndex(
+        (item) => item.productId === action.payload.productId
+      );
+      if (existingItemIndex2 !== -1) {
+        const updatedItems = [...state.bhetItems];
+        updatedItems[existingItemIndex2].quantity += 1;
+
+        return {
+          ...state,
+          bhetItems: updatedItems,
+        };
+      } else {
+        return {
+          ...state,
+          bhetItems: [...state.bhetItems, { ...action.payload, quantity: 1 }],
+        };
+      }
 
     case ADD_TO_UPDATEDCART:
       const existingItemIndexs = state.items.findIndex(
@@ -107,8 +104,8 @@ const cartReducer = (state = initialState, action) => {
         };
       }
 
-case ADD_TO_UPDATEPURCHASECART:
- const existingItemIndexs1 = state.purchaseItems.findIndex(
+    case ADD_TO_UPDATEPURCHASECART:
+      const existingItemIndexs1 = state.purchaseItems.findIndex(
         (item) => item.productId === action.payload.productId
       );
       if (existingItemIndexs1 !== -1) {
@@ -125,8 +122,9 @@ case ADD_TO_UPDATEPURCHASECART:
           purchaseItems: action.payload,
         };
       }
-case ADD_TO_UPDATEBHETCART:
- const existingItemIndexs2 = state.bhetItems.findIndex(
+
+    case ADD_TO_UPDATEBHETCART:
+      const existingItemIndexs2 = state.bhetItems.findIndex(
         (item) => item.productId === action.payload.productId
       );
       if (existingItemIndexs2 !== -1) {
@@ -135,7 +133,7 @@ case ADD_TO_UPDATEBHETCART:
 
         return {
           ...state,
-          purchaseItems: updatedItems,
+          bhetItems: updatedItems,
         };
       } else {
         return {
@@ -143,7 +141,7 @@ case ADD_TO_UPDATEBHETCART:
           bhetItems: action.payload,
         };
       }
-      
+
     case REMOVE_FROM_CART:
       const exitingIndex = state.items.findIndex(
         (item) => item._id === action.payload
@@ -182,7 +180,7 @@ case ADD_TO_UPDATEBHETCART:
       }
       break;
 
-      case REMOVE_FROM_BHET_CART:
+    case REMOVE_FROM_BHET_CART:
       const exitingIndex2 = state.bhetItems.findIndex(
         (item) => item._id === action.payload
       );

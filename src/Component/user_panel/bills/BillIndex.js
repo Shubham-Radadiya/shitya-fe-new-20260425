@@ -16,6 +16,7 @@ import {
   ADD_TO_UPDATEPURCHASECART,
   ADD_TO_BHET_CART,
   REMOVE_FROM_BHET_CART,
+  ADD_TO_UPDATEBHETCART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -34,7 +35,6 @@ import {
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
 } from "../../../store/invoice/InvoiceAction";
-import { toast } from "react-toastify";
 import { REQUEST_USER_EXCEL } from "../../../store/excel/excelAction";
 import ExcelBillPrint from "./ExcelBillPrint";
 
@@ -202,7 +202,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setShowReprintBill(false);
     setReturnMode(false);
   };
-  
 
   const printDiv = (items) => {
     const payload = {
@@ -304,6 +303,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
       dispatch({
         type: ADD_TO_UPDATEPURCHASECART,
         payload: purchaseItems.map((item) =>
+          item._id === updatedItem._id ? updatedItem : item
+        ),
+      });
+    } else if (currentLocation.pathname === "/bhet") {
+      dispatch({
+        type: ADD_TO_UPDATEBHETCART,
+        payload: bhetItems.map((item) =>
           item._id === updatedItem._id ? updatedItem : item
         ),
       });
