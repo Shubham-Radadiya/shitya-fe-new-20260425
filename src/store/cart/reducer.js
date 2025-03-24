@@ -70,7 +70,7 @@ const cartReducer = (state = initialState, action) => {
         );
         if (existingItemIndex2 !== -1) {
           const updatedItems = [...state.bhetItems];
-          updatedItems[existingItemIndex1].quantity += 1;
+          updatedItems[existingItemIndex2].quantity += 1;
   
           return {
             ...state,

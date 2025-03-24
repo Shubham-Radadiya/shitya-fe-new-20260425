@@ -24,5 +24,9 @@ export const editInvoice = (id, payload) =>
   apiRequest("patch", `/invoice/${id}`, payload);
 export const createReturnInvoice = (payload, id) =>
   apiRequest("patch", `/invoice/return/${id}`, payload);
+export const getBhet = () =>
+  apiRequest("get", `/bhet`);
+export const createBhet = (payload) =>
+  apiRequest("post", "/bhet", payload);
 
-export default { createInvoice, getInvoices, editInvoice, createReturnInvoice };
+export default { createInvoice, getInvoices, editInvoice, createReturnInvoice, createBhet, getBhet };

@@ -12,6 +12,7 @@ import {
   ADD_TO_PURCHASE_CART,
   REMOVE_FROM_PURCHASE_CART,
   CLEAR_PURCHASE_CART,
+  CLEAR_BHET_CART,
 } from "../../../store/cart/cartActionType";
 import {
   REQUEST_CREATE_BILL,
@@ -37,6 +38,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
   const items = useSelector((state) => state.cart.items || []);
   const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
+  const bhetItems = useSelector((state) => state.cart.bhetItems || []);
   const { billNo } = useBill();
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
@@ -84,18 +86,19 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       alert("Incorrect PIN");
     }
-  };
+  };  
 
   const handleButtonClick = (screen) => {
     if (location.pathname !== `/${screen}`) {
       setShowPinPrompt(screen);
     }
   };
-  useEffect(() => {  
-  if (location.pathname === "/bhet") {
-    dispatch({ type: REQUEST_BHET_BILL_NO });
-  }
-}, []);
+  // useEffect(() => {
+  //   if (showPinPrompt === "bhet") {
+  //     dispatch({ type: REQUEST_BHET_BILL_NO });
+  //   }
+  // }, [showPinPrompt]);
+
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -132,12 +135,20 @@ const Bills = ({ returnMode, setReturnMode }) => {
     (total, item) => total + item.quantity,
     0
   );
+  const totalBhetQuantity = bhetItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
   const totalPrice = items.reduce(
     (total, item) => total + item.quantity * item.price,
     0
   );
 
   const totalPurchaseprice = purchaseItems.reduce(
+    (total, item) => total + item.quantity * item.price,
+    0
+  );
+  const totalBhetprice = bhetItems.reduce(
     (total, item) => total + item.quantity * item.price,
     0
   );
@@ -152,14 +163,22 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
     setIsButtonDisabled(true);
 
-    printDiv(currentLocation.pathname === "/stock" ? purchaseItems : items);
+    printDiv(
+      currentLocation.pathname === "/stock"
+        ? purchaseItems
+        : currentLocation.pathname === "/bhet"
+        ? bhetItems
+        : items
+    );
     localStorage.setItem("billData", JSON.stringify(items));
     localStorage.setItem("billId", reportData);
     dispatch({
       type:
-        currentLocation.pathname === "/stock"
-          ? CLEAR_PURCHASE_CART
-          : CLEAR_CART,
+      currentLocation.pathname === "/stock"
+        ? CLEAR_PURCHASE_CART
+        : currentLocation.pathname === "/bhet"
+        ? CLEAR_BHET_CART
+        : CLEAR_CART,
     });
 
     setTimeout(() => {
@@ -175,7 +194,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
         price: item.price,
       })),
       totalAmount:
-        currentLocation.pathname === "/stock" ? totalPurchaseprice : totalPrice,
+      currentLocation.pathname === "/stock"
+        ? totalPurchaseprice
+        : currentLocation.pathname === "/bhet"
+        ? totalBhetprice
+        : totalPrice,    
     };
 
     if (showReprintBill) {
@@ -426,16 +449,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
             </label>
           )}
           {currentLocation.pathname !== "/bhet" && (
-          <button
-            className={
-              currentLocation.pathname === "/stock"
-                ? "purchase_icon-button"
-                : "icon-button"
-            }
-            onClick={handleReturnBill}
-          >
-            Return
-          </button>
+            <button
+              className={
+                currentLocation.pathname === "/stock"
+                  ? "purchase_icon-button"
+                  : "icon-button"
+              }
+              onClick={handleReturnBill}
+            >
+              Return
+            </button>
           )}
           {currentLocation.pathname === "/stock" ? (
             purchaseItems.length > 0 ? (
@@ -534,12 +557,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
           <div className="bill_header_sub">
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
             <h8>
-  {currentLocation.pathname === "/stock"
-    ? `INV.No: ${displayInvoice}`
-    : currentLocation.pathname === "/bhet"
-    ? `Bhet.No: ${billNo?.billId}`
-    : `Sr.No: ${billNo?.billId}`}
-</h8>
+              {currentLocation.pathname === "/stock"
+                ? `INV.No: ${displayInvoice}`
+                : currentLocation.pathname === "/bhet"
+                ? `Bhet.No: ${billNo?.billId}`
+                : `Sr.No: ${billNo?.billId}`}
+            </h8>
           </div>
 
           {showReprintBill ? (

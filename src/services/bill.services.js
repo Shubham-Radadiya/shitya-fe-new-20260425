@@ -21,7 +21,7 @@ export const getBillNo = async () => {
 };
 
 export const getBhetBillNo = async () => {
-  const response = await axios.get(`${API_URL}/bill/getBhateNo`, {
+  const response = await axios.get(`${API_URL}/bhet/getBhateNo`, {
     headers: { Authorization: localStorage.getItem("access_token") },
   });
   return {

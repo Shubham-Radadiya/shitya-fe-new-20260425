@@ -1,11 +1,16 @@
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import invoiceServices from "../../services/invoice.services";
 import {
+  ERROR_CREATE_BHET,
   ERROR_CREATE_INVOICE,
+  REQUEST_BHET_DATA,
+  REQUEST_CREATE_BHET,
   REQUEST_CREATE_INVOICE,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_INVOICE_DATA,
+  SET_BHET_DATA,
+  SET_CREATE_BHET,
   SET_CREATE_INVOICE,
   SET_INVOICE_DATA,
 } from "./InvoiceAction";
@@ -19,6 +24,14 @@ function* requestCreateInvoice(action) {
     yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
   }
 }
+function* requestCreateBhet(action) {
+  try {
+    const data = yield call(invoiceServices.createBhet, action.payload);
+    yield put({ type: SET_CREATE_BHET, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_CREATE_BHET, payload: handleError(error) });
+  }
+}
 
 function* requestInvoiceData(action) {
   try {
@@ -26,6 +39,15 @@ function* requestInvoiceData(action) {
     yield put({ type: SET_INVOICE_DATA, payload: data });
   } catch (error) {
     yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+  }
+}
+
+function* requestBhetData(action) {
+  try {
+    const data = yield call(invoiceServices.getBhet);
+    yield put({ type: SET_BHET_DATA, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_CREATE_BHET, payload: handleError(error) });
   }
 }
 
@@ -75,6 +97,8 @@ export function* invoiceSaga() {
     takeLatest(REQUEST_CREATE_INVOICE, requestCreateInvoice),
     takeLatest(REQUEST_CREATE_RETURN_INVOICE, requestCreateReturnInvoice),
     takeLatest(REQUEST_INVOICE_DATA, requestInvoiceData),
+    takeLatest(REQUEST_BHET_DATA, requestBhetData),
     takeLatest(REQUEST_EDIT_INVOICE_DATA, requestEditInvoice),
+    takeLatest(REQUEST_CREATE_BHET, requestCreateBhet),
   ]);
 }
