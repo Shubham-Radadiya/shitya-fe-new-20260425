@@ -10,6 +10,7 @@ import StockTable from "./StockTable";
 import SilakYearlyReport from "./SilakYearlyReport";
 import SilakMonthlyReport from "./SilakMonthlyReport";
 import BhetReport from "./BhetReport";
+import Home from "../images/home.png";
 
 const ReportsDashboard = () => {
   const dispatch = useDispatch();
@@ -96,58 +97,36 @@ const ReportsDashboard = () => {
       subReports: [
         {
           key: "SilakReport",
-          label: "Silak Report Monthly",
+          label: "Report-1",
           component: <SilakMonthlyReport />,
         },
         {
           key: "SilakYearlyReport",
-          label: "Silak Report Yearly",
+          label: "Report-2",
           component: <SilakYearlyReport />,
         },
       ],
     },
     { key: "bhet", label: "Bhet Report", component: <BhetReport /> },
   ];
-
+  const goToDashboard = () => {
+    navigate("/dashboard");
+  };
   return (
-    <div className="user-template">
+    <div className="user-template" style={{ marginLeft: "15px" }}>
       <div className="user-container">
-        <div className="reportHeader">
+        <div className="reportHeader" style={{width:"98.6%", marginTop:"6px"}}>
           <h2 style={{ textAlign: "center" }}>Reports Dashboard</h2>
           <div className="screen-list">
-            <NavLink
-              to="/dashboard"
-              className="screen-list-circle sales-circle"
-            >
-              S
-            </NavLink>
-            <button
-            className="screen-list-circle sales-report-circle"
-            style={{ background: "rgb(34 78 8)" }}
-            onClick={() => handleButtonClick("bhet")}
-          >
-            B
-          </button>
-            <button
-              className="screen-list-circle purchase-circle"
-              onClick={() => handleButtonClick("stock")}
-            >
-              P
-            </button>
-            <NavLink
-              className="screen-list-circle sales-report-circle"
-              to="/report"
-            >
-              R
-            </NavLink>
+              <img style={{ width: "40px", cursor:"pointer" }} src={Home} alt="edit" onClick={() => goToDashboard()} />
           </div>
         </div>
 
         <div
           className="report-dashboard"
-          style={{ width: "auto", gap: "15px" }}
+          style={{ width: "auto", gap: "15px", height: "91vh" }}
         >
-          <div className="report-left-side">
+          <div className="report-left-side" style={{ width: "14vw" }}>
             {reportOptions.map((report) => (
               <div key={report.key}>
                 <button
@@ -195,7 +174,7 @@ const ReportsDashboard = () => {
               </div>
             ))}
           </div>
-          <div className="report-right-side">
+          <div className="report-right-side" style={{ width: "83.5vw" }}>
             {reportOptions.find((r) => r.key === activeReport)?.hasSubReports
               ? reportOptions
                   .find((r) => r.key === activeReport)

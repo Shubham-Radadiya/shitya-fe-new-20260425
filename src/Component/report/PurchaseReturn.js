@@ -304,7 +304,7 @@ const PurchaseReturn = () => {
                       .map((user) => ({
                         ...user,
                         data: [...user.data].sort(
-                          (a, b) => Number(b.invoiceId) - Number(a.invoiceId)
+                          (a, b) => Number(a.invoiceId) - Number(b.invoiceId)
                         ),
                       }))
                       .map((user, userIndex) =>

@@ -255,9 +255,7 @@ const SilakYearlyReport = () => {
                   </thead>
                   <tbody>
                     {reportData
-                      ?.slice()
-                      .reverse()
-                      .map((silak, index) => {
+                      ?.map((silak, index) => {
                         let murtiAmount = 0,
                           vaghaAmount = 0,
                           gharenaAmount = 0,

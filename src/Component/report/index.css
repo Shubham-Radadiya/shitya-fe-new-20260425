@@ -1,6 +1,6 @@
 .userreport-table-wrapper {
   flex: 1;
-  max-height: 70vh;
+  max-height: 83vh;
   overflow: auto;
 }
 
@@ -255,14 +255,10 @@
 .user-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  width: 97%;
-  margin: 1rem auto;
+  gap: .8rem;
+  width: 100%;
 }
 
-.userreport-table-wrapper {
-  flex: 1;
-}
 
 .userreport-table thead,
 .userreport-table tfoot {

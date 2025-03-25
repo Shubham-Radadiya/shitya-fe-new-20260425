@@ -223,15 +223,15 @@ const PurchaseReport = () => {
           const numA = parseInt(a.invoiceId.replace(/\D/g, ""), 10) || 0;
           const numB = parseInt(b.invoiceId.replace(/\D/g, ""), 10) || 0;
 
-          // First, sort by date (latest first)
-          if (dateB !== dateA) return dateB - dateA;
+          // First, sort by date (oldest first for ascending order)
+          if (dateA !== dateB) return dateA - dateB;
 
-          // Then, sort by invoiceId (largest first)
-          return numB - numA;
+          // Then, sort by invoiceId (smallest first for ascending order)
+          return numA - numB;
         }),
       }));
 
-      console.log("✅ Final Sorted Data:", sortedData);
+      console.log("✅ Final Sorted Data (Ascending Order):", sortedData);
       setSortedInvoiceData(sortedData);
     }
   }, [invoiceData]);

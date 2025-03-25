@@ -10,7 +10,7 @@ const UpdateUser = ({ closeModal, user }) => {
     fullName: user?.fullName || "",
     userName: user?.userName || "",
     password: user?.password || "",
-    userType: user?.userType || "manager",
+    userType: user?.userType || "MANAGER",
   });
 
   useEffect(() => {

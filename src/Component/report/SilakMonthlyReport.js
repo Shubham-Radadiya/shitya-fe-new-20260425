@@ -163,7 +163,7 @@ const SilakMonthlyReport = () => {
               }}
             >
               <>
-                <table className="userreport-table" style={{ width: "148%" }}>
+                <table className="userreport-table" style={{ width: "125%" }}>
                   <thead>
                     <tr>
                       <th
@@ -254,9 +254,7 @@ const SilakMonthlyReport = () => {
                   </thead>
                   <tbody>
                     {reportData
-                      ?.slice()
-                      .reverse()
-                      .map((silak, index) => {
+                      ?.map((silak, index) => {
                         let murtiAmount = 0,
                           vaghaAmount = 0,
                           gharenaAmount = 0,

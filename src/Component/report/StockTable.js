@@ -35,30 +35,46 @@ const StockTable = () => {
 
     stock.forEach((categoryData) => {
       categoryData?.categories?.forEach((category) => {
+        // Add category row
+        data.push({
+          Category: category.categoryName,
+          "Sub Category": "",
+          Product: "",
+          "Product ID": "",
+          Qty: category.totalBuyingCountPerCategory,
+          Rate: "",
+          Amount: `${category.totalBuyingAmountPerCategory}`,
+        });
+
         category?.subCategories?.forEach((subcategory) => {
-          // Adding subcategory info
+          // Add subcategory row
           data.push({
-            Category: category.categoryName,
+            Category: "",
             "Sub Category": subcategory.subCategoryName,
             Product: "",
-            Stock: subcategory.totalBuyingCount,
-            Amount: `₹${subcategory.totalBuyingAmount}`,
+            "Product ID": "",
+            Qty: subcategory.totalBuyingCount,
+            Rate: "",
+            Amount: `${subcategory.totalBuyingAmount}`,
           });
 
-          // Adding product info
           subcategory?.products?.forEach((product) => {
+            // Add product row
             data.push({
               Category: "",
               "Sub Category": "",
               Product: product.name,
-              Stock: product.totalBuyingCount,
-              Amount: `₹${product.totalBuyingAmount}`,
+              "Product ID": product.productId,
+              Qty: product.quantity,
+              Rate: `${product.price}`,
+              Amount: `${product.totalBuyingAmount}`,
             });
           });
         });
       });
     });
 
+    // Create and export Excel file
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
@@ -68,7 +84,8 @@ const StockTable = () => {
   return (
     <div className="user-template">
       <div className="user-container">
-        <div className="userreport-box" style={{ justifyContent: "flex-end" }}>
+        <div className="userreport-box" style={{ justifyContent: "space-between" }}>
+          <h2>Stock Report</h2>
           <button className="userreprt-button" onClick={exportToExcel}>
             Export to Excel
           </button>
@@ -77,15 +94,17 @@ const StockTable = () => {
           <table className="userreport-table">
             {/* Table Header - Display only once */}
             <thead>
-              <tr>
+              <tr style={{width:"86%", fontSize:"16px"}}>
                 <th>Category</th>
                 <th>Sub Category</th>
                 <th>Product</th>
-                <th>Stock</th>
+                <th>Product ID</th>
+                <th>Qty</th>
+                <th>Rate</th>
                 <th>Amount</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody style={{width:"86%"}}>
               {Array.isArray(stock) &&
                 stock.map((categoryData, index) => (
                   <React.Fragment key={index}>
@@ -110,9 +129,14 @@ const StockTable = () => {
                               {category.categoryName}
                             </div>
                           </td>
-                          <td colSpan="2"></td>
-                          <td>{category.totalBuyingCountPerCategory}</td>
-                          <td>{category.totalBuyingAmountPerCategory}</td>
+                          <td colSpan="3"></td>
+                          <td style={{ textAlign: "right" }}>
+                            {category.totalBuyingCountPerCategory}
+                          </td>
+                          <td></td>
+                          <td style={{ textAlign: "right" }}>
+                            {category.totalBuyingAmountPerCategory}
+                          </td>
                         </tr>
 
                         {/* Subcategory and Product rows */}
@@ -145,9 +169,11 @@ const StockTable = () => {
                                   </div>
                                 </td>
                                 <td></td>
+                                <td></td>
                                 <td style={{ textAlign: "right" }}>
                                   {subcategory.totalBuyingCount}
                                 </td>
+                                <td></td>
                                 <td style={{ textAlign: "right" }}>
                                   ₹{subcategory.totalBuyingAmount}
                                 </td>
@@ -161,8 +187,12 @@ const StockTable = () => {
                                     <td></td>
                                     <td></td>
                                     <td>{product.name}</td>
+                                    <td>{product.productId}</td>
                                     <td style={{ textAlign: "right" }}>
                                       {product.quantity}
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>
+                                      {product.price}
                                     </td>
                                     <td style={{ textAlign: "right" }}>
                                       ₹{product.totalBuyingAmount}

@@ -304,7 +304,7 @@ const BhetReport = () => {
                       .map((user) => ({
                         ...user,
                         data: [...user.data].sort(
-                          (a, b) => Number(b.billId) - Number(a.billId)
+                          (a, b) => Number(a.billId) - Number(b.billId)
                         ),
                       }))
                       .map((user, userIndex) =>
@@ -403,13 +403,13 @@ const BhetReport = () => {
                               </td>
                               <td
                                 style={{
-                                  width: "5.9%",
+                                  width: "11.8%",
                                   padding: "0px",
                                   textAlign: "center",
                                   verticalAlign: "middle",
                                 }}
                               >
-                                {/* <span
+                                <span
                                   style={{
                                     fontSize: "26px",
                                     cursor: "pointer",
@@ -419,17 +419,16 @@ const BhetReport = () => {
                                   }
                                 >
                                   <AiOutlinePrinter />
-                                </span> */}
+                                </span>
                               </td>
                               <td
                                 style={{
-                                  width: "5.9%",
                                   padding: "0px",
                                   textAlign: "center",
                                   verticalAlign: "middle",
                                 }}
                               >
-                                <span
+                                {/* <span
                                   style={{
                                     fontSize: "26px",
                                     cursor: "pointer",
@@ -443,7 +442,7 @@ const BhetReport = () => {
                                     src={Edit}
                                     alt="edit"
                                   />
-                                </span>
+                                </span> */}
                               </td>
                             </tr>
                           );
