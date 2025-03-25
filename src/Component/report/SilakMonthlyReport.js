@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import "./index.css";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const SilakMonthlyReport = () => {
   const [reportData, setReportData] = useState(null);
@@ -148,9 +149,12 @@ const SilakMonthlyReport = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-              <button className="userreprt-button" onClick={exportToExcel}>
+            <div className="download" onClick={exportToExcel}>
+              <MdOutlineFileUpload/> 
+              </div>
+              {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
-              </button>
+              </button> */}
             </div>
           </div>
 

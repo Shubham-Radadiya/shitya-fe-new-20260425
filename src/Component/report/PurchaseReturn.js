@@ -11,6 +11,7 @@ import { AiOutlinePrinter } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const PurchaseReturn = () => {
   const componentRef = useRef();
@@ -218,9 +219,12 @@ const PurchaseReturn = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-              <button className="userreprt-button" onClick={exportToExcel}>
+            <div className="download" onClick={exportToExcel}>
+              <MdOutlineFileUpload/> 
+              </div>
+              {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
-              </button>
+              </button> */}
             </div>
           </div>
 

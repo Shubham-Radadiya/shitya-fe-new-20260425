@@ -12,10 +12,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const BhetReport = () => {
   const componentRef = useRef();
-  
+
   const dispatch = useDispatch();
   const { invoiceData } = useInvoice(false);
   const { dailyReport } = useReport();
@@ -24,7 +25,6 @@ const BhetReport = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  
 
   const fetchInvoiceData = async (invoiceId) => {
     try {
@@ -210,8 +210,7 @@ const BhetReport = () => {
     0
   );
 
-  useEffect(() => {
-  }, [selectedInvoice]);
+  useEffect(() => {}, [selectedInvoice]);
 
   return (
     <>
@@ -222,9 +221,12 @@ const BhetReport = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-              <button className="userreprt-button" onClick={exportToExcel}>
+              <div className="download" onClick={exportToExcel}>
+                <MdOutlineFileUpload />
+              </div>
+              {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
-              </button>
+              </button> */}
             </div>
           </div>
 

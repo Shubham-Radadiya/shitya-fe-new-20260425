@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const PurchaseReport = () => {
   const componentRef = useRef();
@@ -245,9 +246,13 @@ const PurchaseReport = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-              <button className="userreprt-button" onClick={exportToExcel}>
+              <div style={{ fontWeight: "bold" }}>Daily Purchase Report</div>
+              <div className="download" onClick={exportToExcel}>
+                <MdOutlineFileUpload />
+              </div>
+              {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -650,8 +655,8 @@ const PurchaseReport = () => {
               className="modal-overlay"
               onClick={() => setIsModalOpen(false)}
             ></div>
-            <div className="modal">
-              <div className="modal-content">
+            <div className="purchase-modal">
+              <div className="purchase-modal-content">
                 <div
                   style={{
                     display: "flex",
@@ -671,9 +676,14 @@ const PurchaseReport = () => {
                   </p>
                 </div>
                 <h3>Products:</h3>
-                <table border="1" width="100%">
+                <table
+                  border="1"
+                  width="100%"
+                  style={{ borderCollapse: "collapse" }}
+                >
                   <thead>
                     <tr>
+                      <th>Product Id</th>
                       <th>Product Name</th>
                       <th>Price</th>
                       <th>Quantity</th>
@@ -683,10 +693,21 @@ const PurchaseReport = () => {
                   <tbody>
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
-                        <td>{product._id.name}</td>
-                        <td>{product.price}</td>
-                        <td>{product.quantity}</td>
-                        <td>{product.price * product.quantity}</td>
+                        <td style={{ textAlign: "left" }}>
+                          {product._id.productId}
+                        </td>
+                        <td style={{ textAlign: "left" }}>
+                          {product._id.name}
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          {product.price.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          {product.quantity.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          {(product.price * product.quantity).toLocaleString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

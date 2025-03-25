@@ -44,7 +44,7 @@ const PrintBillIndex = ({
               <td></td>
               <td>{reprintTotalQuantity}</td>
               <td>
-              ₹ {new Intl.NumberFormat("en-IN").format(
+               {new Intl.NumberFormat("en-IN").format(
                   reprintBill?.totalAmount
                 )}
               </td>

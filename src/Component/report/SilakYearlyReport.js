@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import "./index.css";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const SilakYearlyReport = () => {
   const [reportData, setReportData] = useState(null);
@@ -149,9 +150,12 @@ const SilakYearlyReport = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-              <button className="userreprt-button" onClick={exportToExcel}>
+            <div className="download" onClick={exportToExcel}>
+              <MdOutlineFileUpload/> 
+              </div>
+              {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
-              </button>
+              </button> */}
             </div>
           </div>
 

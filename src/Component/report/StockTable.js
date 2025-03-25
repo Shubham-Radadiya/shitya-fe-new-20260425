@@ -4,6 +4,7 @@ import * as XLSX from "xlsx"; // Import xlsx library
 import "./index.css";
 import { useDispatch, useSelector } from "react-redux";
 import { REQUEST_GET_STOCk } from "../../store/product/ProductAction";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const StockTable = () => {
   const [showDetailState, setShowDetailState] = useState(null);
@@ -42,7 +43,7 @@ const StockTable = () => {
             "Sub Category": subcategory.subCategoryName,
             Product: "",
             Stock: subcategory.totalBuyingCount,
-            Amount: `₹${subcategory.totalBuyingAmount}`,
+            Amount: `${subcategory.totalBuyingAmount}`,
           });
 
           // Adding product info
@@ -52,7 +53,7 @@ const StockTable = () => {
               "Sub Category": "",
               Product: product.name,
               Stock: product.totalBuyingCount,
-              Amount: `₹${product.totalBuyingAmount}`,
+              Amount: `${product.totalBuyingAmount}`,
             });
           });
         });
@@ -69,9 +70,12 @@ const StockTable = () => {
     <div className="user-template">
       <div className="user-container">
         <div className="userreport-box" style={{ justifyContent: "flex-end" }}>
-          <button className="userreprt-button" onClick={exportToExcel}>
+        <div className="download" onClick={exportToExcel}>
+              <MdOutlineFileUpload/> 
+              </div>
+          {/* <button className="userreprt-button" onClick={exportToExcel}>
             Export to Excel
-          </button>
+          </button> */}
         </div>
         <div className="userreport-table-wrapper">
           <table className="userreport-table">
@@ -149,7 +153,7 @@ const StockTable = () => {
                                   {subcategory.totalBuyingCount}
                                 </td>
                                 <td style={{ textAlign: "right" }}>
-                                  ₹{subcategory.totalBuyingAmount}
+                                  {subcategory.totalBuyingAmount}
                                 </td>
                               </tr>
 
@@ -165,7 +169,7 @@ const StockTable = () => {
                                       {product.quantity}
                                     </td>
                                     <td style={{ textAlign: "right" }}>
-                                      ₹{product.totalBuyingAmount}
+                                    {product.totalBuyingAmount}
                                     </td>
                                   </tr>
                                 ))}
