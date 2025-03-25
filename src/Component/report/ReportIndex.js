@@ -42,7 +42,6 @@ const ReportIndex = () => {
   // }, [dispatch]);
 
   // console.log("--", bhetData);
-  
 
   const handleFetchReports = (type) => {
     setReportType(type);
@@ -77,9 +76,9 @@ const ReportIndex = () => {
   const filteredProducts = currentReport[0]?.products || [];
 
   const filteredCategory =
-  currentReport[0]?.categories?.filter(
-    (categorie) => categorie.totalQuantity !== 0
-  ) || [];  
+    currentReport[0]?.categories?.filter(
+      (categorie) => categorie.totalQuantity !== 0
+    ) || [];
 
   const calculateTotalAmount = () => {
     if (reportType === "daily") {
@@ -186,11 +185,12 @@ const ReportIndex = () => {
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
   const todaBhetDate = new Date().toISOString().split("T")[0];
-  const totalBhetAmount = bhetData?.[0]?.data
-  ?.filter(entry => entry.createdAt === todaBhetDate)
-  ?.flatMap(entry => entry.categories)
-  ?.reduce((sum, category) => sum + category.totalBuyingAmount, 0) || 0;
-  const formattedTotalBhet = totalBhetAmount.toLocaleString("en-IN"); 
+  const totalBhetAmount =
+    bhetData?.[0]?.data
+      ?.filter((entry) => entry.createdAt === todaBhetDate)
+      ?.flatMap((entry) => entry.categories)
+      ?.reduce((sum, category) => sum + category.totalBuyingAmount, 0) || 0;
+  const formattedTotalBhet = totalBhetAmount.toLocaleString("en-IN");
 
   const closeModal = () => {
     setSilakOpen(false);
@@ -279,7 +279,7 @@ const ReportIndex = () => {
         setSalesData(formattedData);
         setExistingData(response.data.data);
         setId(response.data._id);
-        setKharch(response.data.kharch || 0)
+        setKharch(response.data.kharch || 0);
         setOpenSilak(response.data.openSilak || 0);
         setCloseSilak(response.data.closeSilak || 0);
         setJamaRakam(response.data.jamaRakam || 0);
@@ -302,9 +302,11 @@ const ReportIndex = () => {
   }, []);
 
   const today = new Date();
-const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1)
-  .toString()
-  .padStart(2, "0")}-${today.getFullYear()}`;
+  const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(
+    today.getMonth() + 1
+  )
+    .toString()
+    .padStart(2, "0")}-${today.getFullYear()}`;
 
   const handleValueChange = (index, value) => {
     const updatedSalesData = [...salesData];
@@ -318,7 +320,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
         currency: cur.currency,
         count: cur.count,
       })),
-      kharch:parseInt(kharch, 10),
+      kharch: parseInt(kharch, 10),
       openSilak: parseInt(openSilak, 10),
       closeSilak: parseInt(closeSilak, 10),
       jamaRakam: parseInt(jamaRakam, 10),
@@ -332,7 +334,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
         })
         .then((patchResponse) => {
           fetchUpdatedData();
-        })
+        });
     } else {
       axios
         .post("http://localhost:3010/daily-currency", payload, {
@@ -340,7 +342,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
         })
         .then((response) => {
           fetchUpdatedData();
-        })
+        });
     }
     closeModal();
   };
@@ -382,7 +384,10 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box" style={{justifyContent:"space-between", width:"97.5%"}}>
+          <div
+            className="userreport-box"
+            style={{ justifyContent: "space-between", width: "97.5%" }}
+          >
             <div style={{ display: "flex", gap: "35px", width: "100%" }}>
               <div
                 style={{
@@ -408,7 +413,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                 Print
               </button>
               <div className="download" onClick={exportToExcel}>
-              <MdOutlineFileUpload/> 
+                <MdOutlineFileUpload />
               </div>
             </div>
           </div>
@@ -479,7 +484,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                           Total:{" "}
                         </td>
                         <td style={{ textAlign: "end", fontWeight: "bold" }}>
-                           {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                          {new Intl.NumberFormat("en-IN").format(totalAmount)}
                         </td>
                       </tr>
                     </tfoot>
@@ -539,7 +544,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                             fontWeight: "bold",
                           }}
                         >
-                           {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                          {new Intl.NumberFormat("en-IN").format(totalAmount)}
                         </td>
                       </tr>
                     </tfoot>
@@ -1364,7 +1369,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
               {new Intl.NumberFormat("en-IN").format(kharch)}
             </p>
           </div>
-          
+
           <div
             className="pavti_data"
             style={{ display: "flex", justifyContent: "flex-start" }}
@@ -1397,7 +1402,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
               }}
             >
               {new Intl.NumberFormat("en-IN").format(
-                parseInt(openSilak, 10) + parseInt(totalAmount, 10) || 0
+                parseInt(openSilak, 10) + parseInt(totalAmount, 10) - parseInt(kharch, 10) || 0
               )}
             </p>
           </div>
@@ -1668,7 +1673,9 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
       {silakOpen && (
         <div className="edit-modal">
           <div className="khulti-shilak-model">
-            <h3 className="khulti-shilak-model-title">({formattedDate}) આજનો હિસાબ </h3>
+            <h3 className="khulti-shilak-model-title">
+              ({formattedDate}) આજનો હિસાબ{" "}
+            </h3>
             <div className="silak-table-main">
               <div className="silak-table">
                 <table
@@ -1711,13 +1718,21 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                     <tr>
                       <th
                         className="silak-title-th"
-                        style={{ borderTop: "0px", fontWeight: 500 }}
+                        style={{
+                          borderTop: "0px",
+                          fontWeight: 500,
+                          borderBottom: "0px",
+                        }}
                       >
                         આજનુ વેચાણ
                       </th>
                       <th
                         className="silak-value-th"
-                        style={{ borderTop: "0px", fontWeight: 500 }}
+                        style={{
+                          borderTop: "0px",
+                          fontWeight: 500,
+                          borderBottom: "0px",
+                        }}
                       >
                         {new Intl.NumberFormat("en-IN").format(totalAmount)}
                       </th>
@@ -1725,25 +1740,37 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                     <tr>
                       <th
                         className="silak-title-th"
-                        style={{ borderTop: "0px", fontWeight: 500 }}
+                        style={{
+                          borderTop: "0px",
+                          fontWeight: 500,
+                          borderTop: "0px",
+                        }}
                       >
                         ખર્ચ
                       </th>
                       <th
                         className="silak-value-th"
-                        style={{ borderTop: "0px", fontWeight: 500 }}
+                        style={{
+                          borderTop: "0px",
+                          fontWeight: 500,
+                          borderTop: "0px",
+                        }}
                       >
                         <input
                           type="text"
-                          value={new Intl.NumberFormat("en-IN").format(
-                            kharch
-                          )}
+                          value={
+                            kharch !== ""
+                              ? `-${new Intl.NumberFormat("en-IN").format(
+                                  kharch
+                                )}`
+                              : ""
+                          }
                           onChange={(e) => {
                             const kharchData = e.target.value.replace(
                               /[^0-9]/g,
                               ""
-                            );
-                            setKharch(kharchData);
+                            ); // Keep only numbers
+                            setKharch(kharchData ? Number(kharchData) : 0); // Store as positive
                           }}
                           style={{
                             width: "85%",
@@ -1771,7 +1798,10 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                             : parseInt(openSilak, 10)) +
                             (isNaN(parseInt(totalAmount, 10))
                               ? 0
-                              : parseInt(totalAmount, 10))
+                              : parseInt(totalAmount, 10)) -
+                            (isNaN(parseInt(kharch, 10))
+                              ? 0
+                              : parseInt(kharch, 10))
                         )}
                       </th>
                     </tr>
@@ -1857,7 +1887,9 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                     </tr>
                   </thead>
                 </table>
-              <div className="bhet-amt">Total Bhet Amount: {formattedTotalBhet}</div>
+                <div className="bhet-amt">
+                  Total Bhet Amount: {formattedTotalBhet}
+                </div>
               </div>
               <table className="userreport-table">
                 <thead>

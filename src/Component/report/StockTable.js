@@ -196,6 +196,9 @@ const StockTable = () => {
                                       {product.quantity}
                                     </td>
                                     <td style={{ textAlign: "right" }}>
+                                      {product.price}
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>
                                       {product.totalBuyingAmount}
                                     </td>
                                   </tr>
