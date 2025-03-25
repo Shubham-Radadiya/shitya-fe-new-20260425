@@ -141,7 +141,7 @@ const InnerTable = ({
                       <td width={"22%"}>{product.name}</td>
                       <td width={"13%"}>
                         {pageType === "product"
-                          ? `₹${product.price}`
+                          ? `${product.price}`
                           : product.quantity ?? 0}
                       </td>
 

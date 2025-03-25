@@ -30,6 +30,7 @@
 .tfootgroup {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
 .userreport-table thead {
@@ -448,8 +449,9 @@
 }
 .silak-table {
   display: flex;
-  justify-content: end;
+  /* justify-content: end; */
   width: 100%;
+  flex-direction: column;
 }
 .silak-title-th {
   width: 86%;
@@ -766,6 +768,20 @@ tr {
   overflow-y: auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
+.purchase-modal {
+  width: 100%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  z-index: 1000; /* Ensures modal is above everything */
+  max-width: 75%;
+  max-height: 70%;
+  overflow-y: auto;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
 
 .modal-overlay {
   position: fixed;
@@ -785,7 +801,14 @@ tr {
   overflow-y: auto;
   text-align: center;
 }
-
+.purchase-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-height: 80%;
+  overflow-y: auto;
+  text-align: center;
+}
 .print-button {
   margin-top: 10px;
   padding: 8px 16px;
@@ -920,4 +943,21 @@ tr {
   display: table;
   width: 100%;
   table-layout: fixed;
+}
+
+.bhet-amt{
+  position: relative;
+  top: 1rem;
+  font-weight: bold;
+}
+
+.download{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.4rem;
+  font-size: 2rem;
+  color:var(--white-color);
+  background-color: var(--brown-color);
+  border-radius: var(--btn-radius);
 }

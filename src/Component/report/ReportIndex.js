@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ReactToPrint from "react-to-print";
 import * as XLSX from "xlsx";
 import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
@@ -7,6 +7,8 @@ import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
+import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const initialData = [
   { currency: "500", count: 0 },
@@ -29,10 +31,18 @@ const ReportIndex = () => {
   const printRef = useRef();
   const [billDetail, setBillDetail] = useState(null);
   const [returnbillDetail, setReturnBillDetail] = useState(null);
+  const bhetData = useSelector((state) => state.invoice.bhetData);
 
   useEffect(() => {
     handleFetchReports(reportType);
   }, [reportType]);
+
+  // useEffect(() => {
+  //   dispatch({ type: REQUEST_BHET_DATA });
+  // }, [dispatch]);
+
+  // console.log("--", bhetData);
+  
 
   const handleFetchReports = (type) => {
     setReportType(type);
@@ -175,16 +185,23 @@ const ReportIndex = () => {
 
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
+  const todaBhetDate = new Date().toISOString().split("T")[0];
+  const totalBhetAmount = bhetData?.[0]?.data
+  ?.filter(entry => entry.createdAt === todaBhetDate)
+  ?.flatMap(entry => entry.categories)
+  ?.reduce((sum, category) => sum + category.totalBuyingAmount, 0) || 0;
+  const formattedTotalBhet = totalBhetAmount.toLocaleString("en-IN"); 
 
   const closeModal = () => {
     setSilakOpen(false);
   };
   const OpenModel = () => {
     setSilakOpen(true);
+    dispatch({ type: REQUEST_BHET_DATA });
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token"); // Fetch token once
+    const token = localStorage.getItem("access_token");
 
     const fetchBillDetails = async () => {
       try {
@@ -281,6 +298,11 @@ const ReportIndex = () => {
   useEffect(() => {
     fetchUpdatedData();
   }, []);
+
+  const today = new Date();
+const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1)
+  .toString()
+  .padStart(2, "0")}-${today.getFullYear()}`;
 
   const handleValueChange = (index, value) => {
     const updatedSalesData = [...salesData];
@@ -382,9 +404,9 @@ const ReportIndex = () => {
               <button className="userreprt-button" onClick={OpenModel}>
                 Print
               </button>
-              <button className="userreprt-button" onClick={exportToExcel}>
-                Export to Excel
-              </button>
+              <div className="download" onClick={exportToExcel}>
+              <MdOutlineFileUpload/> 
+              </div>
             </div>
           </div>
 
@@ -1240,7 +1262,7 @@ const ReportIndex = () => {
             borderRadius: "0px 25px 0px 0px",
           }}
         >
-          -: આજનો હિસાબ :-
+          -: આજનો હિસાબ ({formattedDate})  :-
         </h2>
         <div
           style={{
@@ -1585,7 +1607,7 @@ const ReportIndex = () => {
                 textAlign: "left",
                 fontWeight: "bold",
                 fontSize: "20px",
-                borderRight: "1px solid black", // Add border-right here
+                borderRight: "1px solid black",
               }}
             >
               Total
@@ -1605,6 +1627,7 @@ const ReportIndex = () => {
           <hr style={{ borderTop: "solid 2px", margin: "0px" }} />
           <hr style={{ borderTop: "solid 2px", margin: "0px" }} />
         </div>
+        <div className="bhet-amt">Total Bhet Amount: {formattedTotalBhet}</div>
         <p className="pavti_footer_text_report" style={{ fontSize: "22px" }}>
           ... Jay Swaminarayan ...
         </p>
@@ -1612,7 +1635,7 @@ const ReportIndex = () => {
       {silakOpen && (
         <div className="edit-modal">
           <div className="khulti-shilak-model">
-            <h3 className="khulti-shilak-model-title">આજનો હિસાબ</h3>
+            <h3 className="khulti-shilak-model-title">આજનો હિસાબ ({formattedDate}) </h3>
             <div className="silak-table-main">
               <div className="silak-table">
                 <table
@@ -1769,6 +1792,7 @@ const ReportIndex = () => {
                     </tr>
                   </thead>
                 </table>
+              <div className="bhet-amt">Total Bhet Amount: {formattedTotalBhet}</div>
               </div>
               <table className="userreport-table">
                 <thead>

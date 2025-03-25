@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
+import { MdOutlineFileUpload } from "react-icons/md";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
 
 const BhetReport = () => {
@@ -218,9 +219,12 @@ const BhetReport = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-              <button className="userreprt-button" onClick={exportToExcel}>
+              <div className="download" onClick={exportToExcel}>
+                <MdOutlineFileUpload />
+              </div>
+              {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
-              </button>
+              </button> */}
             </div>
           </div>
 

@@ -818,7 +818,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         textOverflow: "none",
                       }}
                     >
-                      ₹ {returnMode ? "-" : null}
+                      {returnMode ? "-" : null}
                       {new Intl.NumberFormat("en-IN").format(
                         reprintBill?.totalAmount
                       )}
@@ -895,7 +895,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       {returnMode || currentLocation.state?.returnEdit
                         ? "-"
                         : null}
-                      ₹{" "}
+                      {" "}
                       {currentLocation.pathname === "/stock"
                         ? new Intl.NumberFormat("en-IN").format(
                             totalPurchaseprice
@@ -1100,7 +1100,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   justifyContent: "flex-end",
                 }}
               >
-                ₹{" "}
+                {" "}
                 {new Intl.NumberFormat("en-IN").format(
                   reprintBill?.totalAmount
                 )}
@@ -1364,7 +1364,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   fontWeight: "bold",
                 }}
               >
-                ₹{" "}
+                {" "}
                 {currentLocation.pathname === "/stock"
                   ? new Intl.NumberFormat("en-IN").format(totalPurchaseprice)
                   : currentLocation.pathname === "/bhet"

@@ -96,7 +96,7 @@ const StockInnerTable = ({
                       <td width={"13%"}>{product.productId}</td>
                       <td width={"22%"}>{product.name}</td>
                       <td width={"13%"}>
-                        {pageType === "product" ? `₹${product.price}` : product.quantity ?? 0}
+                        {pageType === "product" ? `${product.price}` : product.quantity ?? 0}
                       </td>
                     </tr>
                   ))
