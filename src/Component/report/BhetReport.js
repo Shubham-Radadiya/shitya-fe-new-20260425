@@ -4,21 +4,19 @@ import * as XLSX from "xlsx";
 import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
-
-import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
-import { useInvoice } from "../../store/invoice/InvoiceReducer";
+import { useBhet } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
 import { MdOutlineFileUpload } from "react-icons/md";
+import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
 
 const BhetReport = () => {
   const componentRef = useRef();
-
   const dispatch = useDispatch();
-  const { invoiceData } = useInvoice(false);
+  const { bhetData } = useBhet();
   const { dailyReport } = useReport();
   const [reportType, setReportType] = useState("daily");
   const printRef = useRef();
@@ -30,7 +28,7 @@ const BhetReport = () => {
     try {
       const token = localStorage.getItem("access_token");
       const response = await fetch(
-        `http://localhost:3010/invoice/${invoiceId}`,
+        `http://localhost:3010/bhet/${invoiceId}`,
         {
           method: "GET",
           headers: {
@@ -86,7 +84,7 @@ const BhetReport = () => {
   };
 
   useEffect(() => {
-    dispatch({ type: REQUEST_INVOICE_DATA });
+    dispatch({ type: REQUEST_BHET_DATA });
   }, []);
 
   useEffect(() => {
@@ -306,16 +304,16 @@ const BhetReport = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoiceData
+                    {bhetData
                       .map((user) => ({
                         ...user,
                         data: [...user.data].sort(
-                          (a, b) => Number(b.invoiceId) - Number(a.invoiceId)
+                          (a, b) => Number(b.billId) - Number(a.billId)
                         ),
                       }))
                       .map((user, userIndex) =>
                         user.data.map((invoice, invoiceIndex) => {
-                          const { invoiceId, createdAt, categories } = invoice;
+                          const { billId, createdAt, categories } = invoice;
                           const formattedDate = new Date(createdAt)
                             .toISOString()
                             .split("T")[0]
@@ -368,7 +366,7 @@ const BhetReport = () => {
 
                           return (
                             <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>{invoiceId}</td>
+                              <td style={{ width: "9%" }}>{billId}</td>
                               <td style={{ width: "12%", textAlign: "end" }}>
                                 {formattedDate}
                               </td>
@@ -415,17 +413,17 @@ const BhetReport = () => {
                                   verticalAlign: "middle",
                                 }}
                               >
-                                <span
+                                {/* <span
                                   style={{
                                     fontSize: "26px",
                                     cursor: "pointer",
                                   }}
                                   onClick={() =>
-                                    fetchInvoiceDataForModal(invoice.invoiceId)
+                                    fetchInvoiceDataForModal(invoice.billId)
                                   }
                                 >
                                   <AiOutlinePrinter />
-                                </span>
+                                </span> */}
                               </td>
                               <td
                                 style={{
@@ -441,7 +439,7 @@ const BhetReport = () => {
                                     cursor: "pointer",
                                   }}
                                   onClick={() =>
-                                    fetchInvoiceDataForStock(invoice.invoiceId)
+                                    fetchInvoiceDataForStock(invoice.billId)
                                   }
                                 >
                                   <img
@@ -470,7 +468,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const murtiAmount =
@@ -493,7 +491,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const vaghaAmount =
@@ -515,7 +513,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const gharenaAmount =
@@ -538,7 +536,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const pujaAmount =
@@ -560,7 +558,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const pustakAmount =
@@ -583,7 +581,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const generalAmount =
@@ -605,7 +603,7 @@ const BhetReport = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               acc += categories.reduce(

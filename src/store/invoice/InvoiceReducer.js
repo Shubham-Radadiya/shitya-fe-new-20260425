@@ -44,6 +44,7 @@ const invoiceReducer = (state = initialState, action) => {
         bhet: [...state.bhet, action.payload],
       };
     case SET_BHET_DATA:
+      console.log("Reducer - Setting Bhet Data:", action.payload);
       return {
         ...state,
         busy: false,
@@ -67,5 +68,5 @@ export function useInvoice() {
 }
 
 export function useBhet() {
-  return useSelector((state) => state.bhet);
+  return useSelector((state) => state.invoice);
 }
