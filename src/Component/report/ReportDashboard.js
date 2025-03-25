@@ -24,7 +24,7 @@ const ReportsDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const correctPin = "2898";
+  const correctPin = "2812";
 
   const handlePinChange = (e) => {
     setPin(e.target.value);
@@ -113,12 +113,12 @@ const ReportsDashboard = () => {
     navigate("/dashboard");
   };
   return (
-    <div className="user-template" style={{ marginLeft: "15px" }}>
+    <div className="user-template" style={{ marginLeft: "10px" }}>
       <div className="user-container">
         <div className="reportHeader" style={{width:"98.6%", marginTop:"6px"}}>
           <h2 style={{ textAlign: "center" }}>Reports Dashboard</h2>
           <div className="screen-list">
-              <img style={{ width: "40px", cursor:"pointer" }} src={Home} alt="edit" onClick={() => goToDashboard()} />
+              <img style={{ width: "43px", cursor:"pointer" }} src={Home} alt="edit" onClick={() => goToDashboard()} />
           </div>
         </div>
 

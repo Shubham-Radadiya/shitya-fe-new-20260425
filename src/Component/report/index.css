@@ -1,6 +1,6 @@
 .userreport-table-wrapper {
   flex: 1;
-  max-height: 83vh;
+  max-height: 82vh;
   overflow: auto;
 }
 
@@ -352,7 +352,11 @@
 }
 
 .userreport-box {
+
   display: flex;
+  width: 97.4%;
+  margin-left: 14px;
+  margin-top: 6px;
   /* height: 10vh; */
   justify-content: space-between;
   align-items: center;
@@ -777,7 +781,7 @@ tr {
   background: white;
   padding: 20px;
   z-index: 1000; /* Ensures modal is above everything */
-  max-width: 75%;
+  max-width: 45%;
   max-height: 70%;
   overflow-y: auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);

@@ -254,6 +254,7 @@ const ReportIndex = () => {
 
   const [salesData, setSalesData] = useState(initialData);
   const [openSilak, setOpenSilak] = useState(0);
+  const [kharch, setKharch] = useState(0);
   const [closeSilak, setCloseSilak] = useState(0);
   const [jamaRakam, setJamaRakam] = useState(0);
   const [existingData, setExistingData] = useState([]);
@@ -278,7 +279,7 @@ const ReportIndex = () => {
         setSalesData(formattedData);
         setExistingData(response.data.data);
         setId(response.data._id);
-
+        setKharch(response.data.kharch || 0)
         setOpenSilak(response.data.openSilak || 0);
         setCloseSilak(response.data.closeSilak || 0);
         setJamaRakam(response.data.jamaRakam || 0);
@@ -290,6 +291,7 @@ const ReportIndex = () => {
       setSalesData(initialData);
       setExistingData([]);
       setOpenSilak(0);
+      setKharch(0);
       setCloseSilak(0);
       setJamaRakam(0);
     }
@@ -316,6 +318,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
         currency: cur.currency,
         count: cur.count,
       })),
+      kharch:parseInt(kharch, 10),
       openSilak: parseInt(openSilak, 10),
       closeSilak: parseInt(closeSilak, 10),
       jamaRakam: parseInt(jamaRakam, 10),
@@ -379,8 +382,8 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
     <>
       <div className="user-template">
         <div className="user-container">
-          <div className="userreport-box" style={{justifyContent:"space-between"}}>
-            <div style={{ display: "flex", gap: "35px" }}>
+          <div className="userreport-box" style={{justifyContent:"space-between", width:"97.5%"}}>
+            <div style={{ display: "flex", gap: "35px", width: "100%" }}>
               <div
                 style={{
                   display: "flex",
@@ -1262,7 +1265,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
             borderRadius: "0px 25px 0px 0px",
           }}
         >
-          -: આજનો હિસાબ ({formattedDate})  :-
+          -: ({formattedDate}) આજનો હિસાબ :-
         </h2>
         <div
           style={{
@@ -1332,6 +1335,36 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
               {new Intl.NumberFormat("en-IN").format(totalAmount)}
             </p>
           </div>
+          <div
+            className="pavti_data"
+            style={{ display: "flex", justifyContent: "flex-start" }}
+          >
+            <h3
+              className="pavti_product_name"
+              style={{
+                fontSize: "18px",
+                width: "280px",
+                borderRight: "1px solid black",
+                fontWeight: 500,
+                lineHeight: "28px",
+              }}
+            >
+              ખર્ચ
+            </h3>
+            <p
+              className="product_price_report_1"
+              style={{
+                fontSize: "18px",
+                width: "111px",
+                textAlign: "end",
+                paddingRight: "7px",
+                lineHeight: "28px",
+              }}
+            >
+              {new Intl.NumberFormat("en-IN").format(kharch)}
+            </p>
+          </div>
+          
           <div
             className="pavti_data"
             style={{ display: "flex", justifyContent: "flex-start" }}
@@ -1635,7 +1668,7 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
       {silakOpen && (
         <div className="edit-modal">
           <div className="khulti-shilak-model">
-            <h3 className="khulti-shilak-model-title">આજનો હિસાબ ({formattedDate}) </h3>
+            <h3 className="khulti-shilak-model-title">({formattedDate}) આજનો હિસાબ </h3>
             <div className="silak-table-main">
               <div className="silak-table">
                 <table
@@ -1687,6 +1720,38 @@ const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.g
                         style={{ borderTop: "0px", fontWeight: 500 }}
                       >
                         {new Intl.NumberFormat("en-IN").format(totalAmount)}
+                      </th>
+                    </tr>
+                    <tr>
+                      <th
+                        className="silak-title-th"
+                        style={{ borderTop: "0px", fontWeight: 500 }}
+                      >
+                        ખર્ચ
+                      </th>
+                      <th
+                        className="silak-value-th"
+                        style={{ borderTop: "0px", fontWeight: 500 }}
+                      >
+                        <input
+                          type="text"
+                          value={new Intl.NumberFormat("en-IN").format(
+                            kharch
+                          )}
+                          onChange={(e) => {
+                            const kharchData = e.target.value.replace(
+                              /[^0-9]/g,
+                              ""
+                            );
+                            setKharch(kharchData);
+                          }}
+                          style={{
+                            width: "85%",
+                            textAlign: "end",
+                            height: "19px",
+                            fontSize: "19px",
+                          }}
+                        />
                       </th>
                     </tr>
                     <tr>

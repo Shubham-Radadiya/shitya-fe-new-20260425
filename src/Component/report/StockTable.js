@@ -81,19 +81,24 @@ const StockTable = () => {
   return (
     <div className="user-template">
       <div className="user-container">
-        <div className="userreport-box" style={{ justifyContent: "flex-end" }}>
-        <div className="download" onClick={exportToExcel}>
-              <MdOutlineFileUpload/> 
-              </div>
-          {/* <button className="userreprt-button" onClick={exportToExcel}>
-            Export to Excel
-          </button> */}
+        <div className="userreport-box" style={{ justifyContent: "flex-end", width:"97.5%" }}>
+          <div
+            className="tfootgroup"
+            style={{ justifyContent: "space-between", width: "100%" }}
+          >
+            <div style={{ fontWeight: "bold", fontSize: "22px" }}>
+              Stock Report
+            </div>
+            <div className="download" onClick={exportToExcel}>
+              <MdOutlineFileUpload />
+            </div>
+          </div>
         </div>
         <div className="userreport-table-wrapper">
           <table className="userreport-table">
             {/* Table Header - Display only once */}
             <thead>
-              <tr style={{width:"86%", fontSize:"16px"}}>
+              <tr style={{ width: "100%", fontSize: "16px" }}>
                 <th>Category</th>
                 <th>Sub Category</th>
                 <th>Product</th>
@@ -103,7 +108,7 @@ const StockTable = () => {
                 <th>Amount</th>
               </tr>
             </thead>
-            <tbody style={{width:"86%"}}>
+            <tbody style={{ width: "100%" }}>
               {Array.isArray(stock) &&
                 stock.map((categoryData, index) => (
                   <React.Fragment key={index}>
@@ -191,7 +196,7 @@ const StockTable = () => {
                                       {product.quantity}
                                     </td>
                                     <td style={{ textAlign: "right" }}>
-                                    {product.totalBuyingAmount}
+                                      {product.totalBuyingAmount}
                                     </td>
                                   </tr>
                                 ))}

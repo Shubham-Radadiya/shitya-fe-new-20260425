@@ -27,16 +27,13 @@ const BhetReport = () => {
   const fetchInvoiceData = async (invoiceId) => {
     try {
       const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `http://localhost:3010/bhet/${invoiceId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:3010/bhet/${invoiceId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch invoice data");
 
@@ -68,7 +65,7 @@ const BhetReport = () => {
 
     if (data) {
       navigate("/stock", {
-        state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },
+        state: { id: data?._id, invoiceId: data?.invoiceId },
       });
 
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
@@ -244,13 +241,13 @@ const BhetReport = () => {
                         className="stocktable"
                         style={{ width: "9%", textAlign: "center" }}
                       >
-                        INV. No.
+                        Bhet. No.
                       </th>
                       <th
                         className="stocktable"
                         style={{ width: "12%", textAlign: "center" }}
                       >
-                        INV. Date
+                        Bhet. Date
                       </th>
                       <th
                         className="stocktable"
@@ -633,8 +630,8 @@ const BhetReport = () => {
               className="modal-overlay"
               onClick={() => setIsModalOpen(false)}
             ></div>
-            <div className="modal">
-              <div className="modal-content">
+            <div className="purchase-modal">
+              <div className="purchase-modal-content">
                 <div
                   style={{
                     display: "flex",
@@ -646,30 +643,45 @@ const BhetReport = () => {
                     <strong>Date:</strong>{" "}
                     {new Date(selectedInvoice.createdAt).toLocaleDateString()}
                   </p>
-                  <h2>Invoice: {selectedInvoice.invoiceId}</h2>
+                  <h2>Bhet.No: {selectedInvoice.billId}</h2>
 
                   <p>
                     <strong>Total Amount:</strong>
-                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                    {" "}{selectedInvoice.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
-                <h3>Products:</h3>
-                <table border="1" width="100%">
+                <table
+                  border="1"
+                  width="100%"
+                  style={{ borderCollapse: "collapse" }}
+                >
                   <thead>
                     <tr>
-                      <th>Product Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Total</th>
+                      <th style={{ width: "10%" }}>Product Id</th>
+                      <th style={{ width: "25%" }}>Product Name</th>
+                      <th style={{ width: "10%" }}>Price</th>
+                      <th style={{ width: "10%" }}>Quantity</th>
+                      <th style={{ width: "10%" }}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
-                        <td>{product._id.name}</td>
-                        <td>{product.price}</td>
-                        <td>{product.quantity}</td>
-                        <td>{product.price * product.quantity}</td>
+                        <td style={{ textAlign: "left", width: "10%" }}>
+                          {product._id.productId}
+                        </td>
+                        <td style={{ textAlign: "left", width: "25%" }}>
+                          {product._id.name}
+                        </td>
+                        <td style={{ textAlign: "right", width: "10%" }}>
+                          {product.price.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right", width: "10%" }}>
+                          {product.quantity.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right", width: "10%" }}>
+                          {(product.price * product.quantity).toLocaleString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

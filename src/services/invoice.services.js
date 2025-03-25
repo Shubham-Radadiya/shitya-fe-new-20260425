@@ -18,6 +18,8 @@ const apiRequest = async (method, url, payload = null) => {
 
 export const createInvoice = (payload) =>
   apiRequest("post", "/invoice", payload);
+export const createInvoiceReturn = (payload) =>
+  apiRequest("post", "/invoice/return", payload);
 export const getInvoices = (isReturned = false) =>
   apiRequest("get", `/invoice?isReturned=${isReturned}`);
 export const editInvoice = (id, payload) =>
@@ -26,13 +28,14 @@ export const createReturnInvoice = (payload, id) =>
   apiRequest("patch", `/invoice/return/${id}`, payload);
 export const getBhet = async () => {
   const response = await apiRequest("get", `/bhet`);
-  console.log("Bhet API Response:", response); // ✅ Debugging
+  console.log("Bhet API Response:", response);
   return response;
 };
 export const createBhet = (payload) => apiRequest("post", "/bhet", payload);
 
 export default {
   createInvoice,
+  createInvoiceReturn,
   getInvoices,
   editInvoice,
   createReturnInvoice,

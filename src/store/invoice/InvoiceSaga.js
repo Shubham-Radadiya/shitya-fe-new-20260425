@@ -3,16 +3,20 @@ import invoiceServices from "../../services/invoice.services";
 import {
   ERROR_CREATE_BHET,
   ERROR_CREATE_INVOICE,
+  ERROR_RETURN_PURCHASE,
   REQUEST_BHET_DATA,
   REQUEST_CREATE_BHET,
   REQUEST_CREATE_INVOICE,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_INVOICE_DATA,
+  REQUEST_RETURN_PURCHASE,
   SET_BHET_DATA,
   SET_CREATE_BHET,
   SET_CREATE_INVOICE,
   SET_INVOICE_DATA,
+  SET_RETURN_PURCHASE,
+
 } from "./InvoiceAction";
 import { toast } from "react-toastify";
 
@@ -83,6 +87,15 @@ function* requestCreateReturnInvoice(action) {
   }
 }
 
+function* requestReturnPurchase(action) {
+  try {
+    const data = yield call(invoiceServices.createInvoiceReturn, action.payload);
+    yield put({ type: SET_RETURN_PURCHASE, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_RETURN_PURCHASE, payload: handleError(error) });
+  }
+}
+
 function handleError(error) {
   let message = "Something went wrong, please try again later.";
   if (error.response) {
@@ -102,6 +115,7 @@ export function* invoiceSaga() {
     takeLatest(REQUEST_CREATE_RETURN_INVOICE, requestCreateReturnInvoice),
     takeLatest(REQUEST_INVOICE_DATA, requestInvoiceData),
     takeLatest(REQUEST_BHET_DATA, requestBhetData),
+    takeLatest(REQUEST_RETURN_PURCHASE, requestReturnPurchase),
     takeLatest(REQUEST_EDIT_INVOICE_DATA, requestEditInvoice),
     takeLatest(REQUEST_CREATE_BHET, requestCreateBhet),
   ]);

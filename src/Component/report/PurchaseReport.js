@@ -71,7 +71,7 @@ const PurchaseReport = () => {
 
     if (data) {
       navigate("/stock", {
-        state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },
+        state: { id: data?._id, invoiceId: data?.invoiceId },
       });
 
       dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
@@ -245,8 +245,8 @@ const PurchaseReport = () => {
             className="userreport-box"
             style={{ justifyContent: "flex-end" }}
           >
-            <div className="tfootgroup">
-              <div style={{ fontWeight: "bold" }}>Daily Purchase Report</div>
+            <div className="tfootgroup" style={{justifyContent:"space-between", width:"100%"}}>
+              <div style={{ fontWeight: "bold", fontSize:"22px" }}>Daily Purchase Report</div>
               <div className="download" onClick={exportToExcel}>
                 <MdOutlineFileUpload />
               </div>
@@ -672,10 +672,9 @@ const PurchaseReport = () => {
 
                   <p>
                     <strong>Total Amount:</strong>
-                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                    {" "}{selectedInvoice.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
-                <h3>Products:</h3>
                 <table
                   border="1"
                   width="100%"
@@ -683,29 +682,29 @@ const PurchaseReport = () => {
                 >
                   <thead>
                     <tr>
-                      <th>Product Id</th>
-                      <th>Product Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Total</th>
+                      <th style={{width:"10%"}}>Product Id</th>
+                      <th style={{width:"25%"}}>Product Name</th>
+                      <th style={{width:"10%"}}>Price</th>
+                      <th style={{width:"10%"}}>Quantity</th>
+                      <th style={{width:"10%"}}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
-                        <td style={{ textAlign: "left" }}>
+                        <td style={{ textAlign: "left", width:"10%" }}>
                           {product._id.productId}
                         </td>
-                        <td style={{ textAlign: "left" }}>
+                        <td style={{ textAlign: "left", width:"25%" }}>
                           {product._id.name}
                         </td>
-                        <td style={{ textAlign: "right" }}>
+                        <td style={{ textAlign: "right", width:"10%" }}>
                           {product.price.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: "right" }}>
+                        <td style={{ textAlign: "right", width:"10%" }}>
                           {product.quantity.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: "right" }}>
+                        <td style={{ textAlign: "right", width:"10%" }}>
                           {(product.price * product.quantity).toLocaleString()}
                         </td>
                       </tr>

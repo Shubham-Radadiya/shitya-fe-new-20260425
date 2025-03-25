@@ -1,12 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import moment from "moment";
-import Report from "../../images/report.jpg";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import ReactToPrint, { useReactToPrint } from "react-to-print";
 import {
-  ADD_TO_CART,
-  REMOVE_FROM_CART,
   CLEAR_CART,
   ADD_TO_UPDATEDCART,
   ADD_TO_PURCHASE_CART,
@@ -34,6 +30,7 @@ import {
   REQUEST_CREATE_INVOICE,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
+  REQUEST_RETURN_PURCHASE,
 } from "../../../store/invoice/InvoiceAction";
 import { REQUEST_USER_EXCEL } from "../../../store/excel/excelAction";
 
@@ -42,7 +39,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const items = useSelector((state) => state.cart.items || []);
   const purchaseItems = useSelector((state) => state.cart.purchaseItems || []);
   const bhetItems = useSelector((state) => state.cart.bhetItems || []);
-  const bhetNo = useSelector((state) => state.bill.billNo || []);
+  const bhetNo = useSelector((state) => state.bill || []);
   const { billNo } = useBill();
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
@@ -60,6 +57,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { returnEdit, invoiceId } = currentLocation.state || {};
   const [bhetNumber, setBhetNumber] = useState("");
+  const [billNumber, setBillNumber] = useState("");
+  const [purchaseLabel, setPurchaseLabel] = useState("Total Purchase");
   const [showExcelTable, setShowExcelTable] = useState(false);
   const printRef = useRef();
   const [pin, setPin] = useState("");
@@ -67,7 +66,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const correctPin = "2898";
+  const correctPin = "2812";
 
   const handlePinChange = (e) => {
     setPin(e.target.value);
@@ -99,9 +98,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
     }
   };
   useEffect(() => {
-    dispatch({ type: REQUEST_BHET_BILL_NO });
-    setBhetNumber(bhetNo?.bhetNo);
-  }, [bhetNumber]);
+    if (currentLocation.pathname === "/bhet") {
+      dispatch({ type: REQUEST_BHET_BILL_NO });
+    }
+  }, [currentLocation.pathname, dispatch]);
+
+  useEffect(() => {
+    if (currentLocation.pathname === "/bhet") {
+      setBhetNumber(billNo.bhetNo);
+    }
+  }, [bhetNo, currentLocation.pathname, bhetNumber]);
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -119,8 +125,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
   };
 
   useEffect(() => {
-    dispatch({ type: REQUEST_BILL_NO });
-  }, [dispatch]);
+    setBillNumber(billNo?.billId);
+    console.log(billNo, "billNo");
+  }, [billNo]);
+
+  useEffect(() => {
+    if (currentLocation.pathname === "/dashboard") {
+      dispatch({ type: REQUEST_BILL_NO });
+    }
+  }, [currentLocation.pathname, dispatch]);
 
   const truncateText = (text, maxLength) => {
     if (typeof text !== "string") {
@@ -142,7 +155,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
     (total, item) => total + item.quantity,
     0
   );
-  
+
   const totalPrice = items.reduce(
     (total, item) => total + item.quantity * item.price,
     0
@@ -167,7 +180,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   useEffect(() => {
     if (excelBill && excelBill.length > 0) {
       setShowExcelTable(true);
-      
+
       handlePrint();
     }
   }, [excelBill]);
@@ -184,8 +197,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
         ? bhetItems
         : items
     );
+
     localStorage.setItem("billData", JSON.stringify(items));
     localStorage.setItem("billId", reportData);
+
     dispatch({
       type:
         currentLocation.pathname === "/stock"
@@ -195,11 +210,24 @@ const Bills = ({ returnMode, setReturnMode }) => {
           : CLEAR_CART,
     });
 
+    setPurchaseLabel("Total Purchase");
+
+    // Update state returnEdit to false
+    if (
+      currentLocation.pathname === "/stock" &&
+      currentLocation.state?.returnEdit
+    ) {
+      navigate("/stock", {
+        state: { ...currentLocation.state, returnEdit: false },
+        replace: true, // Prevents pushing a new entry in history
+      });
+    }
+
     setTimeout(() => {
       setIsButtonDisabled(false);
     }, 5000);
   };
-  
+
   const renderTable = () => (
     <div ref={printRef} className="p-4 border rounded bg-white">
       <h2 className="text-lg font-bold mb-2">Excel Bill</h2>
@@ -246,7 +274,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       if (returnMode) {
         dispatch({
-          type: REQUEST_RETURN_BILL,
+          type:
+            currentLocation.pathname === "/stock"
+              ? REQUEST_RETURN_PURCHASE
+              : REQUEST_RETURN_BILL,
           payload,
         });
       } else {
@@ -296,9 +327,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
     dispatch({ type: REQUEST_BILL_NO });
     setReturnMode(false);
     dispatch({ type: REQUEST_BHET_BILL_NO });
-    
+
     const number = await fetchInvoiceNumber(false);
-    
+
     setBhetNumber(bhetNo?.bhetNo);
     setInvoiceNumber(number);
   };
@@ -434,11 +465,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   const handleReturnBill = async () => {
     dispatch({ type: CLEAR_CART });
-    dispatch({ type: RETURN_BILL_NO });
+    dispatch({
+      type:
+        currentLocation.pathname === "/stock" ? RETURN_BILL_NO : RETURN_BILL_NO,
+    });
     setReturnMode(true);
 
     const number = await fetchInvoiceNumber(true);
     setInvoiceNumber(`R${number}`);
+    setPurchaseLabel("Total Purchase Return");
   };
   const displayInvoice = returnEdit ? invoiceId : invoiceNumber;
 
@@ -509,10 +544,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
       </tr>
     );
   };
+  useEffect(() => {
+    console.log(
+      currentLocation.state?.returnEdit,
+      "currentLocation.state?.returnEdit"
+    );
+  }, [currentLocation.state?.returnEdit]);
 
   return (
     <div className="bill-container">
-        {showExcelTable && renderTable()}
+      {showExcelTable && renderTable()}
       <div className="bills">
         <div className="screen-list">
           <NavLink to="/dashboard" className="screen-list-circle sales-circle">
@@ -731,11 +772,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
           <div className="bill_header_sub">
             <h8>Date: {new Date().toLocaleDateString("en-GB")}</h8>
             <h8>
-              {currentLocation.pathname === "/stock"
-                ? `INV.No: ${displayInvoice}`
-                : currentLocation.pathname === "/bhet"
-                ? `Bhet. No: ${bhetNumber}`
-                : `Sr.No: ${billNo?.billId}`}
+              {currentLocation.pathname === "/bhet"
+                ? `Bhet.No: ${bhetNumber || "N/A"}`
+                : currentLocation.pathname === "/stock"
+                ? `INV.No: ${invoiceNumber || "N/A"}`
+                : `Sr.No: ${billNumber || "Loading..."}`}
             </h8>
           </div>
 
@@ -797,7 +838,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       }}
                     >
                       {currentLocation.pathname === "/stock"
-                        ? "Total Purchase"
+                        ? { purchaseLabel }
                         : currentLocation.pathname === "/bhet"
                         ? "Total Bhet"
                         : "Total"}
@@ -855,11 +896,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       style={{
                         fontWeight: "bolder",
                         textAlign: "start",
-                        width: "140px",
+                        width: "115px",
                       }}
                     >
                       {currentLocation.pathname === "/stock"
-                        ? "Total Purchase"
+                        ? purchaseLabel
                         : currentLocation.pathname === "/bhet"
                         ? "Total Bhet"
                         : "Total"}
@@ -894,8 +935,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       {" "}
                       {returnMode || currentLocation.state?.returnEdit
                         ? "-"
-                        : null}
-                      {" "}
+                        : null}{" "}
                       {currentLocation.pathname === "/stock"
                         ? new Intl.NumberFormat("en-IN").format(
                             totalPurchaseprice
@@ -938,13 +978,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
               paddingRight: "5px",
             }}
           >
-            {currentLocation.pathname === "/stock"
-              ? `INV.No: ${invoiceNumber}`
-              : currentLocation.pathname === "/bhet"
-              ? `Bhet.No: ${bhetNumber}`
-              : billNo && billNo.billId
-              ? `Sr.No: ${billNo.billId}`
-              : ""}
+            {currentLocation.pathname === "/bhet"
+              ? `Bhet.No: ${bhetNumber || "N/A"}`
+              : currentLocation.pathname === "/stock"
+              ? `INV.No: ${invoiceNumber || "N/A"}`
+              : `Sr.No: ${billNo?.billId || "Loading..."}`}
           </h8>
         </div>
         <div className="bill_header_main"></div>
@@ -1420,7 +1458,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
           </div>
         </div>
       )}
-{/* 
+      {/* 
       {excelModalOpen && (
         <ExcelBillPrint
           excelBill={excelBillPrint}
