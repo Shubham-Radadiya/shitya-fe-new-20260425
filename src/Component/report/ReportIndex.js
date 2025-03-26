@@ -8,7 +8,7 @@ import "./index.css";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
-import { MdOutlineFileUpload } from "react-icons/md";
+import download from "../images/download.png"
 
 const initialData = [
   { currency: "500", count: 0 },
@@ -413,7 +413,7 @@ const ReportIndex = () => {
                 Print
               </button>
               <div className="download" onClick={exportToExcel}>
-                <MdOutlineFileUpload />
+               <img style={{width:"50px"}} src={download} atl="down" />
               </div>
             </div>
           </div>
@@ -1665,7 +1665,7 @@ const ReportIndex = () => {
           <hr style={{ borderTop: "solid 2px", margin: "0px" }} />
           <hr style={{ borderTop: "solid 2px", margin: "0px" }} />
         </div>
-        <div className="bhet-amt">Total Bhet Amount: {formattedTotalBhet}</div>
+        <div className="bhet-amt">ટોટલ ભેટ: {formattedTotalBhet}</div>
         <p className="pavti_footer_text_report" style={{ fontSize: "22px" }}>
           ... Jay Swaminarayan ...
         </p>
@@ -1864,13 +1864,13 @@ const ReportIndex = () => {
                           parseInt(openSilak, 10) +
                             parseInt(totalAmount, 10) -
                             closeSilak -
-                            SilakCurrencyTotal ===
+                            SilakCurrencyTotal - kharch ===
                           0
                             ? "રાજીપો"
                             : parseInt(openSilak, 10) +
                                 parseInt(totalAmount, 10) -
                                 closeSilak -
-                                SilakCurrencyTotal >
+                                SilakCurrencyTotal - kharch >
                               0
                             ? "ઘટાડો"
                             : "વધારો"
@@ -1881,14 +1881,14 @@ const ReportIndex = () => {
                           parseInt(openSilak, 10) +
                             parseInt(totalAmount, 10) -
                             (parseInt(closeSilak, 10) || 0) -
-                            (parseInt(SilakCurrencyTotal, 10) || 0) || 0
+                            (parseInt(SilakCurrencyTotal, 10) || 0) - (parseInt(kharch, 10) || 0) || 0
                         )}
                       </th>
                     </tr>
                   </thead>
                 </table>
                 <div className="bhet-amt">
-                  Total Bhet Amount: {formattedTotalBhet}
+                ટોટલ ભેટ: {formattedTotalBhet}
                 </div>
               </div>
               <table className="userreport-table">

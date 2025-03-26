@@ -90,23 +90,23 @@ const ReportsDashboard = () => {
       ],
     },
     { key: "stock", label: "Stock Report", component: <StockTable /> },
-    {
-      key: "silak",
-      label: "Silak Report",
-      hasSubReports: true,
-      subReports: [
-        {
-          key: "SilakReport",
-          label: "Report-1",
-          component: <SilakMonthlyReport />,
-        },
-        {
-          key: "SilakYearlyReport",
-          label: "Report-2",
-          component: <SilakYearlyReport />,
-        },
-      ],
-    },
+    // {
+    //   key: "silak",
+    //   label: "Silak Report",
+    //   hasSubReports: true,
+    //   subReports: [
+    //     {
+    //       key: "SilakReport",
+    //       label: "Report-1",
+    //       component: <SilakMonthlyReport />,
+    //     },
+    //     {
+    //       key: "SilakYearlyReport",
+    //       label: "Report-2",
+    //       component: <SilakYearlyReport />,
+    //     },
+    //   ],
+    // },
     { key: "bhet", label: "Bhet Report", component: <BhetReport /> },
   ];
   const goToDashboard = () => {

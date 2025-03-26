@@ -11,7 +11,7 @@ import { AiOutlinePrinter } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
 import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
-import { MdOutlineFileUpload } from "react-icons/md";
+import download from "../images/download.png";
 
 const PurchaseReturn = () => {
   const componentRef = useRef();
@@ -208,8 +208,7 @@ const PurchaseReturn = () => {
     0
   );
 
-  useEffect(() => {
-  }, [selectedInvoice]);
+  useEffect(() => {}, [selectedInvoice]);
   return (
     <>
       <div className="user-template">
@@ -219,8 +218,8 @@ const PurchaseReturn = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup" style={{ justifyContent: "flex-end" }}>
-            <div className="download" onClick={exportToExcel}>
-              <MdOutlineFileUpload/> 
+              <div className="download" onClick={exportToExcel}>
+                <img style={{ width: "50px" }} src={download} atl="down" />
               </div>
               {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -629,91 +628,91 @@ const PurchaseReturn = () => {
       {isModalOpen &&
         selectedInvoice &&
         Object.keys(selectedInvoice).length > 0 && (
-           <>
-                      <div
-                        className="modal-overlay"
-                        onClick={() => setIsModalOpen(false)}
-                      ></div>
-                      <div className="purchase-modal">
-                        <div className="purchase-modal-content">
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              marginBottom: "20px",
-                            }}
-                          >
-                            <p>
-                              <strong>Date:</strong>{" "}
-                              {new Date(selectedInvoice.createdAt).toLocaleDateString()}
-                            </p>
-                            <h2>Invoice: R{selectedInvoice.invoiceId}</h2>
-          
-                            <p>
-                              <strong>Total Amount:</strong>
-                              {" "}-{selectedInvoice.totalAmount.toLocaleString("en-IN")}
-                            </p>
-                          </div>
-                          <table
-                            border="1"
-                            width="100%"
-                            style={{ borderCollapse: "collapse" }}
-                          >
-                            <thead>
-                              <tr>
-                                <th style={{width:"10%"}}>Product Id</th>
-                                <th style={{width:"25%"}}>Product Name</th>
-                                <th style={{width:"10%"}}>Price</th>
-                                <th style={{width:"10%"}}>Quantity</th>
-                                <th style={{width:"10%"}}>Total</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {selectedInvoice.productId.map((product, i) => (
-                                <tr key={i}>
-                                  <td style={{ textAlign: "left", width:"10%" }}>
-                                    {product._id.productId}
-                                  </td>
-                                  <td style={{ textAlign: "left", width:"25%" }}>
-                                    {product._id.name}
-                                  </td>
-                                  <td style={{ textAlign: "right", width:"10%" }}>
-                                    {product.price.toLocaleString()}
-                                  </td>
-                                  <td style={{ textAlign: "right", width:"10%" }}>
-                                    -{product.quantity.toLocaleString()}
-                                  </td>
-                                  <td style={{ textAlign: "right", width:"10%" }}>
-                                    -{(product.price * product.quantity).toLocaleString()}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-          
-                          <button
-                            className="print-button"
-                            style={{ marginRight: "10px" }}
-                          >
-                            <ReactToPrint
-                              trigger={() => (
-                                <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
-                                  Print Bill
-                                </p>
-                              )}
-                              content={() => componentRef.current}
-                              removeAfterPrint={false}
-                            />
-                          </button>
-                          <button
-                            onClick={() => setIsModalOpen(false)}
-                            className="print-button"
-                          >
-                            Close
-                          </button>
-                        </div>
-                      </div>
-                    </>
+          <>
+            <div
+              className="modal-overlay"
+              onClick={() => setIsModalOpen(false)}
+            ></div>
+            <div className="purchase-modal">
+              <div className="purchase-modal-content">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(selectedInvoice.createdAt).toLocaleDateString()}
+                  </p>
+                  <h2>Invoice: R{selectedInvoice.invoiceId}</h2>
+
+                  <p>
+                    <strong>Total Amount:</strong> -
+                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                  </p>
+                </div>
+                <table
+                  border="1"
+                  width="100%"
+                  style={{ borderCollapse: "collapse" }}
+                >
+                  <thead>
+                    <tr>
+                      <th style={{ width: "5%" }}>Pro. Id</th>
+                      <th style={{ width: "25%" }}>Product Name</th>
+                      <th style={{ width: "5%" }}>Qty</th>
+                      <th style={{ width: "7%" }}>Rate</th>
+                      <th style={{ width: "7%" }}>Amt</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedInvoice.productId.map((product, i) => (
+                      <tr key={i}>
+                        <td style={{ textAlign: "left", width: "5%" }}>
+                          {product._id.productId}
+                        </td>
+                        <td style={{ textAlign: "left", width: "25%" }}>
+                          {product._id.name}
+                        </td>
+                        <td style={{ textAlign: "right", width: "5%" }}>
+                          -{product.quantity.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right", width: "7%" }}>
+                          {product.price.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right", width: "7%" }}>
+                          -{(product.price * product.quantity).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <button
+                  className="print-button"
+                  style={{ marginRight: "10px" }}
+                >
+                  <ReactToPrint
+                    trigger={() => (
+                      <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+                        Print Bill
+                      </p>
+                    )}
+                    content={() => componentRef.current}
+                    removeAfterPrint={false}
+                  />
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="print-button"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </>
         )}
 
       <div ref={componentRef} className="print-content">

@@ -256,7 +256,7 @@
 .user-container {
   display: flex;
   flex-direction: column;
-  gap: .8rem;
+  gap: .5rem;
   width: 100%;
 }
 
@@ -779,9 +779,9 @@ tr {
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  padding: 20px;
+  padding: 14px;
   z-index: 1000; /* Ensures modal is above everything */
-  max-width: 45%;
+  max-width: 38%;
   max-height: 70%;
   overflow-y: auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
@@ -959,9 +959,6 @@ tr {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.4rem;
   font-size: 2rem;
-  color:var(--white-color);
-  background-color: var(--brown-color);
-  border-radius: var(--btn-radius);
+  width: 50px;
 }

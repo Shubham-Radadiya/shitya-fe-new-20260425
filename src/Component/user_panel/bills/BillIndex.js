@@ -9,9 +9,11 @@ import {
   REMOVE_FROM_PURCHASE_CART,
   CLEAR_PURCHASE_CART,
   CLEAR_BHET_CART,
+  ADD_TO_CART,
   ADD_TO_UPDATEPURCHASECART,
   ADD_TO_BHET_CART,
   REMOVE_FROM_BHET_CART,
+  REMOVE_FROM_CART,
   ADD_TO_UPDATEBHETCART,
 } from "../../../store/cart/cartActionType";
 import {
@@ -493,9 +495,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 onClick={() => {
                   dispatch({
                     type:
-                      currentLocation.pathname === "/bhet"
+                      currentLocation.pathname === "/stock"
+                        ? ADD_TO_PURCHASE_CART
+                        : currentLocation.pathname === "/bhet"
                         ? ADD_TO_BHET_CART
-                        : ADD_TO_PURCHASE_CART,
+                        : ADD_TO_CART,
                     payload: product,
                   });
                   setShowReprintBill(false);
@@ -516,10 +520,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 onClick={() => {
                   dispatch({
                     type:
-                      currentLocation.pathname === "/bhet"
+                      currentLocation.pathname === "/stock"
+                        ? REMOVE_FROM_PURCHASE_CART
+                        : currentLocation.pathname === "/bhet"
                         ? REMOVE_FROM_BHET_CART
-                        : REMOVE_FROM_PURCHASE_CART,
-                    payload: product._id,
+                        : REMOVE_FROM_CART,
+                        payload: product._id,
                   });
                   setShowReprintBill(false);
                 }}

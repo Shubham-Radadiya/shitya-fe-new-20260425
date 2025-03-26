@@ -12,6 +12,7 @@ import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
+import download from "../images/download.png";
 
 const BhetReport = () => {
   const componentRef = useRef();
@@ -217,7 +218,7 @@ const BhetReport = () => {
           >
             <div className="tfootgroup">
               <div className="download" onClick={exportToExcel}>
-                <MdOutlineFileUpload />
+                <img style={{ width: "50px" }} src={download} atl="down" />
               </div>
               {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -646,8 +647,8 @@ const BhetReport = () => {
                   <h2>Bhet.No: {selectedInvoice.billId}</h2>
 
                   <p>
-                    <strong>Total Amount:</strong>
-                    {" "}{selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                    <strong>Total Amount:</strong>{" "}
+                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
                 <table
@@ -657,29 +658,29 @@ const BhetReport = () => {
                 >
                   <thead>
                     <tr>
-                      <th style={{ width: "10%" }}>Product Id</th>
+                      <th style={{ width: "5%" }}>Pro. Id</th>
                       <th style={{ width: "25%" }}>Product Name</th>
-                      <th style={{ width: "10%" }}>Price</th>
-                      <th style={{ width: "10%" }}>Quantity</th>
-                      <th style={{ width: "10%" }}>Total</th>
+                      <th style={{ width: "5%" }}>Qty</th>
+                      <th style={{ width: "7%" }}>Rate</th>
+                      <th style={{ width: "7%" }}>Amt</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
-                        <td style={{ textAlign: "left", width: "10%" }}>
+                        <td style={{ textAlign: "left", width: "5%" }}>
                           {product._id.productId}
                         </td>
                         <td style={{ textAlign: "left", width: "25%" }}>
                           {product._id.name}
                         </td>
-                        <td style={{ textAlign: "right", width: "10%" }}>
-                          {product.price.toLocaleString()}
-                        </td>
-                        <td style={{ textAlign: "right", width: "10%" }}>
+                        <td style={{ textAlign: "right", width: "5%" }}>
                           {product.quantity.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: "right", width: "10%" }}>
+                        <td style={{ textAlign: "right", width: "7%" }}>
+                          {product.price.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: "right", width: "7%" }}>
                           {(product.price * product.quantity).toLocaleString()}
                         </td>
                       </tr>

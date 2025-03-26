@@ -4,7 +4,7 @@ import * as XLSX from "xlsx"; // Import xlsx library
 import "./index.css";
 import { useDispatch, useSelector } from "react-redux";
 import { REQUEST_GET_STOCk } from "../../store/product/ProductAction";
-import { MdOutlineFileUpload } from "react-icons/md";
+import download from "../images/download.png"
 
 const StockTable = () => {
   const [showDetailState, setShowDetailState] = useState(null);
@@ -90,7 +90,7 @@ const StockTable = () => {
               Stock Report
             </div>
             <div className="download" onClick={exportToExcel}>
-              <MdOutlineFileUpload />
+               <img style={{width:"50px"}} src={download} atl="down" />
             </div>
           </div>
         </div>
@@ -101,8 +101,8 @@ const StockTable = () => {
               <tr style={{ width: "100%", fontSize: "16px" }}>
                 <th>Category</th>
                 <th>Sub Category</th>
-                <th>Product</th>
                 <th>Product ID</th>
+                <th>Product</th>
                 <th>Qty</th>
                 <th>Rate</th>
                 <th>Amount</th>
@@ -190,8 +190,8 @@ const StockTable = () => {
                                   <tr key={product.productId}>
                                     <td></td>
                                     <td></td>
-                                    <td>{product.name}</td>
                                     <td>{product.productId}</td>
+                                    <td>{product.name}</td>
                                     <td style={{ textAlign: "right" }}>
                                       {product.quantity}
                                     </td>

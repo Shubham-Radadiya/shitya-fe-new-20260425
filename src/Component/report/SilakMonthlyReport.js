@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import "./index.css";
-import { MdOutlineFileUpload } from "react-icons/md";
+import download from "../images/download.png"
 
 const SilakMonthlyReport = () => {
   const [reportData, setReportData] = useState(null);
@@ -28,6 +28,8 @@ const SilakMonthlyReport = () => {
       if (!response.ok) throw new Error("Failed to fetch yearly report data");
 
       const data = await response.json();
+      console.log(data, "mergedDataForNotBhet");
+      
       setReportData(data);
     } catch (error) {
       console.error("Error fetching yearly report:", error);
@@ -41,7 +43,7 @@ const SilakMonthlyReport = () => {
     console.log(reportData?.[0]?.silkData?.openSilak ?? 0, "reportData");
     reportData?.map((p) => {
       console.log(p, "data");
-      console.log(reportData.silkData?.closeSilak, "data");
+      console.log(reportData.mergedDataForNotBhet, "data");
     });
   }, [reportData]);
 
@@ -108,7 +110,7 @@ const SilakMonthlyReport = () => {
   };
 
   const getCategoryTotal = (categoryName) => {
-    return reportData?.reduce((acc, user) => {
+    return reportData.mergedDataForNotBhet?.reduce((acc, user) => {
       const { categories } = user;
       const categoryTotal = categories
         .filter((category) => category.categoryName === categoryName)
@@ -120,19 +122,19 @@ const SilakMonthlyReport = () => {
     }, 0);
   };
 
-  const totalJamaRakam = reportData?.reduce((acc, user) => {
+  const totalJamaRakam = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
     return acc + (user.silkData?.jamaRakam ?? 0);
   }, 0);
 
-  const totalBhet = reportData?.reduce((acc, user) => {
+  const totalBhet = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
     return acc + (user.silkData?.bhet ?? 0);
   }, 0);
 
-  const totalKharch = reportData?.reduce((acc, user) => {
+  const totalKharch = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
     return acc + (user.silkData?.kharch ?? 0);
   }, 0);
 
-  const totalBuyingAmount = reportData?.reduce((acc, user) => {
+  const totalBuyingAmount = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
     acc += user.categories?.reduce(
       (sum, category) => sum + category.totalBuyingAmountPerCategory,
       0
@@ -150,7 +152,7 @@ const SilakMonthlyReport = () => {
           >
             <div className="tfootgroup">
             <div className="download" onClick={exportToExcel}>
-              <MdOutlineFileUpload/> 
+            <img style={{width:"50px"}} src={download} atl="down" />
               </div>
               {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
