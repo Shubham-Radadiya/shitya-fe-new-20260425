@@ -1,74 +1,55 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { fetchInvoices } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PurchaseReport from "./PurchaseReport";
 import ReportIndex from "./ReportIndex";
 import PurchaseReturn from "./PurchaseReturn";
 import StockTable from "./StockTable";
-import SilakYearlyReport from "./SilakYearlyReport";
-import SilakMonthlyReport from "./SilakMonthlyReport";
 import BhetReport from "./BhetReport";
+import SilakMonthlyReport from "./SilakMonthlyReport";
+import SilakYearlyReport from "./SilakYearlyReport";
 import Home from "../images/home.png";
+import "./index.css";
 
 const ReportsDashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+
   const [activeReport, setActiveReport] = useState("sales");
-  const [reportType, setReportType] = useState("purchasebill");
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const [selectedSubReport, setSelectedSubReport] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [dropdownType, setDropdownType] = useState(null);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
 
   const { invoiceData } = useInvoice();
-  const [pin, setPin] = useState("");
-  const [showPinPrompt, setShowPinPrompt] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const correctPin = "2812";
-
-  const handlePinChange = (e) => {
-    setPin(e.target.value);
-  };
-
-  const handlePinSubmit = () => {
-    if (pin === correctPin && showPinPrompt) {
-      navigate(`/${showPinPrompt}`);
-      setShowPinPrompt(null);
-      setPin("");
-    } else {
-      alert("Incorrect PIN");
-    }
-  };
-
-  const handleButtonClick = (screen) => {
-    if (location.pathname !== `/${screen}`) {
-      setShowPinPrompt(screen);
-    }
-  };
 
   useEffect(() => {
-    document.querySelectorAll("input").forEach((input) => {
-      input.setAttribute("autocomplete", "off");
-      input.setAttribute(
-        "name",
-        "random-" + Math.random().toString(36).substr(2, 10)
-      );
-    });
-  }, []);
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handlePinSubmit();
-    }
-  };
-
-  useEffect(() => {
-    if (reportType === "purchasebill") {
+    if (selectedSubReport === "purchasebill") {
       dispatch(fetchInvoices(false));
-    } else if (reportType === "purchaseReturn") {
+    } else if (selectedSubReport === "purchaseReturn") {
       dispatch(fetchInvoices(true));
     }
-  }, [reportType, dispatch]);
+  }, [selectedSubReport, dispatch]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowModal(false);
+      }
+    };
+
+    if (showModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showModal]);
 
   const reportOptions = [
     { key: "sales", label: "Sales Report", component: <ReportIndex /> },
@@ -89,132 +70,119 @@ const ReportsDashboard = () => {
         },
       ],
     },
+    {
+      key: "silak",
+      label: "Silak Report",
+      hasSubReports: true,
+      subReports: [
+        {
+          key: "silakMonthly",
+          label: "Silak Report Monthly",
+          component: <SilakMonthlyReport />,
+        },
+        {
+          key: "silakYearly",
+          label: "Silak Report Yearly",
+          component: <SilakYearlyReport />,
+        },
+      ],
+    },
     { key: "stock", label: "Stock Report", component: <StockTable /> },
-    // {
-    //   key: "silak",
-    //   label: "Silak Report",
-    //   hasSubReports: true,
-    //   subReports: [
-    //     {
-    //       key: "SilakReport",
-    //       label: "Report-1",
-    //       component: <SilakMonthlyReport />,
-    //     },
-    //     {
-    //       key: "SilakYearlyReport",
-    //       label: "Report-2",
-    //       component: <SilakYearlyReport />,
-    //     },
-    //   ],
-    // },
     { key: "bhet", label: "Bhet Report", component: <BhetReport /> },
   ];
+
   const goToDashboard = () => {
     navigate("/dashboard");
   };
+
+  const handleReportClick = (report, event) => {
+    if (report.hasSubReports) {
+      setDropdownType(report.key);
+      setShowModal(true);
+
+      const rect = event.target.getBoundingClientRect();
+      setModalPosition({
+        top: rect.bottom + window.scrollY + 5,
+        left: rect.left + window.scrollX,
+      });
+    } else {
+      setActiveReport(report.key);
+      setSelectedSubReport(null);
+    }
+  };
+
+  const handleSubReportClick = (subReport) => {
+    setSelectedSubReport(subReport.key);
+    setActiveReport(dropdownType);
+  };
+
+  const getButtonStyle = (reportKey) => {
+    switch (reportKey) {
+      case "sales":
+        return { backgroundColor: "rgb(97, 37, 17)", color: "white" };
+      case "purchase":
+        return { backgroundColor: "rgb(113, 48, 142)", color: "white" };
+      case "silak":
+        return { backgroundColor: "rgb(113, 48, 142)", color: "white" };
+      case "stock":
+        return { backgroundColor: "rgb(97, 37, 17)", color: "white" };
+      case "bhet":
+        return { backgroundColor: "rgb(34, 78, 8)", color: "white" };
+      default:
+        return {};
+    }
+  };
+
   return (
-    <div className="user-template" style={{ marginLeft: "10px" }}>
+    <div className="user-template">
       <div className="user-container">
-        <div className="reportHeader" style={{width:"98.6%", marginTop:"6px"}}>
-          <h2 style={{ textAlign: "center" }}>Reports Dashboard</h2>
-          <div className="screen-list">
-              <img style={{ width: "43px", cursor:"pointer" }} src={Home} alt="edit" onClick={() => goToDashboard()} />
-          </div>
-        </div>
-
-        <div
-          className="report-dashboard"
-          style={{ width: "auto", gap: "15px", height: "91vh" }}
-        >
-          <div className="report-left-side" style={{ width: "14vw" }}>
-            {reportOptions.map((report) => (
-              <div key={report.key}>
+        <div className="reportHeader">
+          <div className="header-left">
+            <h2>Reports Dashboard</h2>
+            <div className="nav-buttons" style={{ display: "flex", gap: "10px" }}>
+              {reportOptions.map((report) => (
                 <button
-                  className={`sidebar-link ${
-                    activeReport === report.key ? "active" : ""
-                  }`}
-                  onClick={() => {
-                    setActiveReport(report.key);
-                    setOpenDropdown(
-                      report.hasSubReports
-                        ? openDropdown === report.key
-                          ? null
-                          : report.key
-                        : null
-                    );
-
-                    // ✅ If it has subReports, default to the first sub-report
-                    if (report.hasSubReports) {
-                      setReportType(report.subReports[0].key);
-                    }
-                  }}
+                  key={report.key}
+                  className={`nav-btn ${activeReport === report.key ? "active" : ""}`}
+                  onClick={(event) => handleReportClick(report, event)}
+                  style={activeReport === report.key ? getButtonStyle(report.key) : {}}
+                  ref={report.hasSubReports ? buttonRef : null}
                 >
                   {report.label}
-                  {report.hasSubReports && (
-                    <span className="arrow">
-                      {openDropdown === report.key ? "▲" : "▼"}
-                    </span>
-                  )}
                 </button>
-                {openDropdown === report.key && report.hasSubReports && (
-                  <div className="dropdown-menu">
-                    {report.subReports.map((sub) => (
-                      <button
-                        key={sub.key}
-                        className={`dropdown-item ${
-                          reportType === sub.key ? "active" : ""
-                        }`}
-                        onClick={() => setReportType(sub.key)}
-                      >
-                        {sub.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-          <div className="report-right-side" style={{ width: "83.5vw" }}>
-            {reportOptions.find((r) => r.key === activeReport)?.hasSubReports
-              ? reportOptions
-                  .find((r) => r.key === activeReport)
-                  ?.subReports?.find((s) => s.key === reportType)?.component
-              : reportOptions.find((r) => r.key === activeReport)
-                  ?.component || <div>Select a report</div>}
-          </div>
+          <img className="home-icon" src={Home} alt="Home" onClick={goToDashboard} />
+        </div>
+
+        <div className="report-right-side">
+          {selectedSubReport
+            ? reportOptions
+                .find((r) => r.key === activeReport)
+                ?.subReports?.find((s) => s.key === selectedSubReport)
+                ?.component
+            : reportOptions.find((r) => r.key === activeReport)?.component}
         </div>
       </div>
-      {showPinPrompt && (
-        <div className="pin-prompt">
-          <div className="modal-content">
-            <h3>Enter PIN for {showPinPrompt.toUpperCase()}</h3>
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={pin}
-                name="custom-pin"
-                onChange={handlePinChange}
-                placeholder="Enter PIN"
-                autoFocus
-                onKeyDown={handleKeyPress}
-                autoComplete="off"
-                aria-hidden="true"
-                style={{
-                  WebkitTextSecurity: "disc",
-                }}
-              />
-            </form>
-            <p className="button-group">
-              <button onClick={handlePinSubmit}>Submit</button>
+
+      {showModal && (
+        <div
+          ref={dropdownRef}
+          className="dropdown-modal"
+          style={{ top: modalPosition.top, left: modalPosition.left }}
+        >
+          {reportOptions
+            .find((r) => r.key === dropdownType)
+            ?.subReports.map((sub) => (
               <button
-                className="close-btn"
-                onClick={() => setShowPinPrompt(null)}
+                key={sub.key}
+                className={`dropdown-item ${selectedSubReport === sub.key ? "active" : ""}`}
+                onClick={() => {handleSubReportClick(sub); setShowModal(false)}}
               >
-                X
+                {sub.label}
               </button>
-            </p>
-          </div>
+            ))}
         </div>
       )}
     </div>

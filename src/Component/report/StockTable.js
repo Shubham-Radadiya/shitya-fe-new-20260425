@@ -135,11 +135,11 @@ const StockTable = () => {
                           </td>
                           <td colSpan="3"></td>
                           <td style={{ textAlign: "right" }}>
-                            {category.totalBuyingCountPerCategory}
+                            {new Intl.NumberFormat("en-IN").format(category.totalBuyingCountPerCategory)}
                           </td>
                           <td></td>
                           <td style={{ textAlign: "right" }}>
-                            {category.totalBuyingAmountPerCategory}
+                            {new Intl.NumberFormat("en-IN").format(category.totalBuyingAmountPerCategory)}
                           </td>
                         </tr>
 
@@ -175,11 +175,11 @@ const StockTable = () => {
                                 <td></td>
                                 <td></td>
                                 <td style={{ textAlign: "right" }}>
-                                  {subcategory.totalBuyingCount}
+                                  {new Intl.NumberFormat("en-IN").format(subcategory.totalBuyingCount)}
                                 </td>
                                 <td></td>
                                 <td style={{ textAlign: "right" }}>
-                                  {subcategory.totalBuyingAmount}
+                                  {new Intl.NumberFormat("en-IN").format(subcategory.totalBuyingAmount)}
                                 </td>
                               </tr>
 
@@ -193,13 +193,13 @@ const StockTable = () => {
                                     <td>{product.productId}</td>
                                     <td>{product.name}</td>
                                     <td style={{ textAlign: "right" }}>
-                                      {product.quantity}
+                                      {new Intl.NumberFormat("en-IN").format(product.quantity)}
                                     </td>
                                     <td style={{ textAlign: "right" }}>
-                                      {product.price}
+                                      {new Intl.NumberFormat("en-IN").format(product.price)}
                                     </td>
                                     <td style={{ textAlign: "right" }}>
-                                      {product.totalBuyingAmount}
+                                      {new Intl.NumberFormat("en-IN").format(product.totalBuyingAmount)}
                                     </td>
                                   </tr>
                                 ))}

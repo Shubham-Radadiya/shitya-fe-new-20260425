@@ -8,6 +8,7 @@ import reportSaga from "./admin_report/ReportSagas";
 import userreportSaga from "./user_report/UserReportSaga";
 import { invoiceSaga } from "./invoice/InvoiceSaga";
 import excelSaga from "./excel/excelSaga";
+import notesSaga from "./notes/notesSaga";
 
 function* rootSaga() {
   yield all([fork(categorySaga)]);
@@ -19,6 +20,7 @@ function* rootSaga() {
   yield all([fork(userreportSaga)])
   yield all([fork(invoiceSaga)]);
   yield all([fork(excelSaga)]);
+  yield all([fork(notesSaga)]);
 }
 
 export default rootSaga;

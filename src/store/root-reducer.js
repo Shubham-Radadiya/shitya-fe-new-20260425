@@ -9,6 +9,7 @@ import ReportReducers from "./admin_report/ReportReducer"
 import UserReportReducers from "./user_report/UserReportReducer";
 import invoiceReducer from "./invoice/InvoiceReducer";
 import excelReducer from "./excel/excelReducer";
+import notesReducer from "./notes/notesReducer";
 
 export default combineReducers({
   category,
@@ -20,5 +21,6 @@ export default combineReducers({
   report: ReportReducers,
   userReport:UserReportReducers,
   invoice:invoiceReducer,
-  excel: excelReducer
+  excel: excelReducer,
+  notes: notesReducer
 });

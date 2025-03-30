@@ -256,10 +256,9 @@
 .user-container {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
-  width: 100%;
+  gap: 0.4rem;
+  width: 99%;
 }
-
 
 .userreport-table thead,
 .userreport-table tfoot {
@@ -352,11 +351,10 @@
 }
 
 .userreport-box {
-
   display: flex;
   width: 97.4%;
   margin-left: 14px;
-  margin-top: 6px;
+  margin-top: 3px;
   /* height: 10vh; */
   justify-content: space-between;
   align-items: center;
@@ -692,6 +690,9 @@ tr {
   width: 70px;
 }
 .stocktable {
+  background-color: var(--bhet-bg) !important;
+}
+.silakM {
   background-color: var(--purchase-bg) !important;
 }
 .pavti_product_name_1 {
@@ -781,8 +782,8 @@ tr {
   background: white;
   padding: 14px;
   z-index: 1000; /* Ensures modal is above everything */
-  max-width: 38%;
-  max-height: 70%;
+  max-width: 44%;
+  max-height: 90%;
   overflow-y: auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
@@ -841,7 +842,6 @@ tr {
   margin: "auto";
   min-height: "200px";
 }
-
 
 /* stock table style */
 .create-buttons {
@@ -949,16 +949,102 @@ tr {
   table-layout: fixed;
 }
 
-.bhet-amt{
+.bhet-amt {
   position: relative;
   top: 1rem;
   font-weight: bold;
 }
 
-.download{
+.download {
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 2rem;
   width: 50px;
 }
+
+.reportHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 98.6%;
+  padding: 10px;
+  background-color: white;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-btn {
+  padding: 10px 15px;
+  display: flex;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  color: black;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-btn.sales-active {
+  background-color: rgb(97, 37, 17);
+  color: white;
+}
+
+.nav-btn.purchase-active {
+  background-color: rgb(113, 48, 142);
+  color: white;
+}
+
+.nav-btn.bhet-active {
+  background-color: rgb(34, 78, 8);
+  color: white;
+}
+
+.dropdown-item.active {
+  background-color: rgb(113, 48, 142);
+  color: white;
+}
+
+.home-icon {
+  width: 43px;
+  cursor: pointer;
+}
+
+.report-right-side {
+  width: 100%;
+  height: 89vh;
+}
+
+.dropdown-modal {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 8px 15px;
+  margin: 5px 0;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dropdown-item:hover {
+  background: rgb(113, 48, 142);
+  color: white;
+}
+

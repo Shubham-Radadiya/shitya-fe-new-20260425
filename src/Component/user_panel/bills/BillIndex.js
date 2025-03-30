@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import ReactToPrint, { useReactToPrint } from "react-to-print";
+import notes from "../../images/notes.png";
 import {
   CLEAR_CART,
   ADD_TO_UPDATEDCART,
@@ -34,7 +35,8 @@ import {
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_RETURN_PURCHASE,
 } from "../../../store/invoice/InvoiceAction";
-import { REQUEST_USER_EXCEL } from "../../../store/excel/excelAction";
+import NotesComponent from "../notes/Notes";
+import { fetchInvoiceNumber } from "../../../store/invoice/InvoiceAction";
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
@@ -46,18 +48,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const currentLocation = useLocation();
   const reprintBill = useSelector((state) => state.bill.reprintBill);
   const excelBill = useSelector((state) => state.excel.excelResponse);
+  const invoiceN = useSelector((state) => state.invoice.invoiceNumber);
   const [reportData] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [excelModalOpen, setExcelModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const [newQuantity, setNewQuantity] = useState("");
-  const [excelBillPrint, setExcelBillPrint] = useState("");
   const [reprintModalOpen, setReprintModalOpen] = useState(false);
   const [reprintField, setReprintField] = useState("");
   const [showReprintBill, setShowReprintBill] = useState(false);
   const componentRef = useRef();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const { returnEdit, invoiceId } = currentLocation.state || {};
   const [bhetNumber, setBhetNumber] = useState("");
   const [billNumber, setBillNumber] = useState("");
   const [purchaseLabel, setPurchaseLabel] = useState("Total Purchase");
@@ -67,21 +67,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const [showPinPrompt, setShowPinPrompt] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const [showNotes, setShowNotes] = useState(false);
+  const [isReturnMode, setIsReturnMode] = useState(false);
 
   const correctPin = "2812";
 
   const handlePinChange = (e) => {
     setPin(e.target.value);
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("excelFile", file);
-
-      dispatch({ type: REQUEST_USER_EXCEL, payload: { data: formData } });
-    }
   };
 
   const handlePinSubmit = () => {
@@ -108,8 +100,14 @@ const Bills = ({ returnMode, setReturnMode }) => {
   useEffect(() => {
     if (currentLocation.pathname === "/bhet") {
       setBhetNumber(billNo.bhetNo);
+    } else if (currentLocation.pathname === "/dashboard") {
+      setBillNumber(billNo?.billId);
+    } else {
+      // handle the "not ID" case here, if needed
+      console.log("not ID");
     }
-  }, [bhetNo, currentLocation.pathname, bhetNumber]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bhetNo, currentLocation.pathname, bhetNumber, billNumber]);
   useEffect(() => {
     document.querySelectorAll("input").forEach((input) => {
       input.setAttribute("autocomplete", "off");
@@ -125,11 +123,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
       handlePinSubmit();
     }
   };
-
-  useEffect(() => {
-    setBillNumber(billNo?.billId);
-    console.log(billNo, "billNo");
-  }, [billNo]);
 
   useEffect(() => {
     if (currentLocation.pathname === "/dashboard") {
@@ -185,6 +178,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
       handlePrint();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [excelBill]);
 
   const handlePrintClick = () => {
@@ -316,24 +310,21 @@ const Bills = ({ returnMode, setReturnMode }) => {
     }
   };
 
-  useEffect(() => {
-    if (excelBill) {
-      setExcelBillPrint(excelBill);
-      setExcelModalOpen(true);
-    }
-  }, [excelBill]);
-
   const handleAfterPrint = async () => {
     dispatch({ type: CLEAR_CART });
     setShowReprintBill(false);
-    dispatch({ type: REQUEST_BILL_NO });
+    setIsReturnMode(false); 
+    currentLocation.pathname === "/bhet"
+      ? dispatch({ type: REQUEST_BHET_BILL_NO })
+      : dispatch({ type: REQUEST_BILL_NO });
+
     setReturnMode(false);
-    dispatch({ type: REQUEST_BHET_BILL_NO });
 
-    const number = await fetchInvoiceNumber(false);
+    dispatch(fetchInvoiceNumber(false));
 
-    setBhetNumber(bhetNo?.bhetNo);
-    setInvoiceNumber(number);
+    currentLocation.pathname === "/bhet"
+      ? setBhetNumber(bhetNo?.bhetNo)
+      : setInvoiceNumber(invoiceN);
   };
 
   const openModal = (item) => {
@@ -407,6 +398,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       setReturnMode(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reprintField]);
 
   useEffect(() => {
@@ -424,48 +416,31 @@ const Bills = ({ returnMode, setReturnMode }) => {
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
 
-  const token = localStorage.getItem("access_token");
-
-  const fetchInvoiceNumber = async (isReturned = false) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3010/invoice/getInvoiceNo?isReturned=${isReturned}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch invoice number");
-      }
-
-      const data = await response.json();
-      return data.invoiceNumber;
-    } catch (error) {
-      console.error("Error fetching invoice number:", error);
-    }
-  };
-
+  
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  
+  useEffect(()=>{
+console.log(invoiceNumber, invoiceN, "invoiceNumber");
 
+  },[invoiceNumber, invoiceN])
   useEffect(() => {
     const fetchData = async () => {
-      const number = await fetchInvoiceNumber(false);
-      // eslint-disable-next-line no-lone-blocks
-      {
-        currentLocation.state?.returnEdit
-          ? setInvoiceNumber(currentLocation.state.invoiceId)
-          : setInvoiceNumber(number);
+      if (isReturnMode) {
+        dispatch(fetchInvoiceNumber(true));
+        setInvoiceNumber(`R${invoiceN}`);
+      } else {
+        dispatch(fetchInvoiceNumber(false));
+        setInvoiceNumber(invoiceN);
       }
     };
+  
     fetchData();
-  }, []);
+  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceN, currentLocation, isReturnMode]); 
 
   const handleReturnBill = async () => {
+    setIsReturnMode(true); 
     dispatch({ type: CLEAR_CART });
     dispatch({
       type:
@@ -473,11 +448,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
     });
     setReturnMode(true);
 
-    const number = await fetchInvoiceNumber(true);
-    setInvoiceNumber(`R${number}`);
+    setInvoiceNumber(`R${invoiceN}`);
     setPurchaseLabel("Total Purchase Return");
   };
-  const displayInvoice = returnEdit ? invoiceId : invoiceNumber;
 
   const renderProductRows = (productList) => {
     return productList.length > 0 ? (
@@ -525,7 +498,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         : currentLocation.pathname === "/bhet"
                         ? REMOVE_FROM_BHET_CART
                         : REMOVE_FROM_CART,
-                        payload: product._id,
+                    payload: product._id,
                   });
                   setShowReprintBill(false);
                 }}
@@ -562,6 +535,12 @@ const Bills = ({ returnMode, setReturnMode }) => {
       {showExcelTable && renderTable()}
       <div className="bills">
         <div className="screen-list">
+        <img
+        src={notes}
+        alt="Maharaj"
+        style={{ cursor: "pointer", width: "50px", height: "50px" }}
+        onClick={() => setShowNotes(true)}
+      />
           <NavLink to="/dashboard" className="screen-list-circle sales-circle">
             S
           </NavLink>
@@ -619,7 +598,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
             Reset
           </button>
 
-          {currentLocation.pathname === "/stock" && (
+          {/* {currentLocation.pathname === "/stock" && (
             <label className="purchase-file-upload">
               <span>Excel</span>
               <input
@@ -628,7 +607,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 accept=".xls,.xlsx,.csv"
               />
             </label>
-          )}
+          )} */}
           {currentLocation.pathname !== "/bhet" && (
             <button
               className={
@@ -782,7 +761,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 ? `Bhet.No: ${bhetNumber || "N/A"}`
                 : currentLocation.pathname === "/stock"
                 ? `INV.No: ${invoiceNumber || "N/A"}`
-                : `Sr.No: ${billNumber || "Loading..."}`}
+                : `Sr.No: ${billNumber}`}
             </h8>
           </div>
 
@@ -959,7 +938,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
         </div>
       </div>
       <div ref={componentRef} className="print-content">
-        {/*  */}
         <h1
           style={{
             padding: "11px 0px",
@@ -1014,7 +992,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 className="pavti_title"
                 style={{
                   width: "52px",
-                  textAlign: "left",
                   fontWeight: "bold",
                   textAlign: "center",
                   borderRight: "1px solid",
@@ -1506,6 +1483,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
           </div>
         </div>
       )}
+      {showNotes && <NotesComponent onClose={() => setShowNotes(false)} />}
     </div>
   );
 };

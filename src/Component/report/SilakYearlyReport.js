@@ -29,7 +29,7 @@ const SilakYearlyReport = () => {
       if (!response.ok) throw new Error("Failed to fetch yearly report data");
 
       const data = await response.json();
-      setReportData(data);
+      setReportData(data.mergedDataForNotBhet);
     } catch (error) {
       console.error("Error fetching yearly report:", error);
     }
@@ -126,7 +126,7 @@ const SilakYearlyReport = () => {
   }, 0);
 
   const totalBhet = reportData?.reduce((acc, user) => {
-    return acc + (user.silkData?.bhet ?? 0);
+    return acc + (user.bhetData?.totalBuyingAmount ?? 0);
   }, 0);
 
   const totalKharch = reportData?.reduce((acc, user) => {
@@ -168,89 +168,89 @@ const SilakYearlyReport = () => {
               }}
             >
               <>
-                <table className="userreport-table" style={{ width: "148%" }}>
-                  <thead>
+                <table className="userreport-table" style={{ width: "106%" }}>
+                  <thead style={{fontSize:"17px"}}>
                     <tr>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         મહિનો
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         ખુલતી સીલક
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         મુર્તિ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         વાઘા
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         ઘરેણા
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         પુજા
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         પુસ્તક
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         જનરલ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         કુલ વેચાણ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         જમા રકમ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         બંધ સીલક
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         ભેટ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         ખર્ચ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ textAlign: "center" }}
                       >
                         વધ/ઘટ
@@ -364,7 +364,7 @@ const SilakYearlyReport = () => {
                             </td>
                             <td style={{ textAlign: "end" }}>
                               {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.bhet ?? 0
+                                silak?.bhetData?.totalBuyingAmount ?? 0
                               )}
                             </td>
                             <td style={{ textAlign: "end" }}>
@@ -373,9 +373,12 @@ const SilakYearlyReport = () => {
                               )}
                             </td>
                             <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.vadhGhat ?? 0
-                              )}
+                            {new Intl.NumberFormat("en-IN").format(
+                              (silak?.silkData?.openSilak ?? 0) +
+                                (totalAmount ?? 0) -
+                                (silak?.silkData?.closeSilak ?? 0) -
+                                (silak?.silkData?.jamaRakam ?? 0)
+                            )}
                             </td>
                           </tr>
                         );

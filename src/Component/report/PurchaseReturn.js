@@ -240,61 +240,61 @@ const PurchaseReturn = () => {
                   <thead>
                     <tr>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "9%", textAlign: "center" }}
                       >
                         R. INV. No.
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         INV. Date
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         મુર્તિ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         વાઘા
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         ઘરેણા
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         પુજા
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         પુસ્તક
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         જનરલ
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         Amount
                       </th>
                       <th
-                        className="stocktable"
+                        className="silakM"
                         style={{ width: "12%", textAlign: "center" }}
                         colSpan={2}
                       >
@@ -660,8 +660,8 @@ const PurchaseReturn = () => {
                 >
                   <thead>
                     <tr>
-                      <th style={{ width: "5%" }}>Pro. Id</th>
-                      <th style={{ width: "25%" }}>Product Name</th>
+                      <th style={{ width: "6%" }}>Pro. Id</th>
+                      <th style={{ width: "24%" }}>Product Name</th>
                       <th style={{ width: "5%" }}>Qty</th>
                       <th style={{ width: "7%" }}>Rate</th>
                       <th style={{ width: "7%" }}>Amt</th>
@@ -670,10 +670,10 @@ const PurchaseReturn = () => {
                   <tbody>
                     {selectedInvoice.productId.map((product, i) => (
                       <tr key={i}>
-                        <td style={{ textAlign: "left", width: "5%" }}>
+                        <td style={{ textAlign: "left", width: "6%" }}>
                           {product._id.productId}
                         </td>
-                        <td style={{ textAlign: "left", width: "25%" }}>
+                        <td style={{ textAlign: "left", width: "24%" }}>
                           {product._id.name}
                         </td>
                         <td style={{ textAlign: "right", width: "5%" }}>

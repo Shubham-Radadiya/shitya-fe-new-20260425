@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import "./index.css";
-import download from "../images/download.png"
+import download from "../images/download.png";
 
 const SilakMonthlyReport = () => {
   const [reportData, setReportData] = useState(null);
@@ -28,9 +28,8 @@ const SilakMonthlyReport = () => {
       if (!response.ok) throw new Error("Failed to fetch yearly report data");
 
       const data = await response.json();
-      console.log(data, "mergedDataForNotBhet");
-      
-      setReportData(data);
+      console.log(data, "......hgghv");
+      setReportData(data.mergedDataForNotBhet);
     } catch (error) {
       console.error("Error fetching yearly report:", error);
     }
@@ -40,11 +39,11 @@ const SilakMonthlyReport = () => {
     fetchYearlyReport();
   }, []);
   useEffect(() => {
-    console.log(reportData?.[0]?.silkData?.openSilak ?? 0, "reportData");
-    reportData?.map((p) => {
-      console.log(p, "data");
-      console.log(reportData.mergedDataForNotBhet, "data");
-    });
+    // reportData?.map((p) => {
+    //   console.log(p, "data");
+    //   console.log(p.silkData, "dataree");
+    // });
+    console.log(reportData, "data");
   }, [reportData]);
 
   const exportToExcel = () => {
@@ -110,7 +109,7 @@ const SilakMonthlyReport = () => {
   };
 
   const getCategoryTotal = (categoryName) => {
-    return reportData.mergedDataForNotBhet?.reduce((acc, user) => {
+    return reportData?.reduce((acc, user) => {
       const { categories } = user;
       const categoryTotal = categories
         .filter((category) => category.categoryName === categoryName)
@@ -122,19 +121,19 @@ const SilakMonthlyReport = () => {
     }, 0);
   };
 
-  const totalJamaRakam = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
+  const totalJamaRakam = reportData?.reduce((acc, user) => {
     return acc + (user.silkData?.jamaRakam ?? 0);
   }, 0);
 
-  const totalBhet = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
-    return acc + (user.silkData?.bhet ?? 0);
+  const totalBhet = reportData?.reduce((acc, user) => {
+    return acc + (user.bhetData?.totalBuyingAmount ?? 0);
   }, 0);
 
-  const totalKharch = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
+  const totalKharch = reportData?.reduce((acc, user) => {
     return acc + (user.silkData?.kharch ?? 0);
   }, 0);
 
-  const totalBuyingAmount = reportData.mergedDataForNotBhet?.reduce((acc, user) => {
+  const totalBuyingAmount = reportData?.reduce((acc, user) => {
     acc += user.categories?.reduce(
       (sum, category) => sum + category.totalBuyingAmountPerCategory,
       0
@@ -151,8 +150,8 @@ const SilakMonthlyReport = () => {
             style={{ justifyContent: "flex-end" }}
           >
             <div className="tfootgroup">
-            <div className="download" onClick={exportToExcel}>
-            <img style={{width:"50px"}} src={download} atl="down" />
+              <div className="download" onClick={exportToExcel}>
+                <img style={{ width: "50px" }} src={download} atl="down" />
               </div>
               {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -166,220 +165,178 @@ const SilakMonthlyReport = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: "30px",
+                maxHeight: "80.5vh",
               }}
             >
               <>
-                <table className="userreport-table" style={{ width: "125%" }}>
-                  <thead>
+                <table className="userreport-table" style={{ width: "106%" }}>
+                  <thead style={{ fontSize: "17px" }}>
                     <tr>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         તારીખ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         ખુલતી સીલક
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         મુર્તિ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         વાઘા
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         ઘરેણા
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         પુજા
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         પુસ્તક
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         જનરલ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         કુલ વેચાણ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         જમા રકમ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         બંધ સીલક
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         ભેટ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         ખર્ચ
                       </th>
-                      <th
-                        className="stocktable"
-                        style={{ textAlign: "center" }}
-                      >
+                      <th className="silakM" style={{ textAlign: "center" }}>
                         વધ/ઘટ
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {reportData
-                      ?.map((silak, index) => {
-                        let murtiAmount = 0,
-                          vaghaAmount = 0,
-                          gharenaAmount = 0,
-                          pujaAmount = 0,
-                          pustakAmount = 0,
-                          generalAmount = 0;
+                    {reportData?.map((silak, index) => {
+                      let murtiAmount = 0,
+                        vaghaAmount = 0,
+                        gharenaAmount = 0,
+                        pujaAmount = 0,
+                        pustakAmount = 0,
+                        generalAmount = 0;
 
-                        silak.categories?.forEach((category) => {
-                          switch (category.categoryName) {
-                            case "મુર્તિ":
-                              murtiAmount =
-                                category.totalBuyingAmountPerCategory;
-                              break;
-                            case "વાઘા":
-                              vaghaAmount =
-                                category.totalBuyingAmountPerCategory;
-                              break;
-                            case "ઘરેણા":
-                              gharenaAmount =
-                                category.totalBuyingAmountPerCategory;
-                              break;
-                            case "પુજા":
-                              pujaAmount =
-                                category.totalBuyingAmountPerCategory;
-                              break;
-                            case "પુસ્તક":
-                              pustakAmount =
-                                category.totalBuyingAmountPerCategory;
-                              break;
-                            case "જનરલ":
-                              generalAmount =
-                                category.totalBuyingAmountPerCategory;
-                              break;
-                            default:
-                              break;
-                          }
-                        });
+                      silak.categories?.forEach((category) => {
+                        switch (category.categoryName) {
+                          case "મુર્તિ":
+                            murtiAmount = category.totalBuyingAmountPerCategory;
+                            break;
+                          case "વાઘા":
+                            vaghaAmount = category.totalBuyingAmountPerCategory;
+                            break;
+                          case "ઘરેણા":
+                            gharenaAmount =
+                              category.totalBuyingAmountPerCategory;
+                            break;
+                          case "પુજા":
+                            pujaAmount = category.totalBuyingAmountPerCategory;
+                            break;
+                          case "પુસ્તક":
+                            pustakAmount =
+                              category.totalBuyingAmountPerCategory;
+                            break;
+                          case "જનરલ":
+                            generalAmount =
+                              category.totalBuyingAmountPerCategory;
+                            break;
+                          default:
+                            break;
+                        }
+                      });
 
-                        const totalAmount =
-                          murtiAmount +
-                          vaghaAmount +
-                          gharenaAmount +
-                          pujaAmount +
-                          pustakAmount +
-                          generalAmount;
+                      const totalAmount =
+                        murtiAmount +
+                        vaghaAmount +
+                        gharenaAmount +
+                        pujaAmount +
+                        pustakAmount +
+                        generalAmount;
 
-                        return (
-                          <tr key={index}>
-                            <td>{`${silak.createdAt.split("-")[2]}-${
-                              silak.createdAt.split("-")[1]
-                            }-${silak.createdAt.split("-")[0].slice(-2)}`}</td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.openSilak ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                murtiAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                vaghaAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                gharenaAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                pujaAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                pustakAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                generalAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                totalAmount ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.jamaRakam ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.closeSilak ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.bhet ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.kharch ?? 0
-                              )}
-                            </td>
-                            <td style={{ textAlign: "end" }}>
-                              {new Intl.NumberFormat("en-IN").format(
-                                silak?.silkData?.vadhGhat ?? 0
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      return (
+                        <tr key={index}>
+                          <td>{`${silak.createdAt.split("-")[2]}-${
+                            silak.createdAt.split("-")[1]
+                          }-${silak.createdAt.split("-")[0].slice(-2)}`}</td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              silak?.silkData?.openSilak ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              murtiAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              vaghaAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              gharenaAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              pujaAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              pustakAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              generalAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              totalAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              silak?.silkData?.jamaRakam ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              silak?.silkData?.closeSilak ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              silak?.bhetData?.totalBuyingAmount ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              silak?.silkData?.kharch ?? 0
+                            )}
+                          </td>
+                          <td style={{ textAlign: "end" }}>
+                            {new Intl.NumberFormat("en-IN").format(
+                              (silak?.silkData?.openSilak ?? 0) +
+                                (totalAmount ?? 0) -
+                                (silak?.silkData?.closeSilak ?? 0) -
+                                (silak?.silkData?.jamaRakam ?? 0)
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                   <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                     <tr>

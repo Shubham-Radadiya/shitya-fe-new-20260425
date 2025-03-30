@@ -50,9 +50,11 @@ const MenuVariety = ({ selectedCategory, setSelectedSubCategory }) => {
                 ? `purchase_subcategory_contain ${
                     subcategory.name === names ? "active" : ""
                   }`
-                : currentLocation.pathname === "/bhet" ? `bhet_subcategory_contain ${
+                : currentLocation.pathname === "/bhet"
+                ? `bhet_subcategory_contain ${
                     subcategory.name === names ? "active" : ""
-                  }` : `subcategory_contain ${
+                  }`
+                : `subcategory_contain ${
                     subcategory.name === names ? "active" : ""
                   }`
             }

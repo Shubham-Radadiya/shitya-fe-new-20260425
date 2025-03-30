@@ -2,9 +2,12 @@ import { useSelector } from "react-redux";
 import {
   ERROR_CREATE_BHET,
   ERROR_CREATE_INVOICE,
+  ERROR_FETCH_INVOICE_NUMBER,
+  REQUEST_FETCH_INVOICE_NUMBER,
   SET_BHET_DATA,
   SET_CREATE_BHET,
   SET_CREATE_INVOICE,
+  SET_FETCH_INVOICE_NUMBER,
   SET_INVOICE_DATA,
 } from "./InvoiceAction";
 
@@ -15,6 +18,7 @@ const initialState = {
   invoiceData: [],
   bhet: [],
   bhetData: [],
+  invoiceNumber: "",
 };
 
 const invoiceReducer = (state = initialState, action) => {
@@ -55,6 +59,23 @@ const invoiceReducer = (state = initialState, action) => {
         ...state,
         busy: false,
         message: action.payload,
+      };
+      case SET_FETCH_INVOICE_NUMBER:
+      return {
+        ...state,
+        busy: false,
+        invoiceNumber: action.payload,
+      };
+    case ERROR_FETCH_INVOICE_NUMBER:
+      return {
+        ...state,
+        busy: false,
+        message: action.payload,
+      };
+    case REQUEST_FETCH_INVOICE_NUMBER:
+      return {
+        ...state,
+        busy: true,
       };
     default:
       return state;

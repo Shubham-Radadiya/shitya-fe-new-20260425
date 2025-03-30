@@ -1,0 +1,140 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  
+  /* Close Button */
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 14px;
+  }
+  
+  .close-btn:hover {
+    background: darkred;
+  }
+  
+  /* Modal Title */
+  .modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  
+  .input-field {
+    width: 95%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    margin-top: 10px;
+  }
+  
+  .input-field:focus {
+    border-color: #007bff;
+  }
+  
+  /* Textarea */
+  .textarea {
+    height: 80px;
+    resize: none;
+  }
+  
+  /* Buttons */
+  .btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #0056b3;
+  }
+  
+  .btn-success {
+    background: #28a745;
+    color: white;
+  }
+  
+  .btn-success:hover {
+    background: #218838;
+  }
+  
+  /* Loading Text */
+  .loading-text {
+    text-align: center;
+    font-size: 14px;
+    color: gray;
+  }
+  
+  /* Notes List */
+  .notes-list {
+    list-style: none;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 6px;
+  }
+  
+  .note-card {
+    background: #f9f9f9;
+    padding: 10px;
+    border-left: 4px solid #007bff;
+    border-radius: 5px;
+    margin-bottom: 8px;
+  }
+  
+  .note-card h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .note-card p {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .priority-label {
+    font-size: 12px;
+    color: gray;
+    display: block;
+    margin-top: 5px;
+  }
+  

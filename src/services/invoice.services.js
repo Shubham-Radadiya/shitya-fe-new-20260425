@@ -16,6 +16,15 @@ const apiRequest = async (method, url, payload = null) => {
   }
 };
 
+export const fetchInvoiceNumber = async (isReturned) => {
+  const response = await apiRequest(
+    "get",
+    `/invoice/getInvoiceNo?isReturned=${isReturned}`
+  );
+  return response.invoiceNumber;
+};
+
+
 export const createInvoice = (payload) =>
   apiRequest("post", "/invoice", payload);
 export const createInvoiceReturn = (payload) =>
@@ -41,4 +50,5 @@ export default {
   createReturnInvoice,
   createBhet,
   getBhet,
+  fetchInvoiceNumber
 };

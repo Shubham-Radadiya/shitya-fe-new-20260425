@@ -3,17 +3,20 @@ import invoiceServices from "../../services/invoice.services";
 import {
   ERROR_CREATE_BHET,
   ERROR_CREATE_INVOICE,
+  ERROR_FETCH_INVOICE_NUMBER,
   ERROR_RETURN_PURCHASE,
   REQUEST_BHET_DATA,
   REQUEST_CREATE_BHET,
   REQUEST_CREATE_INVOICE,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
+  REQUEST_FETCH_INVOICE_NUMBER,
   REQUEST_INVOICE_DATA,
   REQUEST_RETURN_PURCHASE,
   SET_BHET_DATA,
   SET_CREATE_BHET,
   SET_CREATE_INVOICE,
+  SET_FETCH_INVOICE_NUMBER,
   SET_INVOICE_DATA,
   SET_RETURN_PURCHASE,
 
@@ -109,6 +112,15 @@ function handleError(error) {
   return message;
 }
 
+function* requestFetchInvoiceNumber(action) {
+  try {
+    const data = yield call(invoiceServices.fetchInvoiceNumber, action.payload);
+    yield put({ type: SET_FETCH_INVOICE_NUMBER, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_FETCH_INVOICE_NUMBER, payload: error.message });
+  }
+}
+
 export function* invoiceSaga() {
   yield all([
     takeLatest(REQUEST_CREATE_INVOICE, requestCreateInvoice),
@@ -118,5 +130,6 @@ export function* invoiceSaga() {
     takeLatest(REQUEST_RETURN_PURCHASE, requestReturnPurchase),
     takeLatest(REQUEST_EDIT_INVOICE_DATA, requestEditInvoice),
     takeLatest(REQUEST_CREATE_BHET, requestCreateBhet),
+    takeLatest(REQUEST_FETCH_INVOICE_NUMBER, requestFetchInvoiceNumber),
   ]);
 }
