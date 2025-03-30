@@ -107,14 +107,14 @@ const ReportScreen = () => {
       hasSubReports: true,
       subReports: [
         {
-          key: "SilakReport",
-          label: "Silak Report Monthly",
-          component: <SilakMonthlyReport/>,
+          key: "silakMonthly",
+          label: "Silak Monthly Report",
+          component: <SilakMonthlyReport />,
         },
         {
-          key: "purchaseReturn",
-          label: "Silak Report Yearly",
-          component: <SilakYearlyReport/>,
+          key: "silakYearly",
+          label: "Silak Yearly Report",
+          component: <SilakYearlyReport />,
         },
       ],
     },

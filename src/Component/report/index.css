@@ -8,14 +8,12 @@
   width: 100%;
   border-collapse: collapse;
   font-weight: 400;
-  border: 1px solid black;
   position: relative;
 }
 .userreport-table-silak {
   width: 100%;
   border-collapse: collapse;
   font-weight: 400;
-  border: 1px solid black;
   position: relative;
 }
 
@@ -693,7 +691,13 @@ tr {
   background-color: var(--bhet-bg) !important;
 }
 .silakM {
+  background-color: rgb(195 255 252) !important;
+  color: #144d52 !important;
+}
+.purchashM {
   background-color: var(--purchase-bg) !important;
+  color: white !important;
+  border: 1px solid #000000 !important;
 }
 .pavti_product_name_1 {
   margin: 0;
@@ -1044,7 +1048,7 @@ tr {
 }
 
 .dropdown-item:hover {
-  background: rgb(113, 48, 142);
+  background: rgb(176, 170, 170);
   color: white;
 }
 

@@ -538,7 +538,7 @@ console.log(invoiceNumber, invoiceN, "invoiceNumber");
         <img
         src={notes}
         alt="Maharaj"
-        style={{ cursor: "pointer", width: "50px", height: "50px" }}
+        style={{ cursor: "pointer", width: "40px", height: "40px" }}
         onClick={() => setShowNotes(true)}
       />
           <NavLink to="/dashboard" className="screen-list-circle sales-circle">
@@ -639,7 +639,7 @@ console.log(invoiceNumber, invoiceN, "invoiceNumber");
               >
                 <ReactToPrint
                   trigger={() => (
-                    <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+                    <p style={{ fontSize: "0.70rem", cursor: "pointer" }}>
                       Print Invoice
                     </p>
                   )}

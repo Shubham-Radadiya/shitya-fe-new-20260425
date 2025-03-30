@@ -77,12 +77,12 @@ const ReportsDashboard = () => {
       subReports: [
         {
           key: "silakMonthly",
-          label: "Silak Report Monthly",
+          label: "Silak Monthly Report",
           component: <SilakMonthlyReport />,
         },
         {
           key: "silakYearly",
-          label: "Silak Report Yearly",
+          label: "Silak Yearly Report",
           component: <SilakYearlyReport />,
         },
       ],
@@ -123,11 +123,26 @@ const ReportsDashboard = () => {
       case "purchase":
         return { backgroundColor: "rgb(113, 48, 142)", color: "white" };
       case "silak":
-        return { backgroundColor: "rgb(113, 48, 142)", color: "white" };
+        return { backgroundColor: "rgb(195 255 252)", color: "#144d52" };
       case "stock":
         return { backgroundColor: "rgb(97, 37, 17)", color: "white" };
       case "bhet":
         return { backgroundColor: "rgb(34, 78, 8)", color: "white" };
+      default:
+        return {};
+    }
+  };
+
+  const getSubButtonStyle = (subkey) => {
+    switch (subkey) {
+      case "purchasebill":
+        return { backgroundColor: "rgb(113, 48, 142)", color: "white" };
+      case "purchaseReturn":
+        return { backgroundColor: "rgb(113, 48, 142)", color: "white" };
+      case "silakMonthly":
+        return { backgroundColor: "rgb(195 255 252)", color: "#144d52" };
+      case "silakYearly":
+        return { backgroundColor: "rgb(195 255 252)", color: "#144d52" };
       default:
         return {};
     }
@@ -178,6 +193,7 @@ const ReportsDashboard = () => {
               <button
                 key={sub.key}
                 className={`dropdown-item ${selectedSubReport === sub.key ? "active" : ""}`}
+                style={selectedSubReport === sub.key ? getSubButtonStyle(sub.key) : {}}
                 onClick={() => {handleSubReportClick(sub); setShowModal(false)}}
               >
                 {sub.label}

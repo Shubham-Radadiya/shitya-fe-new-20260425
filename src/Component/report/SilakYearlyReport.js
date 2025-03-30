@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import "./index.css";
-import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import download from "../images/download.png"
 
 const SilakYearlyReport = () => {
@@ -168,90 +167,90 @@ const SilakYearlyReport = () => {
               }}
             >
               <>
-                <table className="userreport-table" style={{ width: "106%" }}>
+                <table className="userreport-table" style={{ width: "106%"}}>
                   <thead style={{fontSize:"17px"}}>
                     <tr>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         મહિનો
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         ખુલતી સીલક
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         મુર્તિ
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         વાઘા
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         ઘરેણા
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         પુજા
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         પુસ્તક
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         જનરલ
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         કુલ વેચાણ
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         જમા રકમ
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         બંધ સીલક
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         ભેટ
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", border:"1px solid #000000" }}
                       >
                         ખર્ચ
                       </th>
                       <th
                         className="silakM"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center",border:"1px solid #000000" }}
                       >
                         વધ/ઘટ
                       </th>
@@ -308,71 +307,71 @@ const SilakYearlyReport = () => {
 
                         return (
                           <tr key={index}>
-                            <td>{`${new Date(silak.createdAt).toLocaleString(
+                            <td style={{border:"1px solid #000000"}}>{`${new Date(silak.createdAt).toLocaleString(
                               "en-US",
                               { month: "short" }
                             )}-${silak.createdAt.split("-")[0].slice(-2)}`}</td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 silak?.silkData?.openSilak ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 murtiAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 vaghaAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 gharenaAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 pujaAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 pustakAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 generalAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 totalAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 silak?.silkData?.jamaRakam ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 silak?.silkData?.closeSilak ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 silak?.bhetData?.totalBuyingAmount ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                               {new Intl.NumberFormat("en-IN").format(
                                 silak?.silkData?.kharch ?? 0
                               )}
                             </td>
-                            <td style={{ textAlign: "end" }}>
+                            <td style={{ textAlign: "end", border:"1px solid #000000" }}>
                             {new Intl.NumberFormat("en-IN").format(
                               (silak?.silkData?.openSilak ?? 0) +
                                 (totalAmount ?? 0) -
@@ -386,11 +385,12 @@ const SilakYearlyReport = () => {
                   </tbody>
                   <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                     <tr>
-                      <td style={{ fontWeight: "bold" }}>Total:-</td>
+                      <td style={{ fontWeight: "bold", border:"1px solid #000000" }}>Total:-</td>
                       <td
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border:"1px solid #000000"
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -410,6 +410,7 @@ const SilakYearlyReport = () => {
                           style={{
                             textAlign: "end",
                             fontWeight: "bold",
+                            border:"1px solid #000000"
                           }}
                         >
                           {new Intl.NumberFormat("en-IN").format(
@@ -421,6 +422,7 @@ const SilakYearlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border:"1px solid #000000"
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -431,6 +433,7 @@ const SilakYearlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border:"1px solid #000000"
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -441,6 +444,7 @@ const SilakYearlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border:"1px solid #000000"
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -452,6 +456,7 @@ const SilakYearlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border:"1px solid #000000"
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(totalBhet ?? 0)}
@@ -460,6 +465,7 @@ const SilakYearlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border:"1px solid #000000"
                         }}
                       >
                         {" "}

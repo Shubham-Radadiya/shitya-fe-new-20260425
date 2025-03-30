@@ -240,61 +240,61 @@ const PurchaseReturn = () => {
                   <thead>
                     <tr>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "9%", textAlign: "center" }}
                       >
                         R. INV. No.
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         INV. Date
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         મુર્તિ
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         વાઘા
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         ઘરેણા
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         પુજા
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         પુસ્તક
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         જનરલ
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                       >
                         Amount
                       </th>
                       <th
-                        className="silakM"
+                        className="purchashM"
                         style={{ width: "12%", textAlign: "center" }}
                         colSpan={2}
                       >

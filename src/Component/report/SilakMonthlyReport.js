@@ -1,14 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import * as XLSX from "xlsx";
 import "./index.css";
 import download from "../images/download.png";
 
 const SilakMonthlyReport = () => {
   const [reportData, setReportData] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [financialYear, setFinancialYear] = useState("");
+  const [months, setMonths] = useState([]);
+  const [startYear, setStartYear] = useState(null);
+  const [endYear, setEndYear] = useState(null);
 
-  const fetchYearlyReport = async () => {
+  useEffect(() => {
+    const today = new Date();
+    let start = today.getFullYear();
+    let end = start + 1;
+
+    if (today.getMonth() < 3) {
+      start -= 1;
+      end -= 1;
+    }
+
+    setStartYear(start);
+    setEndYear(end);
+    setFinancialYear(`${start}-${end}`);
+
+    const monthList = [];
+    let defaultMonth = null;
+
+    for (let i = 3; i < 15; i++) {
+      const date = new Date(start, i, 1);
+      const monthObj = {
+        label: date.toLocaleString("default", {
+          month: "long",
+          year: "2-digit",
+        }),
+        value: date,
+      };
+
+      monthList.push(monthObj);
+
+      // Set the default month to the current month if it exists in the list
+      if (
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      ) {
+        defaultMonth = date;
+      }
+    }
+
+    setMonths(monthList);
+    setSelectedMonth(defaultMonth || monthList[0].value); // Default to current month or April
+  }, []);
+
+  useEffect(() => {
+    if (selectedMonth && startYear && endYear) {
+      fetchFinancialYearData(startYear, endYear);
+    }
+  }, [selectedMonth, startYear, endYear]);
+
+  const fetchFinancialYearData = async (start, end) => {
     try {
       const token = localStorage.getItem("access_token");
+
+      if (!start || !end) {
+        console.warn("Skipping fetch, startYear or endYear is undefined");
+        return;
+      }
+
+      const startDate = `${start}-04-01`;
+      const endDate = `${end}-03-31`;
+
+      console.log(
+        "Fetching financial year data from:",
+        startDate,
+        "to",
+        endDate
+      );
 
       const response = await fetch(
         "http://localhost:3010/report/silak/monthly",
@@ -18,31 +86,29 @@ const SilakMonthlyReport = () => {
             "Content-Type": "application/json",
             Authorization: token,
           },
-          body: JSON.stringify({
-            startDate: "2023-06-20T07:17:42.511+00:00",
-            endDate: "2025-09-02T07:17:42.511+00:00",
-          }),
+          body: JSON.stringify({ startDate, endDate }),
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch yearly report data");
+      if (!response.ok) throw new Error("Failed to fetch report data");
 
       const data = await response.json();
-      console.log(data, "......hgghv");
       setReportData(data.mergedDataForNotBhet);
     } catch (error) {
-      console.error("Error fetching yearly report:", error);
+      console.error("Error fetching report data:", error);
     }
   };
 
+  // Filter report data based on selected month
+  const filteredReportData = reportData?.filter((silak) => {
+    const silakDate = new Date(silak.createdAt);
+    return (
+      silakDate.getFullYear() === selectedMonth.getFullYear() &&
+      silakDate.getMonth() === selectedMonth.getMonth()
+    );
+  });
+
   useEffect(() => {
-    fetchYearlyReport();
-  }, []);
-  useEffect(() => {
-    // reportData?.map((p) => {
-    //   console.log(p, "data");
-    //   console.log(p.silkData, "dataree");
-    // });
     console.log(reportData, "data");
   }, [reportData]);
 
@@ -109,7 +175,7 @@ const SilakMonthlyReport = () => {
   };
 
   const getCategoryTotal = (categoryName) => {
-    return reportData?.reduce((acc, user) => {
+    return filteredReportData?.reduce((acc, user) => {
       const { categories } = user;
       const categoryTotal = categories
         .filter((category) => category.categoryName === categoryName)
@@ -121,19 +187,19 @@ const SilakMonthlyReport = () => {
     }, 0);
   };
 
-  const totalJamaRakam = reportData?.reduce((acc, user) => {
+  const totalJamaRakam = filteredReportData?.reduce((acc, user) => {
     return acc + (user.silkData?.jamaRakam ?? 0);
   }, 0);
 
-  const totalBhet = reportData?.reduce((acc, user) => {
+  const totalBhet = filteredReportData?.reduce((acc, user) => {
     return acc + (user.bhetData?.totalBuyingAmount ?? 0);
   }, 0);
 
-  const totalKharch = reportData?.reduce((acc, user) => {
+  const totalKharch = filteredReportData?.reduce((acc, user) => {
     return acc + (user.silkData?.kharch ?? 0);
   }, 0);
 
-  const totalBuyingAmount = reportData?.reduce((acc, user) => {
+  const totalBuyingAmount = filteredReportData?.reduce((acc, user) => {
     acc += user.categories?.reduce(
       (sum, category) => sum + category.totalBuyingAmountPerCategory,
       0
@@ -147,9 +213,23 @@ const SilakMonthlyReport = () => {
         <div className="user-container">
           <div
             className="userreport-box"
-            style={{ justifyContent: "flex-end" }}
+            style={{ justifyContent: "space-between" }}
           >
-            <div className="tfootgroup">
+            <div className="tfootgroup" style={{width:"100%"}}>
+              <div style={{display:"flex", gap:"10px", alignItems:"center"}}>
+                <label>Financial Year: {financialYear}</label>
+                <select
+                  value={selectedMonth?.toISOString()}
+                  onChange={(e) => setSelectedMonth(new Date(e.target.value))}
+                  style={{width:"130px", height: "32px", borderRadius: "8px" }}
+                >
+                  {months.map((month, index) => (
+                    <option key={index} value={month.value?.toISOString()}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="download" onClick={exportToExcel}>
                 <img style={{ width: "50px" }} src={download} atl="down" />
               </div>
@@ -172,52 +252,136 @@ const SilakMonthlyReport = () => {
                 <table className="userreport-table" style={{ width: "106%" }}>
                   <thead style={{ fontSize: "17px" }}>
                     <tr>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         તારીખ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         ખુલતી સીલક
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         મુર્તિ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         વાઘા
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         ઘરેણા
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         પુજા
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         પુસ્તક
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         જનરલ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         કુલ વેચાણ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         જમા રકમ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         બંધ સીલક
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         ભેટ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         ખર્ચ
                       </th>
-                      <th className="silakM" style={{ textAlign: "center" }}>
+                      <th
+                        className="silakM"
+                        style={{
+                          textAlign: "center",
+                          border: "1px solid #000000",
+                        }}
+                      >
                         વધ/ઘટ
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {reportData?.map((silak, index) => {
+                    {filteredReportData?.map((silak, index) => {
                       let murtiAmount = 0,
                         vaghaAmount = 0,
                         gharenaAmount = 0,
@@ -263,70 +427,137 @@ const SilakMonthlyReport = () => {
 
                       return (
                         <tr key={index}>
-                          <td>{`${silak.createdAt.split("-")[2]}-${
-                            silak.createdAt.split("-")[1]
-                          }-${silak.createdAt.split("-")[0].slice(-2)}`}</td>
-                          <td style={{ textAlign: "end" }}>
+                          <td style={{ border: "1px solid #000000" }}>{`${
+                            silak.createdAt.split("-")[2]
+                          }-${silak.createdAt.split("-")[1]}-${silak.createdAt
+                            .split("-")[0]
+                            .slice(-2)}`}</td>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               silak?.silkData?.openSilak ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               murtiAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               vaghaAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               gharenaAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               pujaAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               pustakAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               generalAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               totalAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               silak?.silkData?.jamaRakam ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               silak?.silkData?.closeSilak ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               silak?.bhetData?.totalBuyingAmount ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               silak?.silkData?.kharch ?? 0
                             )}
                           </td>
-                          <td style={{ textAlign: "end" }}>
+                          <td
+                            style={{
+                              textAlign: "end",
+                              border: "1px solid #000000",
+                            }}
+                          >
                             {new Intl.NumberFormat("en-IN").format(
                               (silak?.silkData?.openSilak ?? 0) +
                                 (totalAmount ?? 0) -
@@ -340,15 +571,23 @@ const SilakMonthlyReport = () => {
                   </tbody>
                   <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                     <tr>
-                      <td style={{ fontWeight: "bold" }}>Total:-</td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          border: "1px solid #000000",
+                        }}
+                      >
+                        Total:-
+                      </td>
                       <td
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border: "1px solid #000000",
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          reportData?.[0]?.silkData?.openSilak ?? 0
+                          filteredReportData?.[0]?.silkData?.openSilak ?? 0
                         )}
                       </td>
                       {[
@@ -364,6 +603,7 @@ const SilakMonthlyReport = () => {
                           style={{
                             textAlign: "end",
                             fontWeight: "bold",
+                            border: "1px solid #000000",
                           }}
                         >
                           {new Intl.NumberFormat("en-IN").format(
@@ -375,6 +615,7 @@ const SilakMonthlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border: "1px solid #000000",
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -385,6 +626,7 @@ const SilakMonthlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border: "1px solid #000000",
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -395,6 +637,7 @@ const SilakMonthlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border: "1px solid #000000",
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
@@ -406,6 +649,7 @@ const SilakMonthlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border: "1px solid #000000",
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(totalBhet ?? 0)}
@@ -414,6 +658,7 @@ const SilakMonthlyReport = () => {
                         style={{
                           textAlign: "end",
                           fontWeight: "bold",
+                          border: "1px solid #000000",
                         }}
                       >
                         {" "}
