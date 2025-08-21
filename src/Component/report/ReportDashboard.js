@@ -12,6 +12,7 @@ import SilakMonthlyReport from "./SilakMonthlyReport";
 import SilakYearlyReport from "./SilakYearlyReport";
 import Home from "../images/home.png";
 import "./index.css";
+import BhetReturn from "./BhetReturn";
 
 const ReportsDashboard = () => {
   const dispatch = useDispatch();
@@ -88,7 +89,18 @@ const ReportsDashboard = () => {
       ],
     },
     { key: "stock", label: "Stock Report", component: <StockTable /> },
-    { key: "bhet", label: "Bhet Report", component: <BhetReport /> },
+    { key: "bhet", label: "Bhet Report",hasSubReports: true,   subReports: [
+      {
+        key: "bhetbill",
+        label: "Bhet Bill",
+        component: <BhetReport />,
+      },
+      {
+        key: "bhetReturn",
+        label: "Bhet Return",
+        component: <BhetReturn  />,
+      },
+    ], },
   ];
 
   const goToDashboard = () => {
@@ -143,7 +155,11 @@ const ReportsDashboard = () => {
         return { backgroundColor: "rgb(195 255 252)", color: "#144d52" };
       case "silakYearly":
         return { backgroundColor: "rgb(195 255 252)", color: "#144d52" };
-      default:
+        case "bhetbill":
+          return { backgroundColor: "rgb(34, 78, 8)", color: "white" };
+        case "bhetReturn":
+          return { backgroundColor: "rgb(34, 78, 8)", color: "white" };
+        default:
         return {};
     }
   };

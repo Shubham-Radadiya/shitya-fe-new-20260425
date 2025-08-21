@@ -4,6 +4,7 @@ import {
   ERROR_CREATE_BHET,
   ERROR_CREATE_INVOICE,
   ERROR_FETCH_INVOICE_NUMBER,
+  ERROR_RETURN_BHET,
   ERROR_RETURN_PURCHASE,
   REQUEST_BHET_DATA,
   REQUEST_CREATE_BHET,
@@ -12,12 +13,14 @@ import {
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_FETCH_INVOICE_NUMBER,
   REQUEST_INVOICE_DATA,
+  REQUEST_RETURN_BHET,
   REQUEST_RETURN_PURCHASE,
   SET_BHET_DATA,
   SET_CREATE_BHET,
   SET_CREATE_INVOICE,
   SET_FETCH_INVOICE_NUMBER,
   SET_INVOICE_DATA,
+  SET_RETURN_BHET,
   SET_RETURN_PURCHASE,
 
 } from "./InvoiceAction";
@@ -99,6 +102,15 @@ function* requestReturnPurchase(action) {
   }
 }
 
+function* requestReturnBhet(action) {
+  try {
+    const data = yield call(invoiceServices.createReturnBhet, action.payload);
+    yield put({ type: SET_RETURN_BHET, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_RETURN_BHET, payload: handleError(error) });
+  }
+}
+
 function handleError(error) {
   let message = "Something went wrong, please try again later.";
   if (error.response) {
@@ -131,5 +143,6 @@ export function* invoiceSaga() {
     takeLatest(REQUEST_EDIT_INVOICE_DATA, requestEditInvoice),
     takeLatest(REQUEST_CREATE_BHET, requestCreateBhet),
     takeLatest(REQUEST_FETCH_INVOICE_NUMBER, requestFetchInvoiceNumber),
+    takeLatest(REQUEST_RETURN_BHET, requestReturnBhet)
   ]);
 }

@@ -40,6 +40,9 @@ export const getBhet = async () => {
   console.log("Bhet API Response:", response);
   return response;
 };
+export const createReturnBhet = (payload)=>{
+  apiRequest("post","/bhet/return",payload)
+}
 export const createBhet = (payload) => apiRequest("post", "/bhet", payload);
 
 export default {
@@ -50,5 +53,6 @@ export default {
   createReturnInvoice,
   createBhet,
   getBhet,
-  fetchInvoiceNumber
+  fetchInvoiceNumber,
+  createReturnBhet
 };

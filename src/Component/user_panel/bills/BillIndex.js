@@ -25,6 +25,7 @@ import {
   RETURN_BILL_NO,
   SET_BILL_NO,
   REQUEST_BHET_BILL_NO,
+  RETURN_BHET_BILL_NO,
 } from "../../../store/bill/billActionType";
 import "./index.css";
 import { useBill } from "../../../store/bill/reducer";
@@ -33,6 +34,7 @@ import {
   REQUEST_CREATE_INVOICE,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
+  REQUEST_RETURN_BHET,
   REQUEST_RETURN_PURCHASE,
 } from "../../../store/invoice/InvoiceAction";
 import NotesComponent from "../notes/Notes";
@@ -99,7 +101,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   useEffect(() => {
     if (currentLocation.pathname === "/bhet") {
-      setBhetNumber(billNo.bhetNo);
+      setBhetNumber(billNo?.bhetNo);
     } else if (currentLocation.pathname === "/dashboard") {
       setBillNumber(billNo?.billId);
     } else {
@@ -273,6 +275,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
           type:
             currentLocation.pathname === "/stock"
               ? REQUEST_RETURN_PURCHASE
+              : currentLocation.pathname === "/bhet"
+              ? REQUEST_RETURN_BHET
               : REQUEST_RETURN_BILL,
           payload,
         });
@@ -313,7 +317,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const handleAfterPrint = async () => {
     dispatch({ type: CLEAR_CART });
     setShowReprintBill(false);
-    setIsReturnMode(false); 
+    setIsReturnMode(false);
     currentLocation.pathname === "/bhet"
       ? dispatch({ type: REQUEST_BHET_BILL_NO })
       : dispatch({ type: REQUEST_BILL_NO });
@@ -416,13 +420,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
     return `${day}-${month}-${year} (${hours}:${minutes})`;
   };
 
-  
   const [invoiceNumber, setInvoiceNumber] = useState("");
-  
-  useEffect(()=>{
-console.log(invoiceNumber, invoiceN, "invoiceNumber");
 
-  },[invoiceNumber, invoiceN])
+  useEffect(() => {
+    console.log(invoiceNumber, invoiceN, "invoiceNumber");
+  }, [invoiceNumber, invoiceN]);
   useEffect(() => {
     const fetchData = async () => {
       if (isReturnMode) {
@@ -433,18 +435,20 @@ console.log(invoiceNumber, invoiceN, "invoiceNumber");
         setInvoiceNumber(invoiceN);
       }
     };
-  
+
     fetchData();
-  
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceN, currentLocation, isReturnMode]); 
+  }, [invoiceN, currentLocation, isReturnMode]);
 
   const handleReturnBill = async () => {
-    setIsReturnMode(true); 
+    setIsReturnMode(true);
     dispatch({ type: CLEAR_CART });
     dispatch({
       type:
-        currentLocation.pathname === "/stock" ? RETURN_BILL_NO : RETURN_BILL_NO,
+        currentLocation.pathname === "/stock"
+          ? RETURN_BILL_NO
+          : RETURN_BHET_BILL_NO,
     });
     setReturnMode(true);
 
@@ -535,12 +539,12 @@ console.log(invoiceNumber, invoiceN, "invoiceNumber");
       {showExcelTable && renderTable()}
       <div className="bills">
         <div className="screen-list">
-        <img
-        src={notes}
-        alt="Maharaj"
-        style={{ cursor: "pointer", width: "40px", height: "40px" }}
-        onClick={() => setShowNotes(true)}
-      />
+          <img
+            src={notes}
+            alt="Maharaj"
+            style={{ cursor: "pointer", width: "40px", height: "40px" }}
+            onClick={() => setShowNotes(true)}
+          />
           <NavLink to="/dashboard" className="screen-list-circle sales-circle">
             S
           </NavLink>
@@ -608,18 +612,20 @@ console.log(invoiceNumber, invoiceN, "invoiceNumber");
               />
             </label>
           )} */}
-          {currentLocation.pathname !== "/bhet" && (
-            <button
-              className={
-                currentLocation.pathname === "/stock"
-                  ? "purchase_icon-button"
-                  : "icon-button"
-              }
-              onClick={handleReturnBill}
-            >
-              Return
-            </button>
-          )}
+
+          <button
+            className={
+              currentLocation.pathname === "/stock"
+                ? "purchase_icon-button"
+                : currentLocation.pathname === "/bhet"
+                ? "bhet_icon-button"
+                : "icon-button"
+            }
+            onClick={handleReturnBill}
+          >
+            Return
+          </button>
+
           {currentLocation.pathname === "/stock" ? (
             purchaseItems.length > 0 ? (
               <div
