@@ -243,13 +243,13 @@ const BhetReturn = () => {
                         className="stocktable"
                         style={{ width: "9%", textAlign: "center" }}
                       >
-                        R. INV. No.
+                        R. BHET No.
                       </th>
                       <th
                         className="stocktable"
                         style={{ width: "12%", textAlign: "center" }}
                       >
-                        INV. Date
+                        BHET Date
                       </th>
                       <th
                         className="stocktable"
