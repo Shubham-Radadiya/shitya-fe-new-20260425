@@ -9,6 +9,7 @@ import {
   REQUEST_BHET_DATA,
   REQUEST_CREATE_BHET,
   REQUEST_CREATE_INVOICE,
+  REQUEST_CREATE_RETURN_BHET,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_FETCH_INVOICE_NUMBER,
@@ -93,6 +94,20 @@ function* requestCreateReturnInvoice(action) {
   }
 }
 
+function* requestEditreturnBhet(action) {
+  try {
+    const data = yield call(
+      invoiceServices.updateReturnBhet,
+      action.payload,
+      action.id
+    );
+    toast.success("Return invoice created successfully");
+    yield put({ type: SET_CREATE_INVOICE, payload: data });
+  } catch (error) {
+    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+  }
+}
+
 function* requestReturnPurchase(action) {
   try {
     const data = yield call(invoiceServices.createInvoiceReturn, action.payload);
@@ -143,6 +158,7 @@ export function* invoiceSaga() {
     takeLatest(REQUEST_EDIT_INVOICE_DATA, requestEditInvoice),
     takeLatest(REQUEST_CREATE_BHET, requestCreateBhet),
     takeLatest(REQUEST_FETCH_INVOICE_NUMBER, requestFetchInvoiceNumber),
-    takeLatest(REQUEST_RETURN_BHET, requestReturnBhet)
+    takeLatest(REQUEST_RETURN_BHET, requestReturnBhet),
+    takeLatest(REQUEST_CREATE_RETURN_BHET, requestEditreturnBhet),
   ]);
 }

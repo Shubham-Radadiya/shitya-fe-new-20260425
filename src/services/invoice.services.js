@@ -35,8 +35,10 @@ export const editInvoice = (id, payload) =>
   apiRequest("patch", `/invoice/${id}`, payload);
 export const createReturnInvoice = (payload, id) =>
   apiRequest("patch", `/invoice/return/${id}`, payload);
-export const getBhet = async () => {
-  const response = await apiRequest("get", `/bhet`);
+export const updateReturnBhet = (payload, id) =>
+  apiRequest("patch", `/bhet/return/${id}`, payload);
+export const getBhet = async (isReturned = false) => {
+  const response = await apiRequest("get", `/bhet?isReturned=${isReturned}`);
   console.log("Bhet API Response:", response);
   return response;
 };
@@ -54,5 +56,6 @@ export default {
   createBhet,
   getBhet,
   fetchInvoiceNumber,
-  createReturnBhet
+  createReturnBhet,
+  updateReturnBhet
 };

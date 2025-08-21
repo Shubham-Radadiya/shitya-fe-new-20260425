@@ -24,6 +24,7 @@ export const SET_BHET_DATA = "SET_BHET_DATA";
 export const REQUEST_EDIT_INVOICE_DATA = "REQUEST_EDIT_INVOICE_DATA";
 
 export const REQUEST_CREATE_RETURN_INVOICE = "REQUEST_CREATE_RETURN_INVOICE";
+export const REQUEST_CREATE_RETURN_BHET = "REQUEST_CREATE_RETURN_BHET";
 
 export const REQUEST_FETCH_INVOICE_NUMBER = "REQUEST_FETCH_INVOICE_NUMBER";
 export const SET_FETCH_INVOICE_NUMBER = "SET_FETCH_INVOICE_NUMBER";
@@ -65,6 +66,10 @@ export const fetchInvoices = (isReturned = false) => ({
   payload: isReturned,
 });
 
+export const fetchBhet = (isReturned = false) => ({
+  type: REQUEST_BHET_DATA,
+  payload: isReturned,
+});
 
 export const editInvoice = (id, payload) => ({
   type: REQUEST_EDIT_INVOICE_DATA,

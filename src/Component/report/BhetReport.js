@@ -8,7 +8,6 @@ import { useBhet } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
-import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
 import ReactToPrint from "react-to-print";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
@@ -43,33 +42,6 @@ const BhetReport = () => {
     } catch (error) {
       console.error("Error fetching invoice data:", error);
       return null;
-    }
-  };
-
-  const fetchInvoiceDataForStock = async (invoiceId) => {
-    const data = await fetchInvoiceData(invoiceId);
-
-    const transformedArray = data?.productId.map((item) => ({
-      _id: item?._id?._id,
-      name: item?._id?.name,
-      productId: item?._id?.productId,
-      price: item?.price,
-      image: item?._id?.image,
-      rate: item?._id?.rate,
-      remark: item?._id?.remark,
-      createdAt: item?._id?.createdAt,
-      updatedAt: item?._id?.updatedAt,
-      __v: item?._id?.__v,
-      isDeActive: item?._id?.item?._id?.updatedAt,
-      quantity: item?.quantity,
-    }));
-
-    if (data) {
-      navigate("/stock", {
-        state: { id: data?._id, invoiceId: data?.invoiceId },
-      });
-
-      dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
     }
   };
 
