@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { fetchInvoices } from "../../store/invoice/InvoiceAction";
+import { fetchBhet, fetchInvoices } from "../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../store/invoice/InvoiceReducer";
 import { useNavigate } from "react-router-dom";
 import PurchaseReport from "./PurchaseReport";
@@ -34,7 +34,11 @@ const ReportsDashboard = () => {
     } else if (selectedSubReport === "purchaseReturn") {
       dispatch(fetchInvoices(true));
     }
+    else if(selectedSubReport==="bhetReturn"){
+      dispatch(fetchBhet(true))
+    }
   }, [selectedSubReport, dispatch]);
+console.log("selectedSubReport",selectedSubReport);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

@@ -5,29 +5,29 @@ import * as XLSX from "xlsx";
 import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
-import { REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
-import { useInvoice } from "../../store/invoice/InvoiceReducer";
+import { REQUEST_BHET_DATA, REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
+import { useBhet } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Edit from "../images/edit.png";
-import { EDIT_PURCHASE_DATA } from "../../store/cart/cartActionType";
+import { EDIT_BHET_DATA } from "../../store/cart/cartActionType";
 import download from "../images/download.png";
 
 const BhetReturn = () => {
   const componentRef = useRef();
   const dispatch = useDispatch();
-  const { invoiceData } = useInvoice(true);
+  const { bhetData } = useBhet(true);
   const { dailyReport } = useReport();
   const [reportType, setReportType] = useState("daily");
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedBhet, setSelectedBhet] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const fetchInvoiceData = async (invoiceId) => {
+  const fetchBhetData = async (bhetId) => {
     try {
       const token = localStorage.getItem("access_token");
       const response = await fetch(
-        `http://localhost:3010/invoice/${invoiceId}?isReturned=true`,
+        `http://localhost:3010/bhet/${bhetId}?isReturned=true`,
         {
           method: "GET",
           headers: {
@@ -47,8 +47,8 @@ const BhetReturn = () => {
     }
   };
 
-  const fetchInvoiceDataForStock = async (invoiceId) => {
-    const data = await fetchInvoiceData(invoiceId);
+  const fetchInvoiceDataForStock = async (bhetId) => {
+    const data = await fetchBhetData(bhetId);
 
     const transformedArray = data?.productId.map((item) => ({
       _id: item?._id?._id,
@@ -66,23 +66,23 @@ const BhetReturn = () => {
     }));
 
     if (data) {
-      navigate("/stock", {
-        state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },
+      navigate("/bhet", {
+        state: { returnEdit: true, id: data?._id, invoiceId: data?.billId },
       });
-      dispatch({ type: EDIT_PURCHASE_DATA, payload: transformedArray });
+      dispatch({ type: EDIT_BHET_DATA, payload: transformedArray });
     }
   };
 
-  const fetchInvoiceDataForModal = async (invoiceId) => {
-    const data = await fetchInvoiceData(invoiceId);
+  const fetchInvoiceDataForModal = async (bhetId) => {
+    const data = await fetchBhetData(bhetId);
     if (data) {
-      setSelectedInvoice(data);
+      setSelectedBhet(data);
       setIsModalOpen(true);
     }
   };
 
   useEffect(() => {
-    dispatch({ type: REQUEST_INVOICE_DATA });
+    dispatch({ type: REQUEST_BHET_DATA });
   }, []);
 
   useEffect(() => {
@@ -208,7 +208,7 @@ const BhetReturn = () => {
     0
   );
 
-  useEffect(() => {}, [selectedInvoice]);
+  useEffect(() => {}, [selectedBhet]);
   return (
     <>
       <div className="user-template">
@@ -303,7 +303,7 @@ const BhetReturn = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoiceData
+                    {bhetData
                       .map((user) => ({
                         ...user,
                         data: [...user.data].sort(
@@ -312,7 +312,7 @@ const BhetReturn = () => {
                       }))
                       .map((user, userIndex) =>
                         user.data.map((invoice, invoiceIndex) => {
-                          const { invoiceId, createdAt, categories } = invoice;
+                          const { billId, createdAt, categories } = invoice;
                           const formattedDate = new Date(createdAt)
                             .toISOString()
                             .split("T")[0]
@@ -365,7 +365,7 @@ const BhetReturn = () => {
 
                           return (
                             <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>R{invoiceId}</td>
+                              <td style={{ width: "9%" }}>R{billId}</td>
                               <td style={{ width: "12%", textAlign: "end" }}>
                                 {formattedDate}
                               </td>
@@ -418,7 +418,7 @@ const BhetReturn = () => {
                                     cursor: "pointer",
                                   }}
                                   onClick={() =>
-                                    fetchInvoiceDataForModal(invoice.invoiceId)
+                                    fetchInvoiceDataForModal(invoice.billId)
                                   }
                                 >
                                   <AiOutlinePrinter />
@@ -438,7 +438,7 @@ const BhetReturn = () => {
                                     cursor: "pointer",
                                   }}
                                   onClick={() =>
-                                    fetchInvoiceDataForStock(invoice.invoiceId)
+                                    fetchInvoiceDataForStock(invoice.billId)
                                   }
                                 >
                                   <img
@@ -467,7 +467,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const murtiAmount =
@@ -490,7 +490,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const vaghaAmount =
@@ -512,7 +512,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const gharenaAmount =
@@ -535,7 +535,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const pujaAmount =
@@ -557,7 +557,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const pustakAmount =
@@ -580,7 +580,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               const generalAmount =
@@ -602,7 +602,7 @@ const BhetReturn = () => {
                         }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          invoiceData.reduce((acc, user) => {
+                          bhetData.reduce((acc, user) => {
                             user.data.forEach((invoice) => {
                               const { categories } = invoice;
                               acc += categories.reduce(
@@ -626,8 +626,8 @@ const BhetReturn = () => {
       </div>
 
       {isModalOpen &&
-        selectedInvoice &&
-        Object.keys(selectedInvoice).length > 0 && (
+        selectedBhet &&
+        Object.keys(selectedBhet).length > 0 && (
           <>
             <div
               className="modal-overlay"
@@ -644,13 +644,13 @@ const BhetReturn = () => {
                 >
                   <p>
                     <strong>Date:</strong>{" "}
-                    {new Date(selectedInvoice.createdAt).toLocaleDateString()}
+                    {new Date(selectedBhet.createdAt).toLocaleDateString()}
                   </p>
-                  <h2>Invoice: R{selectedInvoice.invoiceId}</h2>
+                  <h2>Invoice: R{selectedBhet.invoiceId}</h2>
 
                   <p>
                     <strong>Total Amount:</strong> -
-                    {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                    {selectedBhet.totalAmount.toLocaleString("en-IN")}
                   </p>
                 </div>
                 <table
@@ -668,7 +668,7 @@ const BhetReturn = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedInvoice.productId.map((product, i) => (
+                    {selectedBhet.productId.map((product, i) => (
                       <tr key={i}>
                         <td style={{ textAlign: "left", width: "6%" }}>
                           {product._id.productId}
@@ -730,7 +730,7 @@ const BhetReturn = () => {
         </h1>
         <div className="bill_header_sub">
           <p style={{ margin: 0, fontSize: "15px", fontWeight: "bold" }}>
-            Date :- {new Date(selectedInvoice?.createdAt).toLocaleDateString()}
+            Date :- {new Date(selectedBhet?.createdAt).toLocaleDateString()}
           </p>
           <h8
             style={{
@@ -740,7 +740,7 @@ const BhetReturn = () => {
               paddingRight: "5px",
             }}
           >
-            INV.No: R{selectedInvoice?.invoiceId}
+            INV.No: R{selectedBhet?.invoiceId}
           </h8>
         </div>
         <div className="bill_header_main"></div>
@@ -812,10 +812,10 @@ const BhetReturn = () => {
             </p>
           </div>
           <hr style={{ borderTop: "solid 1px" }} />
-          {selectedInvoice === null ? (
+          {selectedBhet === null ? (
             <p>Loading...</p>
-          ) : selectedInvoice?.productId?.length > 0 ? (
-            selectedInvoice.productId.map((product, i) => (
+          ) : selectedBhet?.productId?.length > 0 ? (
+            selectedBhet.productId.map((product, i) => (
               <div key={i}>
                 <div className="pavti_data_1" style={{ width: "380px" }}>
                   <p
@@ -904,7 +904,7 @@ const BhetReturn = () => {
             >
               -
               {new Intl.NumberFormat("en-IN").format(
-                selectedInvoice?.totalAmount
+                selectedBhet?.totalAmount
               )}
             </p>
           </div>

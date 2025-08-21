@@ -32,6 +32,7 @@ import { useBill } from "../../../store/bill/reducer";
 import {
   REQUEST_CREATE_BHET,
   REQUEST_CREATE_INVOICE,
+  REQUEST_CREATE_RETURN_BHET,
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_RETURN_BHET,
@@ -299,7 +300,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
             payload,
             id: currentLocation.state?.id,
           });
-        } else {
+        }
+          else if(currentLocation.pathname==="/bhet" && currentLocation.state?.returnEdit){
+            dispatch({
+              type: REQUEST_CREATE_RETURN_BHET,
+              payload,
+              id: currentLocation.state?.id,
+            });
+          }
+         else {
           dispatch({
             type:
               currentLocation.pathname === "/stock"
@@ -527,12 +536,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
       </tr>
     );
   };
-  useEffect(() => {
-    console.log(
-      currentLocation.state?.returnEdit,
-      "currentLocation.state?.returnEdit"
-    );
-  }, [currentLocation.state?.returnEdit]);
+
 
   return (
     <div className="bill-container">
