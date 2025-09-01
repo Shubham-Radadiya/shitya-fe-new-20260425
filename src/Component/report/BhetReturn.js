@@ -5,11 +5,12 @@ import * as XLSX from "xlsx";
 import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
 import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
-import { REQUEST_BHET_DATA, REQUEST_INVOICE_DATA } from "../../store/invoice/InvoiceAction";
+import {
+  REQUEST_BHET_DATA
+} from "../../store/invoice/InvoiceAction";
 import { useBhet } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import Edit from "../images/edit.png";
 import { EDIT_BHET_DATA } from "../../store/cart/cartActionType";
 import download from "../images/download.png";
 
@@ -48,8 +49,9 @@ const BhetReturn = () => {
   };
 
   const fetchInvoiceDataForStock = async (bhetId) => {
-    const data = await fetchBhetData(bhetId);
+    console.log(bhetId, "bhetId");
 
+    const data = await fetchBhetData(bhetId);
     const transformedArray = data?.productId.map((item) => ({
       _id: item?._id?._id,
       name: item?._id?.name,
@@ -64,16 +66,18 @@ const BhetReturn = () => {
       isDeActive: item?._id?.item?._id?.updatedAt,
       quantity: item?.quantity,
     }));
-
+    console.log(data.billId, "bhetId2");
     if (data) {
       navigate("/bhet", {
-        state: { returnEdit: true, id: data?._id, invoiceId: data?.billId },
+        state: { returnEdit: true, id: data?._id, invoiceId: data?.bill?.billId },
       });
       dispatch({ type: EDIT_BHET_DATA, payload: transformedArray });
     }
   };
 
   const fetchInvoiceDataForModal = async (bhetId) => {
+    console.log(bhetId, "bhetId");
+
     const data = await fetchBhetData(bhetId);
     if (data) {
       setSelectedBhet(data);
@@ -365,7 +369,7 @@ const BhetReturn = () => {
 
                           return (
                             <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>R{billId}</td>
+                              <td style={{ width: "9%" }}>{billId}</td>
                               <td style={{ width: "12%", textAlign: "end" }}>
                                 {formattedDate}
                               </td>
@@ -406,7 +410,7 @@ const BhetReturn = () => {
                               </td>
                               <td
                                 style={{
-                                  width: "5.9%",
+                                  width: "11.8%",
                                   padding: "0px",
                                   textAlign: "center",
                                   verticalAlign: "middle",
@@ -424,7 +428,7 @@ const BhetReturn = () => {
                                   <AiOutlinePrinter />
                                 </span>
                               </td>
-                              <td
+                              {/* <td
                                 style={{
                                   width: "5.9%",
                                   padding: "0px",
@@ -447,7 +451,7 @@ const BhetReturn = () => {
                                     alt="edit"
                                   />
                                 </span>
-                              </td>
+                              </td> */}
                             </tr>
                           );
                         })
@@ -625,95 +629,90 @@ const BhetReturn = () => {
         </div>
       </div>
 
-      {isModalOpen &&
-        selectedBhet &&
-        Object.keys(selectedBhet).length > 0 && (
-          <>
-            <div
-              className="modal-overlay"
-              onClick={() => setIsModalOpen(false)}
-            ></div>
-            <div className="purchase-modal">
-              <div className="purchase-modal-content">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "20px",
-                  }}
-                >
-                  <p>
-                    <strong>Date:</strong>{" "}
-                    {new Date(selectedBhet.createdAt).toLocaleDateString()}
-                  </p>
-                  <h2>Invoice: R{selectedBhet.invoiceId}</h2>
+      {isModalOpen && selectedBhet && Object.keys(selectedBhet).length > 0 && (
+        <>
+          <div
+            className="modal-overlay"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+          <div className="purchase-modal">
+            <div className="purchase-modal-content">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "20px",
+                }}
+              >
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(selectedBhet.createdAt).toLocaleDateString()}
+                </p>
+                <h2>Invoice: R{selectedBhet.invoiceId}</h2>
 
-                  <p>
-                    <strong>Total Amount:</strong> -
-                    {selectedBhet.totalAmount.toLocaleString("en-IN")}
-                  </p>
-                </div>
-                <table
-                  border="1"
-                  width="100%"
-                  style={{ borderCollapse: "collapse" }}
-                >
-                  <thead>
-                    <tr>
-                      <th style={{ width: "6%" }}>Pro. Id</th>
-                      <th style={{ width: "24%" }}>Product Name</th>
-                      <th style={{ width: "5%" }}>Qty</th>
-                      <th style={{ width: "7%" }}>Rate</th>
-                      <th style={{ width: "7%" }}>Amt</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedBhet.productId.map((product, i) => (
-                      <tr key={i}>
-                        <td style={{ textAlign: "left", width: "6%" }}>
-                          {product._id.productId}
-                        </td>
-                        <td style={{ textAlign: "left", width: "24%" }}>
-                          {product._id.name}
-                        </td>
-                        <td style={{ textAlign: "right", width: "5%" }}>
-                          -{product.quantity.toLocaleString()}
-                        </td>
-                        <td style={{ textAlign: "right", width: "7%" }}>
-                          {product.price.toLocaleString()}
-                        </td>
-                        <td style={{ textAlign: "right", width: "7%" }}>
-                          -{(product.price * product.quantity).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <button
-                  className="print-button"
-                  style={{ marginRight: "10px" }}
-                >
-                  <ReactToPrint
-                    trigger={() => (
-                      <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
-                        Print Bill
-                      </p>
-                    )}
-                    content={() => componentRef.current}
-                    removeAfterPrint={false}
-                  />
-                </button>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="print-button"
-                >
-                  Close
-                </button>
+                <p>
+                  <strong>Total Amount:</strong> -
+                  {selectedBhet.totalAmount.toLocaleString("en-IN")}
+                </p>
               </div>
+              <table
+                border="1"
+                width="100%"
+                style={{ borderCollapse: "collapse" }}
+              >
+                <thead>
+                  <tr>
+                    <th style={{ width: "6%" }}>Pro. Id</th>
+                    <th style={{ width: "24%" }}>Product Name</th>
+                    <th style={{ width: "5%" }}>Qty</th>
+                    <th style={{ width: "7%" }}>Rate</th>
+                    <th style={{ width: "7%" }}>Amt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedBhet.productId.map((product, i) => (
+                    <tr key={i}>
+                      <td style={{ textAlign: "left", width: "6%" }}>
+                        {product._id.productId}
+                      </td>
+                      <td style={{ textAlign: "left", width: "24%" }}>
+                        {product._id.name}
+                      </td>
+                      <td style={{ textAlign: "right", width: "5%" }}>
+                        -{product.quantity.toLocaleString()}
+                      </td>
+                      <td style={{ textAlign: "right", width: "7%" }}>
+                        {product.price.toLocaleString()}
+                      </td>
+                      <td style={{ textAlign: "right", width: "7%" }}>
+                        -{(product.price * product.quantity).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <button className="print-button" style={{ marginRight: "10px" }}>
+                <ReactToPrint
+                  trigger={() => (
+                    <p style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+                      Print Bill
+                    </p>
+                  )}
+                  content={() => componentRef.current}
+                  removeAfterPrint={false}
+                />
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="print-button"
+              >
+                Close
+              </button>
             </div>
-          </>
-        )}
+          </div>
+        </>
+      )}
 
       <div ref={componentRef} className="print-content">
         <h1
@@ -903,14 +902,12 @@ const BhetReturn = () => {
               }}
             >
               -
-              {new Intl.NumberFormat("en-IN").format(
-                selectedBhet?.totalAmount
-              )}
+              {new Intl.NumberFormat("en-IN").format(selectedBhet?.totalAmount)}
             </p>
           </div>
 
           <hr style={{ borderTop: "solid 2px" }} />
-          <p className="pavti_footer_text_report">... Visit Again ...</p>
+          <p className="pavti_footer_text_report">..... Visit Again .....</p>
         </div>
       </div>
     </>

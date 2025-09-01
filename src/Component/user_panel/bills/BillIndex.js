@@ -72,6 +72,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const location = useLocation();
   const [showNotes, setShowNotes] = useState(false);
   const [isReturnMode, setIsReturnMode] = useState(false);
+  const [bhetPin, setBhetPin] = useState("");
+  const [showBhetPinPrompt, setShowBhetPinPrompt] = useState(false);
+  const [customPrices, setCustomPrices] = useState({}); // 🔹 local state for inputs
+
+  const pinConfig = {
+    bhetReturn: "4455", // PIN only for bhet return
+  };
 
   const correctPin = "2812";
 
@@ -109,6 +116,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
       // handle the "not ID" case here, if needed
       console.log("not ID");
     }
+
+    console.log(billNumber, "billNumber");
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bhetNo, currentLocation.pathname, bhetNumber, billNumber]);
   useEffect(() => {
@@ -154,19 +164,20 @@ const Bills = ({ returnMode, setReturnMode }) => {
     0
   );
 
-  const totalPrice = items.reduce(
-    (total, item) => total + item.quantity * item.price,
-    0
-  );
-
-  const totalPurchaseprice = purchaseItems.reduce(
-    (total, item) => total + item.quantity * item.price,
-    0
-  );
-  const totalBhetprice = bhetItems.reduce(
-    (total, item) => total + item.quantity * item.price,
-    0
-  );
+  const totalPrice = items.reduce((sum, product) => {
+    const price = customPrices[product._id] ?? product.price;
+    return sum + price * product.quantity;
+  }, 0);
+  
+  const totalPurchaseprice = purchaseItems.reduce((sum, product) => {
+    const price = customPrices[product._id] ?? product.price;
+    return sum + price * product.quantity;
+  }, 0);
+  
+  const totalBhetprice = bhetItems.reduce((sum, product) => {
+    const price = customPrices[product._id] ?? product.price;
+    return sum + price * product.quantity;
+  }, 0);
 
   const reprintTotalQuantity = reprintBill?.productId?.reduce(
     (total, item) => total + item.quantity,
@@ -300,15 +311,16 @@ const Bills = ({ returnMode, setReturnMode }) => {
             payload,
             id: currentLocation.state?.id,
           });
-        }
-          else if(currentLocation.pathname==="/bhet" && currentLocation.state?.returnEdit){
-            dispatch({
-              type: REQUEST_CREATE_RETURN_BHET,
-              payload,
-              id: currentLocation.state?.id,
-            });
-          }
-         else {
+        } else if (
+          currentLocation.pathname === "/bhet" &&
+          currentLocation.state?.returnEdit
+        ) {
+          dispatch({
+            type: REQUEST_CREATE_RETURN_BHET,
+            payload,
+            id: currentLocation.state?.id,
+          });
+        } else {
           dispatch({
             type:
               currentLocation.pathname === "/stock"
@@ -455,9 +467,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
     dispatch({ type: CLEAR_CART });
     dispatch({
       type:
-        currentLocation.pathname === "/stock"
-          ? RETURN_BILL_NO
-          : RETURN_BHET_BILL_NO,
+        currentLocation.pathname === "/bhet"
+          ? RETURN_BHET_BILL_NO
+          : RETURN_BILL_NO,
     });
     setReturnMode(true);
 
@@ -466,68 +478,117 @@ const Bills = ({ returnMode, setReturnMode }) => {
   };
 
   const renderProductRows = (productList) => {
+    console.log(productList, "productList");
     return productList.length > 0 ? (
-      productList.map((product) => (
-        <tr key={product._id}>
-          <td title={product.productId} style={{ width: "48px", padding: 0 }}>
-            {truncateText(product.productId, 8)}
-          </td>
-          <td title={product.name} style={{ width: "100px", padding: 0 }}>
-            {truncateText(product.name, 15)}
-          </td>
-          <td style={{ padding: 0 }}>
-            <div className="quantity_control">
-              <button
-                onClick={() => {
-                  dispatch({
-                    type:
-                      currentLocation.pathname === "/stock"
-                        ? ADD_TO_PURCHASE_CART
-                        : currentLocation.pathname === "/bhet"
-                        ? ADD_TO_BHET_CART
-                        : ADD_TO_CART,
-                    payload: product,
-                  });
-                  setShowReprintBill(false);
-                }}
-              >
-                +
-              </button>
+      productList.map((product) => {
+        // ✅ Always prefer local custom price, fallback to API price
+        const localPrice =
+          customPrices[product._id] !== undefined
+            ? customPrices[product._id]
+            : product.price;
 
-              <span
-                onClick={() => openModal(product)}
-                style={{ cursor: "pointer" }}
-              >
-                {returnMode
-                  ? -new Intl.NumberFormat("en-IN").format(product.quantity)
-                  : new Intl.NumberFormat("en-IN").format(product.quantity)}
-              </span>
-              <button
-                onClick={() => {
-                  dispatch({
-                    type:
-                      currentLocation.pathname === "/stock"
-                        ? REMOVE_FROM_PURCHASE_CART
-                        : currentLocation.pathname === "/bhet"
-                        ? REMOVE_FROM_BHET_CART
-                        : REMOVE_FROM_CART,
-                    payload: product._id,
-                  });
-                  setShowReprintBill(false);
-                }}
-              >
-                -
-              </button>
-            </div>
-          </td>
-          <td style={{ fontWeight: "bolder", textAlign: "center", padding: 0 }}>
-            {returnMode ? "-" : null}
-            {new Intl.NumberFormat("en-IN").format(
-              product.price * product.quantity
-            )}
-          </td>
-        </tr>
-      ))
+        return (
+          <tr key={product._id}>
+            <td title={product.productId} style={{ width: "48px", padding: 0 }}>
+              {truncateText(product.productId, 8)}
+            </td>
+
+            <td title={product.name} style={{ width: "100px", padding: 0 }}>
+              {truncateText(product.name, 15)}
+            </td>
+
+            <td style={{ padding: 0 }}>
+              <div className="quantity_control">
+                <button
+                  onClick={() => {
+                    dispatch({
+                      type:
+                        currentLocation.pathname === "/stock"
+                          ? ADD_TO_PURCHASE_CART
+                          : currentLocation.pathname === "/bhet"
+                          ? ADD_TO_BHET_CART
+                          : ADD_TO_CART,
+                      payload: product,
+                    });
+                    setShowReprintBill(false);
+                  }}
+                >
+                  +
+                </button>
+
+                <span
+                  onClick={() => openModal(product)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {returnMode
+                    ? -new Intl.NumberFormat("en-IN").format(product.quantity)
+                    : new Intl.NumberFormat("en-IN").format(product.quantity)}
+                </span>
+
+                <button
+                  onClick={() => {
+                    dispatch({
+                      type:
+                        currentLocation.pathname === "/stock"
+                          ? REMOVE_FROM_PURCHASE_CART
+                          : currentLocation.pathname === "/bhet"
+                          ? REMOVE_FROM_BHET_CART
+                          : REMOVE_FROM_CART,
+                      payload: product._id,
+                    });
+                    setShowReprintBill(false);
+                  }}
+                >
+                  -
+                </button>
+              </div>
+            </td>
+
+            {/* 🔹 Amount / Price column */}
+            <td>
+  {product.priceType === "FIXED" ? (
+    <span>{product.price}</span>
+  ) : (
+    <input
+  type="text"   
+  inputMode="numeric" 
+  style={{
+    padding: "0px 4px",
+    textAlign: "right",
+    width: "60%",
+    lineHeight: "1",   
+  }}
+  className="form-control"
+  value={customPrices[product._id] ?? product.price}
+  onChange={(e) => {
+    let newVal = e.target.value;
+
+    // Prevent empty → keep 0 instead
+    if (newVal === "" || isNaN(newVal)) {
+      newVal = 0;
+    } else {
+      newVal = Number(newVal);
+    }
+
+    // 1️⃣ Update local state so total updates immediately
+    setCustomPrices((prev) => ({
+      ...prev,
+      [product._id]: newVal,
+    }));
+
+    // 2️⃣ Update Redux if you want persistence
+    dispatch({
+      type: "UPDATE_CUSTOM_PRICE",
+      payload: { id: product._id, price: newVal },
+    });
+  }}
+/>
+
+  )}
+</td>
+          </tr>
+        );
+      })
     ) : (
       <tr>
         <td colSpan="4" className="no-data">
@@ -536,7 +597,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
       </tr>
     );
   };
-
 
   return (
     <div className="bill-container">
@@ -625,7 +685,13 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 ? "bhet_icon-button"
                 : "icon-button"
             }
-            onClick={handleReturnBill}
+            onClick={() => {
+              if (currentLocation.pathname === "/bhet") {
+                setShowBhetPinPrompt(true);
+              } else {
+                handleReturnBill();
+              }
+            }}
           >
             Return
           </button>
@@ -950,7 +1016,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
       <div ref={componentRef} className="print-content">
         <h1
           style={{
-            padding: "11px 0px",
+            padding: "9px 0px",
             fontSize: "22px",
             textAlign: "center",
             margin: "0",
@@ -960,6 +1026,20 @@ const Bills = ({ returnMode, setReturnMode }) => {
         >
           Jay Swaminarayan
         </h1>
+        {returnMode && currentLocation?.pathname === "/bhet" && (
+          <h3
+            style={{
+              padding: "6px 0px",
+              fontSize: "20px",
+              textAlign: "center",
+              margin: "0",
+              background: "white",
+              borderRadius: "0px 25px 0px 0px",
+            }}
+          >
+            Bhet Return
+          </h3>
+        )}
         <div className="bill_header_sub">
           <p style={{ margin: 0, fontSize: "15px", fontWeight: "bold" }}>
             Date :- {currentDateTime()}
@@ -973,7 +1053,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
             }}
           >
             {currentLocation.pathname === "/bhet"
-              ? `Bhet.No: ${bhetNumber || "N/A"}`
+              ? `${returnMode ? "Bhet Return No." : "Bhet No."}: ${
+                  bhetNumber || "N/A"
+                }`
               : currentLocation.pathname === "/stock"
               ? `INV.No: ${invoiceNumber || "N/A"}`
               : `Sr.No: ${billNo?.billId || "Loading..."}`}
@@ -1139,7 +1221,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
             </div>
 
             <hr style={{ borderTop: "solid 2px" }} />
-            <p className="pavti_footer_text_report">... Visit Again ...</p>
+            <p className="pavti_footer_text_report">.... Visit Again .....</p>
           </div>
         ) : (
           <div
@@ -1290,7 +1372,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         <div className="pavti_data_quantity">
                           <span style={{ fontSize: "15px" }}>
                             {new Intl.NumberFormat("en-IN").format(
-                              product.quantity
+                              returnMode ? -product.quantity : product.quantity
                             )}
                           </span>
                         </div>
@@ -1299,7 +1381,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
                           style={{ fontSize: "15px", textAlign: "center" }}
                         >
                           {new Intl.NumberFormat("en-IN").format(
-                            product.price * product.quantity
+                            returnMode
+                              ? -product.price * product.quantity
+                              : product.price * product.quantity
                           )}
                         </p>
                       </div>
@@ -1337,7 +1421,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       <div className="pavti_data_quantity">
                         <span style={{ fontSize: "15px" }}>
                           {new Intl.NumberFormat("en-IN").format(
-                            product.quantity
+                            returnMode ? -product.quantity : product.quantity
                           )}
                         </span>
                       </div>
@@ -1346,7 +1430,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         style={{ fontSize: "15px", textAlign: "center" }}
                       >
                         {new Intl.NumberFormat("en-IN").format(
-                          product.price * product.quantity
+                          returnMode
+                            ? -product.price * product.quantity
+                            : product.price * product.quantity
                         )}
                       </p>
                     </div>
@@ -1385,6 +1471,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
               >
                 {currentLocation.pathname === "/stock"
                   ? new Intl.NumberFormat("en-IN").format(totalPurchaseQuantity)
+                  : currentLocation.pathname === "/bhet"
+                  ? new Intl.NumberFormat("en-IN").format(
+                      returnMode ? -totalBhetQuantity : totalBhetQuantity
+                    )
                   : new Intl.NumberFormat("en-IN").format(totalQuantity)}
               </p>
               <p
@@ -1399,7 +1489,9 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 {currentLocation.pathname === "/stock"
                   ? new Intl.NumberFormat("en-IN").format(totalPurchaseprice)
                   : currentLocation.pathname === "/bhet"
-                  ? new Intl.NumberFormat("en-IN").format(totalBhetprice)
+                  ? new Intl.NumberFormat("en-IN").format(
+                      returnMode ? -totalBhetprice : totalBhetprice
+                    )
                   : new Intl.NumberFormat("en-IN").format(totalPrice)}
               </p>
             </div>
@@ -1493,6 +1585,50 @@ const Bills = ({ returnMode, setReturnMode }) => {
           </div>
         </div>
       )}
+
+      {showBhetPinPrompt && (
+        <div className="pin-prompt">
+          <div className="modal-content">
+            <h3>Enter PIN for Bhet Return</h3>
+            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="password"
+                inputMode="numeric"
+                value={bhetPin}
+                onChange={(e) => setBhetPin(e.target.value)}
+                placeholder="Enter PIN"
+                autoFocus
+                maxLength={4}
+              />
+            </form>
+            <p className="button-group">
+              <button
+                onClick={() => {
+                  if (bhetPin === pinConfig.bhetReturn) {
+                    handleReturnBill(); // ✅ allowed only with correct PIN
+                    setShowBhetPinPrompt(false);
+                    setPin("");
+                  } else {
+                    alert("Incorrect PIN");
+                  }
+                }}
+              >
+                Submit
+              </button>
+              <button
+                className="close-btn"
+                onClick={() => {
+                  setShowBhetPinPrompt(false);
+                  setPin("");
+                }}
+              >
+                X
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
+
       {showNotes && <NotesComponent onClose={() => setShowNotes(false)} />}
     </div>
   );

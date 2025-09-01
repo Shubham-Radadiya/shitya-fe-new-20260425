@@ -7,17 +7,39 @@ import { REQUEST_SUBCATEGORY } from "../../../store/subcategory/SubCategoryActio
 
 const AddProduct = ({ closeModal }) => {
   const dispatch = useDispatch();
-  const [productData, setProductData] = useState({ image: "./" });
+  const [productData, setProductData] = useState({
+    image: "./",
+    price: 0,
+    priceType: "CUSTOM",
+  });
   const [subCatgeroty, setSubcategory] = useState({});
   const categories = useSelector((state) => state.category.categories);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    if (name === 'categoryId') {
+
+    if (name === "categoryId") {
       const selectedCategoryData = categories.find(
         (category) => category._id === value
       );
-      setSubcategory(selectedCategoryData); 
+      setSubcategory(selectedCategoryData);
+      setProductData({
+        ...productData,
+        subCategoryId: "", // reset subcategory if category changes
+      });
+    } else if (name === "priceType") {
+      if (value === "CUSTOM") {
+        setProductData({
+          ...productData,
+          priceType: value,
+          price: 0, // enforce price as 0
+        });
+      } else {
+        setProductData({
+          ...productData,
+          priceType: value,
+        });
+      }
     } else {
       setProductData({
         ...productData,
@@ -28,7 +50,10 @@ const AddProduct = ({ closeModal }) => {
 
   const HandleCreateProduct = async () => {
     try {
-      await dispatch({ type: CREATE_PRODUCT_REQUEST, payload: productData });
+      // remove categoryId from payload
+      const { categoryId, ...payload } = productData;
+
+      await dispatch({ type: CREATE_PRODUCT_REQUEST, payload });
       closeModal();
     } catch (error) {
       throw error;
@@ -52,7 +77,7 @@ const AddProduct = ({ closeModal }) => {
           </div>
           <div className="modal-form">
             <div className="modal-label">
-            <label className="modal-label">
+              <label className="modal-label">
                 Category:
                 <select
                   className="modal-input"
@@ -70,15 +95,16 @@ const AddProduct = ({ closeModal }) => {
                   ))}
                 </select>
               </label>
-            <label className="modal-label">
+              <label className="modal-label">
                 Sub Category:
                 <select
                   className="modal-input"
                   id="subCategoryId"
                   name="subCategoryId"
+                  value={productData.subCategoryId || ""}
                   onChange={handleChange}
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Sub Category
                   </option>
                   {subCatgeroty?.subCategory?.map((subCategory) => (
@@ -108,16 +134,36 @@ const AddProduct = ({ closeModal }) => {
                   onChange={handleChange}
                 />
               </label>
+
+              {/* New PriceType Dropdown */}
               <label className="modal-label">
-                Price:
-                <input
-                  id="price"
-                  type="number"
-                  name="price"
+                Price Type:
+                <select
                   className="modal-input"
+                  id="priceType"
+                  name="priceType"
+                  value={productData.priceType}
                   onChange={handleChange}
-                />
+                >
+                  <option value="CUSTOM">CUSTOM</option>
+                  <option value="FIXED">FIXED</option>
+                </select>
               </label>
+
+              {/* Show Price field only if FIXED */}
+              {productData.priceType === "FIXED" && (
+                <label className="modal-label">
+                  Price:
+                  <input
+                    id="price"
+                    type="number"
+                    name="price"
+                    className="modal-input"
+                    value={productData.price}
+                    onChange={handleChange}
+                  />
+                </label>
+              )}
             </div>
             <div className="modal-bottom-btn">
               <button

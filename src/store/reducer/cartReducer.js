@@ -33,6 +33,26 @@ export const cartReducer = (state = initialState, action) => {
         numOfItems: state.filter((item) => item.id !== action.payload.id),
         
       };
+      case "UPDATE_CUSTOM_PRICE":
+  return {
+    ...state,
+    items: state.items.map((item) =>
+      item._id === action.payload.id
+        ? { ...item, price: action.payload.price } // 👈 override price
+        : item
+    ),
+    purchaseItems: state.purchaseItems.map((item) =>
+      item._id === action.payload.id
+        ? { ...item, price: action.payload.price }
+        : item
+    ),
+    bhetItems: state.bhetItems.map((item) =>
+      item._id === action.payload.id
+        ? { ...item, price: action.payload.price }
+        : item
+    ),
+  };
+
     default:
       return state;
   }

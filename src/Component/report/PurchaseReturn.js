@@ -64,7 +64,7 @@ const PurchaseReturn = () => {
       isDeActive: item?._id?.item?._id?.updatedAt,
       quantity: item?.quantity,
     }));
-
+    console.log(data?.invoiceId, "invoiceId2");
     if (data) {
       navigate("/stock", {
         state: { returnEdit: true, id: data?._id, invoiceId: data?.invoiceId },

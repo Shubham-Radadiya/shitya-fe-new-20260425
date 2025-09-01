@@ -55,13 +55,10 @@ function* requestInvoiceData(action) {
 
 function* requestBhetData(action) {
   try {
-    console.log("Saga - Fetching Bhet Data...");
-    const data = yield call(invoiceServices.getBhet);
-    console.log("Saga - Bhet Data API Response:", data);
+    console.log("Saga - Fetching Bhet Data with isReturned:", action.payload);
+    const data = yield call(invoiceServices.getBhet, action.payload); 
     yield put({ type: SET_BHET_DATA, payload: data });
-    console.log("Saga - Dispatched SET_BHET_DATA");
   } catch (error) {
-    console.error("Saga - Bhet API Error:", error);
     yield put({ type: ERROR_CREATE_BHET, payload: error.message });
   }
 }

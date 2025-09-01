@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   ADD_TO_BHET_CART,
@@ -19,7 +19,7 @@ const AddList = ({
   const handleAddToCart = (product) => {
     if (currentLocation.pathname === "/stock") {
       dispatch({ type: ADD_TO_PURCHASE_CART, payload: product });
-    } else if(currentLocation.pathname === "/bhet"){
+    } else if (currentLocation.pathname === "/bhet") {
       dispatch({ type: ADD_TO_BHET_CART, payload: product });
     } else {
       dispatch({ type: ADD_TO_CART, payload: product });
@@ -72,16 +72,28 @@ const AddList = ({
                   className="product-price"
                   style={{
                     userSelect: "none",
-                    color: currentLocation.pathname === "/stock" && "rgb(113, 48, 142)",
-                    borderBottom:  currentLocation.pathname === "/stock" && "1px solid rgb(113, 48, 142)",
+                    color:
+                      currentLocation.pathname === "/stock" &&
+                      "rgb(113, 48, 142)",
+                    borderBottom:
+                      currentLocation.pathname === "/stock" &&
+                      "1px solid rgb(113, 48, 142)",
                     background:
-                      currentLocation.pathname === "/stock" ? "rgb(206 169 223 / 48%)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)" : "rgb(97, 37, 17)" ,
+                      currentLocation.pathname === "/stock"
+                        ? "rgb(206 169 223 / 48%)"
+                        : currentLocation.pathname === "/bhet"
+                        ? "rgb(34 78 8)"
+                        : "rgb(97, 37, 17)",
+                    width: "102px",
+                    display: "inline-block",
                   }}
                 >
-                  {new Intl.NumberFormat("en-IN").format(product.price)}
+                  {product.priceType === "CUSTOM"
+                    ? "\u00A0"
+                    : new Intl.NumberFormat("en-IN").format(product.price)}
                 </p>
                 <div>
-                  <div className="product-name" style={{ userSelect: "none"}}>
+                  <div className="product-name" style={{ userSelect: "none" }}>
                     <p
                       title={product.name}
                       style={{
@@ -104,7 +116,14 @@ const AddList = ({
           : filteredProducts?.sort(sortById).map((product, index) => (
               <div
                 className="product-box"
-                style={{border: currentLocation.pathname === "/stock" ? "1px solid rgb(113, 48, 142)" : currentLocation.pathname === "/bhet" ? "1px solid rgb(34, 78, 8)" : "1px solid rgb(97, 37, 17)",}}
+                style={{
+                  border:
+                    currentLocation.pathname === "/stock"
+                      ? "1px solid rgb(113, 48, 142)"
+                      : currentLocation.pathname === "/bhet"
+                      ? "1px solid rgb(34, 78, 8)"
+                      : "1px solid rgb(97, 37, 17)",
+                }}
                 key={index}
                 onClick={() => handleAddToCart(product)}
               >
@@ -112,13 +131,33 @@ const AddList = ({
                   className="product-price"
                   style={{
                     userSelect: "none",
-                    color: currentLocation.pathname === "/stock" ? "rgb(113, 48, 142)" : currentLocation.pathname === "/bhet" ? "rgb(34, 78, 8)" : "rgb(97, 37, 17)",
-                    borderBottom:  currentLocation.pathname === "/stock" ? "1px solid rgb(113, 48, 142)" : currentLocation.pathname === "/bhet" ? "1px solid rgb(34, 78, 8)" : "1px solid rgb(97, 37, 17)",
+                    color:
+                      currentLocation.pathname === "/stock"
+                        ? "rgb(113, 48, 142)"
+                        : currentLocation.pathname === "/bhet"
+                        ? "rgb(34, 78, 8)"
+                        : "rgb(97, 37, 17)",
+                    borderBottom:
+                      currentLocation.pathname === "/stock"
+                        ? "1px solid rgb(113, 48, 142)"
+                        : currentLocation.pathname === "/bhet"
+                        ? "1px solid rgb(34, 78, 8)"
+                        : "1px solid rgb(97, 37, 17)",
                     background:
-                    currentLocation.pathname === "/stock" ? "rgb(206 169 223 / 25%)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8 / 25%)" : "rgb(198 129 106 / 25%)",
+                      currentLocation.pathname === "/stock"
+                        ? "rgb(206 169 223 / 25%)"
+                        : currentLocation.pathname === "/bhet"
+                        ? "rgb(34 78 8 / 25%)"
+                        : "rgb(198 129 106 / 25%)",
+                    width: "102px", // fixed width to maintain space
+                    display: "inline-block",
                   }}
                 >
-                  ₹ {new Intl.NumberFormat("en-IN").format(product.price)}
+                  {product.priceType === "CUSTOM"
+                    ? "\u00A0" // hide for custom
+                    : `₹ ${new Intl.NumberFormat("en-IN").format(
+                        product.price
+                      )}`}
                 </p>
                 <div>
                   <div
@@ -126,8 +165,14 @@ const AddList = ({
                     style={{
                       userSelect: "none",
                       color:
-                        currentLocation.pathname === "/stock" ? "rgb(113 48 142)" : currentLocation.pathname === "/bhet" ? "rgb(34 78 8)" : "rgb(97, 37, 17)",
-                         background:currentLocation.pathname === "/bhet" && "rgb(34 78 8 / 2%)"
+                        currentLocation.pathname === "/stock"
+                          ? "rgb(113 48 142)"
+                          : currentLocation.pathname === "/bhet"
+                          ? "rgb(34 78 8)"
+                          : "rgb(97, 37, 17)",
+                      background:
+                        currentLocation.pathname === "/bhet" &&
+                        "rgb(34 78 8 / 2%)",
                     }}
                   >
                     <p
@@ -145,9 +190,18 @@ const AddList = ({
                     style={{
                       userSelect: "none",
                       color: "white",
-                    borderTop:  currentLocation.pathname === "/stock" ? "1px solid rgb(113, 48, 142)" : currentLocation.pathname === "/bhet" ? "1px solid rgb(34, 78, 8)" : "1px solid rgb(97, 37, 17)",
-                    background:
-                    currentLocation.pathname === "/stock" ? "rgb(113, 48, 142)" : currentLocation.pathname === "/bhet" ? "rgb(34, 78, 8)" : "rgb(97, 37, 17)",
+                      borderTop:
+                        currentLocation.pathname === "/stock"
+                          ? "1px solid rgb(113, 48, 142)"
+                          : currentLocation.pathname === "/bhet"
+                          ? "1px solid rgb(34, 78, 8)"
+                          : "1px solid rgb(97, 37, 17)",
+                      background:
+                        currentLocation.pathname === "/stock"
+                          ? "rgb(113, 48, 142)"
+                          : currentLocation.pathname === "/bhet"
+                          ? "rgb(34, 78, 8)"
+                          : "rgb(97, 37, 17)",
                     }}
                   >
                     {truncateText(product.productId, 10)}

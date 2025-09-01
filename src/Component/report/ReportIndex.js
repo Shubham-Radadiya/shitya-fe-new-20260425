@@ -8,7 +8,7 @@ import "./index.css";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
-import download from "../images/download.png"
+import download from "../images/download.png";
 
 const initialData = [
   { currency: "500", count: 0 },
@@ -253,9 +253,9 @@ const ReportIndex = () => {
   }, []);
 
   const [salesData, setSalesData] = useState(initialData);
-  const [openSilak, setOpenSilak] = useState(0);
+  const [openSilak, setOpenSilak] = useState(10000);
   const [kharch, setKharch] = useState(0);
-  const [closeSilak, setCloseSilak] = useState(0);
+  const [closeSilak, setCloseSilak] = useState(10000);
   const [jamaRakam, setJamaRakam] = useState(0);
   const [existingData, setExistingData] = useState([]);
   const [id, setId] = useState();
@@ -271,10 +271,13 @@ const ReportIndex = () => {
       });
 
       if (response.data.data.length > 0) {
-        const formattedData = response.data.data.map((item) => ({
-          currency: item.currency || "",
-          count: item.count || 0,
-        }));
+        const formattedData = initialData.map((init) => {
+          const found = response.data.data.find((item) => item.currency === init.currency);
+          return {
+            currency: init.currency,
+            count: found ? found.count : 0,
+          };
+        }); 
 
         setSalesData(formattedData);
         setExistingData(response.data.data);
@@ -316,23 +319,26 @@ const ReportIndex = () => {
 
   const handleSubmit = () => {
     const payload = {
-      data: salesData.map((cur) => ({
-        currency: cur.currency,
-        count: cur.count,
-      })),
-      kharch: parseInt(kharch, 10),
-      openSilak: parseInt(openSilak, 10),
-      closeSilak: parseInt(closeSilak, 10),
-      jamaRakam: parseInt(jamaRakam, 10),
+      data: salesData
+        .filter((cur) => cur.count > 0)
+        .map((cur) => ({
+          currency: cur.currency,
+          count: cur.count,
+        })),
+      kharch: parseInt(kharch, 10) || 0,
+      openSilak: parseInt(10000, 10) || 0,
+      closeSilak: parseInt(10000, 10) || 0,
+      jamaRakam: parseInt(jamaRakam, 10) || 0,
     };
 
     const token = localStorage.getItem("access_token");
+
     if (existingData.length > 0) {
       axios
         .patch(`http://localhost:3010/daily-currency/${id}`, payload, {
           headers: { Authorization: token },
         })
-        .then((patchResponse) => {
+        .then(() => {
           fetchUpdatedData();
         });
     } else {
@@ -340,7 +346,7 @@ const ReportIndex = () => {
         .post("http://localhost:3010/daily-currency", payload, {
           headers: { Authorization: token },
         })
-        .then((response) => {
+        .then(() => {
           fetchUpdatedData();
         });
     }
@@ -356,6 +362,10 @@ const ReportIndex = () => {
     (acc, cur) => acc + cur.currency * cur.count,
     0
   );
+
+  useEffect(() => {
+    setJamaRakam(SilakCurrencyTotal);
+  }, [SilakCurrencyTotal]);
 
   const silakTotalAmount = salesData?.reduce(
     (acc, cur) => acc + cur.totalAmount,
@@ -413,7 +423,7 @@ const ReportIndex = () => {
                 Print
               </button>
               <div className="download" onClick={exportToExcel}>
-               <img style={{width:"50px"}} src={download} atl="down" />
+                <img style={{ width: "50px" }} src={download} atl="down" />
               </div>
             </div>
           </div>
@@ -1308,7 +1318,7 @@ const ReportIndex = () => {
                 lineHeight: "28px",
               }}
             >
-              {new Intl.NumberFormat("en-IN").format(openSilak)}
+              10,000
             </p>
           </div>
           <div
@@ -1402,7 +1412,9 @@ const ReportIndex = () => {
               }}
             >
               {new Intl.NumberFormat("en-IN").format(
-                parseInt(openSilak, 10) + parseInt(totalAmount, 10) - parseInt(kharch, 10) || 0
+                parseInt(openSilak, 10) +
+                  parseInt(totalAmount, 10) -
+                  parseInt(kharch, 10) || 0
               )}
             </p>
           </div>
@@ -1694,7 +1706,7 @@ const ReportIndex = () => {
                         className="silak-value-th"
                         style={{ borderBottom: "0px", fontWeight: 500 }}
                       >
-                        <input
+                        {/* <input
                           type="text"
                           value={new Intl.NumberFormat("en-IN").format(
                             openSilak
@@ -1712,7 +1724,8 @@ const ReportIndex = () => {
                             height: "19px",
                             fontSize: "19px",
                           }}
-                        />
+                        /> */}
+                        10,000
                       </th>
                     </tr>
                     <tr>
@@ -1816,7 +1829,7 @@ const ReportIndex = () => {
                         className="silak-value-th"
                         style={{ borderBottom: "0px", fontWeight: 500 }}
                       >
-                        <input
+                        {/* <input
                           type="text"
                           value={new Intl.NumberFormat("en-IN").format(
                             closeSilak
@@ -1834,7 +1847,8 @@ const ReportIndex = () => {
                             height: "19px",
                             fontSize: "19px",
                           }}
-                        />
+                        /> */}
+                        10,000
                       </th>
                     </tr>
                     <tr>
@@ -1864,13 +1878,15 @@ const ReportIndex = () => {
                           parseInt(openSilak, 10) +
                             parseInt(totalAmount, 10) -
                             closeSilak -
-                            SilakCurrencyTotal - kharch ===
+                            SilakCurrencyTotal -
+                            kharch ===
                           0
                             ? "રાજીપો"
                             : parseInt(openSilak, 10) +
                                 parseInt(totalAmount, 10) -
                                 closeSilak -
-                                SilakCurrencyTotal - kharch >
+                                SilakCurrencyTotal -
+                                kharch >
                               0
                             ? "ઘટાડો"
                             : "વધારો"
@@ -1881,15 +1897,14 @@ const ReportIndex = () => {
                           parseInt(openSilak, 10) +
                             parseInt(totalAmount, 10) -
                             (parseInt(closeSilak, 10) || 0) -
-                            (parseInt(SilakCurrencyTotal, 10) || 0) - (parseInt(kharch, 10) || 0) || 0
+                            (parseInt(SilakCurrencyTotal, 10) || 0) -
+                            (parseInt(kharch, 10) || 0) || 0
                         )}
                       </th>
                     </tr>
                   </thead>
                 </table>
-                <div className="bhet-amt">
-                ટોટલ ભેટ: {formattedTotalBhet}
-                </div>
+                <div className="bhet-amt">ટોટલ ભેટ: {formattedTotalBhet}</div>
               </div>
               <table className="userreport-table">
                 <thead>
