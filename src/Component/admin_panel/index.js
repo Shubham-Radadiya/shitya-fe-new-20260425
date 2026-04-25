@@ -6,6 +6,7 @@ import SettingsGate from "./settings/SettingsGate";
 import Product from "./product/ProductIndex";
 // import ReportPage from "./report_page/ReportPageIndex";
 import ReportScreen from "./report_page/ReportScreen";
+import SyncPage from "./sync/SyncPage";
 import Home from "../user_panel/home/HomeIndex";
 import PurchaseReport from "../report/PurchaseReport";
 const AdminIndex = () => {
@@ -15,6 +16,7 @@ const AdminIndex = () => {
       <Route path="/dashboard" element={<Dashboard component={<AdminHome />} />} />
       <Route path="/settings" element={<Dashboard component={<SettingsGate />} />} />
       <Route path="/product" element={<Dashboard component={<Product />} />} />
+      <Route path="/sync-report" element={<Dashboard component={<SyncPage />} />} />
       <Route path="/stock" element={<Home/>}/>
       <Route
         path="/report"

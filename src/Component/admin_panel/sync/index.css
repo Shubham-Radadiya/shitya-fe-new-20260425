@@ -1,0 +1,162 @@
+.sync-page {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sync-page__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sync-page__title {
+  margin: 0;
+  color: var(--brown-color);
+}
+
+.sync-page__subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.sync-page__refresh {
+  border: 1px solid var(--brown-color);
+  background: var(--white-color);
+  color: var(--brown-color);
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sync-page__refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sync-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.sync-kpi {
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.sync-kpi--warn {
+  border-color: #f1c77b;
+  background: #fff8ec;
+}
+
+.sync-kpi--ok {
+  border-color: #9ad5a5;
+  background: #eefaf0;
+}
+
+.sync-kpi__label {
+  font-size: 0.78rem;
+  color: #666;
+}
+
+.sync-kpi__value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.sync-page__card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.7rem;
+}
+
+.sync-section__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--brown-color);
+}
+
+.sync-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.sync-table-wrap {
+  overflow: auto;
+}
+
+.sync-table-wrap--collection {
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.sync-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.sync-table th,
+.sync-table td {
+  border: 1px solid #ececec;
+  padding: 0.45rem 0.5rem;
+  text-align: left;
+}
+
+.sync-table th {
+  background: #faf7f4;
+  color: var(--brown-color);
+}
+
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sync-badge--ok {
+  background: #eaf8ee;
+  color: #1f7a35;
+}
+
+.sync-badge--warn {
+  background: #fff4df;
+  color: #9b6500;
+}
+
+.sync-badge--error {
+  background: #feeceb;
+  color: #b42318;
+}
+
+.sync-num--warn {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.sync-error-cell {
+  color: #b42318;
+}
+
+@media (max-width: 960px) {
+  .sync-kpis,
+  .sync-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+

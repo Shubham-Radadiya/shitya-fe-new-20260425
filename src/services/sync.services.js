@@ -34,9 +34,20 @@ export const getSyncStatus = async () => {
   return { data: response.data, status: response.status };
 };
 
+/** Rich sync report for admin UI: collections, pending users/branches, last sync markers. */
+export const getSyncReport = async () => {
+  const baseUrl = resolveSyncBaseUrl();
+  const response = await axios.get(`${baseUrl}/sync/report`, {
+    headers: authHeaders(),
+    timeout: 30000,
+  });
+  return { data: response.data, status: response.status };
+};
+
 const syncServices = {
   postSyncTrigger,
   getSyncStatus,
+  getSyncReport,
 };
 
 export default syncServices;

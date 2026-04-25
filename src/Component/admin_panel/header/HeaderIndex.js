@@ -61,6 +61,15 @@ const Header = () => {
               Settings
             </NavLink>
           )}
+          {canAccessSettings && (
+            <NavLink
+              to="/sync-report"
+              className={({ isActive }) => `${isActive ? "active" : ""}`}
+              title="Sync report (last sync + pending users/branches)"
+            >
+              Sync
+            </NavLink>
+          )}
         </div>
 
         <div className="header-sync-cluster" title={lastErrorSummary || ""}>
