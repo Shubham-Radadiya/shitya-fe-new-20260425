@@ -52,6 +52,7 @@ import {
   mergedDailyCategoryHasValue,
   reportCategoryPeriodRowHasValue,
 } from "../../utils/reportNonZeroRows";
+import { loadBranchOptionsForForms } from "../../utils/branchOptionsClient";
 
 const initialData = [
   { currency: "500", count: 0 },
@@ -128,6 +129,16 @@ const ReportIndex = ({ variant = "sales" }) => {
   /** Bill wise mode: `/report/daily` with `groupBy: "bill"` (one row per bill). */
   const [salesReportByBill, setSalesReportByBill] = useState([]);
   const [loadingSalesReport, setLoadingSalesReport] = useState(true);
+  const [reportBranchOptions, setReportBranchOptions] = useState([]);
+  const [reportBranchName, setReportBranchName] = useState(() =>
+    String(
+      localStorage.getItem("sahitya_report_branch") ||
+        localStorage.getItem("branchName") ||
+        "KUD"
+    )
+      .trim()
+      .toUpperCase()
+  );
   /** Tracks last toolbar period mode so switching to Item Wise can copy the visible range onto From/To. */
   const salesRangePrevModeRef = useRef("entry");
 
@@ -191,6 +202,25 @@ const ReportIndex = ({ variant = "sales" }) => {
   );
 
   useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const options = await loadBranchOptionsForForms();
+      if (!mounted) return;
+      setReportBranchOptions(options);
+      if (options.length && !options.includes(reportBranchName)) {
+        setReportBranchName(options[0]);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [reportBranchName]);
+
+  useEffect(() => {
+    localStorage.setItem("sahitya_report_branch", reportBranchName);
+  }, [reportBranchName]);
+
+  useEffect(() => {
     if (reportType !== "daily") return;
     const startYmd = formatLocalDateYMD(resolvedSalesRange.start);
     const endYmd = formatLocalDateYMD(resolvedSalesRange.end);
@@ -209,6 +239,7 @@ const ReportIndex = ({ variant = "sales" }) => {
               startDate: startYmd,
               endDate: endYmd,
               groupBy: "bill",
+              branchName: reportBranchName,
               ...(onlyReturns ? { onlyReturned: true } : {}),
             },
             { headers: { Authorization: token } }
@@ -219,6 +250,50 @@ const ReportIndex = ({ variant = "sales" }) => {
           console.error(e);
           if (!cancelled) {
             setSalesReportByBill([]);
+            toast.error("Failed to load sales report.");
+          }
+        } finally {
+          if (!cancelled) setLoadingSalesReport(false);
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (salesRangeMode === "entry") {
+      setSalesReportByBill([]);
+      (async () => {
+        setLoadingSalesReport(true);
+        try {
+          const res = await axios.post(
+            `${API_URL}/report/daily`,
+            {
+              startDate: startYmd,
+              endDate: endYmd,
+              branchName: reportBranchName,
+              ...(onlyReturns ? { onlyReturned: true } : {}),
+            },
+            { headers: { Authorization: token } }
+          );
+          const rows = Array.isArray(res.data) ? res.data : [];
+          if (!cancelled) {
+            setSalesReportByDate([
+              {
+                ymd: startYmd,
+                dateLabel:
+                  startYmd === endYmd
+                    ? formatExcelDateDDMMYY(startYmd)
+                    : `${formatExcelDateDDMMYY(startYmd)} – ${formatExcelDateDDMMYY(endYmd)}`,
+                rows,
+                merged: mergeDailyReportUserRows(rows),
+              },
+            ]);
+          }
+        } catch (e) {
+          console.error(e);
+          if (!cancelled) {
+            setSalesReportByDate([]);
             toast.error("Failed to load sales report.");
           }
         } finally {
@@ -252,6 +327,7 @@ const ReportIndex = ({ variant = "sales" }) => {
                 {
                   startDate: ymd,
                   endDate: ymd,
+                  branchName: reportBranchName,
                   ...(onlyReturns ? { onlyReturned: true } : {}),
                 },
                 { headers: { Authorization: token } }
@@ -281,7 +357,7 @@ const ReportIndex = ({ variant = "sales" }) => {
     return () => {
       cancelled = true;
     };
-  }, [reportType, salesRangeMode, resolvedSalesRange, variant]);
+  }, [reportType, salesRangeMode, resolvedSalesRange, variant, reportBranchName]);
 
   const getTotalAmount = useCallback(
     (categories) =>
@@ -516,7 +592,9 @@ const ReportIndex = ({ variant = "sales" }) => {
     const fetchBillDetails = async () => {
       try {
         const response = await fetch(
-          `${API_URL}/bill?isReturned=false`,
+          `${API_URL}/bill?isReturned=false&branchName=${encodeURIComponent(
+            reportBranchName
+          )}`,
           {
             method: "GET",
             headers: {
@@ -539,7 +617,9 @@ const ReportIndex = ({ variant = "sales" }) => {
     const fetchReturnBillDetails = async () => {
       try {
         const response = await fetch(
-          `${API_URL}/bill?isReturned=true`,
+          `${API_URL}/bill?isReturned=true&branchName=${encodeURIComponent(
+            reportBranchName
+          )}`,
           {
             method: "GET",
             headers: {
@@ -560,7 +640,7 @@ const ReportIndex = ({ variant = "sales" }) => {
     };
     fetchBillDetails();
     fetchReturnBillDetails();
-  }, []);
+  }, [reportBranchName]);
 
   const [salesData, setSalesData] = useState(initialData);
   const [openSilak, setOpenSilak] = useState(DEFAULT_SILAK_BALANCE);
@@ -1052,27 +1132,73 @@ const ReportIndex = ({ variant = "sales" }) => {
               style={{
                 justifyContent: "space-between",
                 width: "100%",
-                alignItems: "flex-start",
-                flexWrap: "wrap",
-                gap: "20px",
+                alignItems: "center",
+                flexWrap: "nowrap",
+                gap: "10px",
+                overflowX: "auto",
               }}
             >
-              <div style={{ flex: "1 1 280px", minWidth: 0 }}>
-                <ReportSalesRangeToolbar
-                  mode={salesRangeMode}
-                  onModeChange={handleSalesRangeModeChange}
-                  rangeStart={reportDateStart}
-                  rangeEnd={reportDateEnd}
-                  onRangeChange={handleSalesRangeChange}
-                  dateRangeStart={salesDateRangeStart}
-                  dateRangeEnd={salesDateRangeEnd}
-                  onDateRangeChange={handleSalesDateRangeChange}
-                  monthDate={salesMonthDate}
-                  onMonthDateChange={setSalesMonthDate}
-                  fyStartYear={salesFyStartYear}
-                  onFyStartYearChange={setSalesFyStartYear}
-                  disabled={loadingSalesReport}
-                />
+              <div
+                style={{
+                  flex: "1 1 280px",
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  flexWrap: "nowrap",
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <ReportSalesRangeToolbar
+                    mode={salesRangeMode}
+                    onModeChange={handleSalesRangeModeChange}
+                    rangeStart={reportDateStart}
+                    rangeEnd={reportDateEnd}
+                    onRangeChange={handleSalesRangeChange}
+                    dateRangeStart={salesDateRangeStart}
+                    dateRangeEnd={salesDateRangeEnd}
+                    onDateRangeChange={handleSalesDateRangeChange}
+                    monthDate={salesMonthDate}
+                    onMonthDateChange={setSalesMonthDate}
+                    fyStartYear={salesFyStartYear}
+                    onFyStartYearChange={setSalesFyStartYear}
+                    disabled={loadingSalesReport}
+                  />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <label
+                    htmlFor="report-branch-select"
+                    className="report-branch-label"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      marginRight: 2,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Branch
+                  </label>
+                  <select
+                    id="report-branch-select"
+                    className="report-branch-select"
+                    value={reportBranchName}
+                    onChange={(e) =>
+                      setReportBranchName(
+                        String(e.target.value || "").trim().toUpperCase()
+                      )
+                    }
+                    disabled={loadingSalesReport}
+                  >
+                    {(reportBranchOptions.length
+                      ? reportBranchOptions
+                      : [reportBranchName]
+                    ).map((code) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div
                 style={{

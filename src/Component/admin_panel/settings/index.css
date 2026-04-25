@@ -1181,7 +1181,7 @@
 
 .settings-header-stall__controls {
   display: flex;
-  flex: 1;
+  flex: 0 0 auto;
   align-items: stretch;
   gap: 6px;
   min-width: 0;
@@ -1661,8 +1661,9 @@
 .settings-header-stall .settings-header-stall__input.st-input {
   width: auto;
   max-width: none;
-  flex: 1 1 7rem;
-  min-width: 7rem;
+  flex: 0 0 11rem;
+  min-width: 11rem;
+  max-width: 11rem;
 }
 
 .settings-add-stall-modal__hint {

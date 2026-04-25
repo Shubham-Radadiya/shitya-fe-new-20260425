@@ -1755,9 +1755,10 @@
 /* Sales Item Wise: From/To row — consistent spacing between controls */
 .report-date-picker-wrap.report-sales-range-dates {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
+  min-width: max-content;
 }
 
 .report-date-picker-input {
@@ -2084,17 +2085,19 @@
 /* Entry-wise / date / month / FY toolbar (reports) */
 .report-entry-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
   margin: 0.35rem 0 0.75rem;
   padding: 0.5rem 0;
+  overflow-x: auto;
 }
 
 .report-entry-toolbar-modes {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  flex-wrap: nowrap;
+  gap: 10px;
+  flex: 0 0 auto;
 }
 
 .report-entry-mode-btn {
@@ -2137,8 +2140,9 @@
 .report-entry-toolbar-controls {
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
 }
 
 .report-entry-toolbar-input {
@@ -2155,6 +2159,35 @@
   font-weight: 600;
   color: var(--brown-color, #612711);
   background: var(--white-color, #fff);
+}
+
+.report-branch-label {
+  color: var(--brown-color, #612711);
+}
+
+.report-branch-select {
+  min-width: 96px;
+  width: 96px;
+  height: 32px;
+  padding: 0 24px 0 8px;
+  border: 1px solid rgba(97, 37, 17, 0.35);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--brown-color, #612711);
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+  appearance: auto;
+}
+
+.report-branch-select:focus {
+  border-color: rgba(97, 37, 17, 0.6);
+  box-shadow: 0 0 0 2px rgba(97, 37, 17, 0.12);
+}
+
+.report-branch-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .report-entry-toolbar-hint--reserve {
