@@ -1,12 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./modalstyle.css";
 import { CREATE_USER_REQUEST } from "../../../store/auth/AuthAction";
 import { useDispatch } from "react-redux";
+import { loadBranchOptionsForForms } from "../../../utils/branchOptionsClient";
+import { loginUserNameHint, validateLoginUserNameMessage } from "../../../utils/loginUserName";
 
 const CreateUser = ({ closeModal }) => {
   const dispatch = useDispatch();
-  const [userData, setUserData] = useState({ userType: "MANAGER" });
+  const [branchOptions, setBranchOptions] = useState(["KUD"]);
+  const [userData, setUserData] = useState({
+    userType: "MANAGER",
+    branchName: "KUD",
+  });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const opts = await loadBranchOptionsForForms();
+      if (!cancelled && opts.length) {
+        setBranchOptions(opts);
+        setUserData((prev) => ({
+          ...prev,
+          branchName: opts.includes(prev.branchName)
+            ? prev.branchName
+            : opts[0],
+        }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleChange = (event) => {
     setUserData({
@@ -20,12 +45,13 @@ const CreateUser = ({ closeModal }) => {
     const newErrors = {};
     const password = userData.password || "";
 
-    if (!userData.fullName) {
-      newErrors.fullName = " * Full Name is required";
+    const userNameErr = validateLoginUserNameMessage(userData.userName);
+    if (userNameErr) {
+      newErrors.userName = userNameErr;
     }
 
-    if (!userData.userName) {
-      newErrors.userName = " * UserName is required";
+    if (!userData.branchName || !String(userData.branchName).trim()) {
+      newErrors.branchName = " * Branch name is required";
     }
 
     if (!password) {
@@ -50,7 +76,13 @@ const CreateUser = ({ closeModal }) => {
       setErrors(newErrors);
     } else {
       try {
-        await dispatch({ type: CREATE_USER_REQUEST, payload: userData });
+        await dispatch({
+          type: CREATE_USER_REQUEST,
+          payload: {
+            ...userData,
+            branchName: String(userData.branchName).trim().toUpperCase(),
+          },
+        });
         closeModal();
       } catch (error) {
         throw error;
@@ -69,59 +101,84 @@ const CreateUser = ({ closeModal }) => {
             </span>
           </div>
           <div className="modal-form">
-            <div className="modal-label">
-              <label className="modal-label">
-                Full Name:
-                <input
-                  id="fullName"
-                  type="text"
-                  name="fullName"
-                  className="modal-input"
-                  onChange={handleChange}
-                />
-                {errors.fullName && (
-                  <span className="error-message">{errors.fullName}</span>
-                )}
-              </label>
-              <label className="modal-label">
-                User Name:
-                <input
-                  id="userName"
-                  type="text"
-                  name="userName"
-                  className="modal-input"
-                  onChange={handleChange}
-                />
-                {errors.userName && (
-                  <span className="error-message">{errors.userName}</span>
-                )}
-              </label>
-              <label className="modal-label">
-                Password:
-                <input
-                  id="password"
-                  type="password"
-                  name="password"
-                  className="modal-input"
-                  onChange={handleChange}
-                />
-                {errors.password && (
-                  <span className="error-message">{errors.password}</span>
-                )}
-              </label>
-              <label className="modal-label">
-                UserType:
-                <select
-                  id="userType"
-                  name="userType"
-                  className="modal-input"
-                  onChange={handleChange}
-                  defaultValue={"MANAGER"}
-                >
-                  <option value="MANAGER">Manager</option>
-                  <option value="USER">User</option>
-                </select>
-              </label>
+            <div className="modal-field">
+              <div className="create-user-modal-section">
+                <p className="create-user-modal-section-title">Branch</p>
+                <p className="create-user-modal-hint">
+                  Every user belongs to one branch. They sign in with the same
+                  branch and user name.
+                </p>
+                <label className="modal-label">
+                  Branch name:
+                  <select
+                    id="branchName"
+                    name="branchName"
+                    className="modal-input"
+                    value={userData.branchName || "KUD"}
+                    onChange={handleChange}
+                  >
+                    {branchOptions.map((code) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.branchName && (
+                    <span className="error-message">{errors.branchName}</span>
+                  )}
+                </label>
+              </div>
+
+              <div className="create-user-modal-section">
+                <p className="create-user-modal-section-title">
+                  User under this branch
+                </p>
+                <div className="create-user-under-branch">
+                  <label className="modal-label">
+                    Username:
+                    <input
+                      id="userName"
+                      type="text"
+                      name="userName"
+                      className="modal-input"
+                      inputMode="text"
+                      autoComplete="off"
+                      placeholder="e.g. admin or test"
+                      title={loginUserNameHint}
+                      onChange={handleChange}
+                    />
+                    {errors.userName && (
+                      <span className="error-message">{errors.userName}</span>
+                    )}
+                  </label>
+                  <label className="modal-label">
+                    Password:
+                    <input
+                      id="password"
+                      type="password"
+                      name="password"
+                      className="modal-input"
+                      onChange={handleChange}
+                    />
+                    {errors.password && (
+                      <span className="error-message">{errors.password}</span>
+                    )}
+                  </label>
+                  <label className="modal-label">
+                    User Role:
+                    <select
+                      id="userType"
+                      name="userType"
+                      className="modal-input"
+                      value={userData.userType || "MANAGER"}
+                      onChange={handleChange}
+                    >
+                      <option value="MANAGER">Manager</option>
+                      <option value="USER">User</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
             </div>
             <div className="modal-bottom-btn">
               <button

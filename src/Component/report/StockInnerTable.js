@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MdEdit, MdOutlineDeleteOutline } from "react-icons/md";
 import { SlArrowDown, SlArrowRight } from "react-icons/sl";
 import "./index.css";
+import { formatInr } from "../../utils/formatInr";
 
 const StockInnerTable = ({
   subCategories,
@@ -96,7 +97,15 @@ const StockInnerTable = ({
                       <td width={"13%"}>{product.productId}</td>
                       <td width={"22%"}>{product.name}</td>
                       <td width={"13%"}>
-                        {pageType === "product" ? `${product.price}` : product.quantity ?? 0}
+                        {pageType === "product"
+                          ? formatInr(product.price, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })
+                          : formatInr(product.quantity ?? 0, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            })}
                       </td>
                     </tr>
                   ))

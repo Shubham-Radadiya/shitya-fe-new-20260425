@@ -1,194 +1,177 @@
 import React, { useState, useEffect } from "react";
-import "./index.css";
-import Header from "../header/HeaderIndex";
 import { useDispatch } from "react-redux";
 import {
-  REQUEST_CUSTOME_PRODUCT,
-  REQUEST_MONTHLY_PRODUCT,
-  REQUEST_TODAY_PRODUCT,
-  REQUEST_YEARLY_PRODUCT,
-} from "../../../store/admin_report/ReportAction";
-import DailyReport from "../report_page/DailyReport";
-import YearlyReport from "../report_page/YearlyReport";
-import MonthlyReport from "../report_page/MonthlyReport";
-import PurchaseReport from "../../report/PurchaseReport";
-import StockTable from "../../report/StockTable";
-import PurchaseReturn from "../../report/PurchaseReturn";
+  fetchBhet,
+  fetchInvoices,
+} from "../../../store/invoice/InvoiceAction";
 import { useInvoice } from "../../../store/invoice/InvoiceReducer";
-import { fetchInvoices } from "../../../store/invoice/InvoiceAction";
+import PurchaseReport from "../../report/PurchaseReport";
+import ReportIndex from "../../report/ReportIndex";
+import PurchaseReturn from "../../report/PurchaseReturn";
+import StockTable from "../../report/StockTable";
+import BhetReport from "../../report/BhetReport";
+import BhetReturn from "../../report/BhetReturn";
 import SilakMonthlyReport from "../../report/SilakMonthlyReport";
 import SilakYearlyReport from "../../report/SilakYearlyReport";
+import {
+  LuBarChart3,
+  LuLineChart,
+  LuPackage,
+  LuRotateCcw,
+  LuScrollText,
+  LuShoppingCart,
+  LuCircleDot,
+} from "react-icons/lu";
+import "../../report/index.css";
+import "../dashboard/index.css";
+import "./ReportScreen.css";
 
+/**
+ * Admin reports: flat sidebar (purchase, returns, sales, silak, stock, bhet).
+ * Silak keeps monthly / yearly sub-items.
+ */
 const ReportScreen = () => {
-  const [activeReport, setActiveReport] = useState("purchase");
-  const [reportType, setReportType] = useState("purchasebill");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [openDropdown, setOpenDropdown] = useState(null);
   const dispatch = useDispatch();
+  const [activeKey, setActiveKey] = useState("sales");
+
   const { invoiceData } = useInvoice();
 
   useEffect(() => {
-    if (reportType === "daily") {
-      getDailyReport(selectedDate);
-    } else if (reportType === "monthly") {
-      getMonthlyReport();
-    } else if (reportType === "quarterly") {
-      getQuarterlyReport();
-    } else if (reportType === "yearly") {
-      getYearlyReport();
-    }
-  }, [reportType, selectedDate]);
+    if (activeKey === "purchase") dispatch(fetchInvoices(false));
+    else if (activeKey === "purchaseReturn") dispatch(fetchInvoices(true));
+    else if (activeKey === "bhet") dispatch(fetchBhet(false));
+    else if (activeKey === "bhetReturn") dispatch(fetchBhet(true));
+  }, [activeKey, dispatch]);
 
-  const getDailyReport = (date) => {
-    const data = { startDate: date, endDate: date };
-    dispatch({ type: REQUEST_TODAY_PRODUCT, payload: data });
-    setReportType("daily");
-  };
-  const getMonthlyReport = () => {
-    setReportType("monthly");
-  };
-
-  const getQuarterlyReport = () => {
-    const now = new Date();
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - 90);
-
-    const data = {
-      startDate: startDate.toISOString(),
-      endDate: now.toISOString(),
-    };
-
-    dispatch({ type: REQUEST_MONTHLY_PRODUCT, payload: data });
-  };
-
-  const getYearlyReport = () => {
-    const now = new Date();
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - 365);
-
-    const data = {
-      startDate: startDate.toISOString(),
-      endDate: now.toISOString(),
-    };
-
-    dispatch({ type: REQUEST_YEARLY_PRODUCT, payload: data });
-    setReportType("yearly");
-  };
-
-  useEffect(() => {
-    if (reportType === "purchasebill") {
-      dispatch(fetchInvoices(false));
-    } else if (reportType === "purchaseReturn") {
-      dispatch(fetchInvoices(true));
-    }
-  }, [reportType, dispatch]);
-
-  const reportOptions = [
+  const silakSub = [
     {
-      key: "purchase",
-      label: "Purchase Report",
-      hasSubReports: true,
-      subReports: [
-        {
-          key: "purchasebill",
-          label: "Purchase Bill",
-          component: <PurchaseReport invoiceData={invoiceData} />,
-        },
-        {
-          key: "purchaseReturn",
-          label: "Purchase Return",
-          component: <PurchaseReturn invoiceData={invoiceData} />,
-        },
-      ],
+      key: "silakMonthly",
+      label: "Silak monthly report",
+      component: <SilakMonthlyReport />,
     },
     {
-      key: "silak",
-      label: "Silak Report",
-      hasSubReports: true,
-      subReports: [
-        {
-          key: "silakMonthly",
-          label: "Silak Monthly Report",
-          component: <SilakMonthlyReport />,
-        },
-        {
-          key: "silakYearly",
-          label: "Silak Yearly Report",
-          component: <SilakYearlyReport />,
-        },
-      ],
+      key: "silakYearly",
+      label: "Silak yearly report",
+      component: <SilakYearlyReport />,
     },
-    {
-      key: "sales",
-      label: "Sales Report",
-      hasSubReports: true,
-      subReports: [
-        { key: "daily", label: "Daily Report", component: <DailyReport /> },
-        { key: "monthly", label: "Monthly Report", component: <MonthlyReport /> },
-        { key: "yearly", label: "Yearly Report", component: <YearlyReport /> },
-      ],
-    },
-    { key: "stock", label: "Stock Report", component: <StockTable /> },
   ];
 
+  const flatReports = [
+    {
+      key: "sales",
+      label: "Sales report",
+      icon: LuBarChart3,
+      component: <ReportIndex variant="sales" />,
+    },
+    {
+      key: "salesReturn",
+      label: "Sales return",
+      icon: LuRotateCcw,
+      component: <ReportIndex variant="returns" />,
+    },
+    {
+      key: "purchase",
+      label: "Purchase",
+      icon: LuShoppingCart,
+      component: <PurchaseReport invoiceData={invoiceData} />,
+    },
+    {
+      key: "purchaseReturn",
+      label: "Purchase return",
+      icon: LuRotateCcw,
+      component: <PurchaseReturn invoiceData={invoiceData} />,
+    },
+    {
+      key: "bhet",
+      label: "Bhet",
+      icon: LuScrollText,
+      component: <BhetReport />,
+    },
+    {
+      key: "bhetReturn",
+      label: "Bhet return",
+      icon: LuRotateCcw,
+      component: <BhetReturn />,
+    },
+    {
+      key: "stock",
+      label: "Stock report",
+      icon: LuPackage,
+      component: <StockTable />,
+    },
+  ];
+
+  const mainContent = (() => {
+    if (activeKey === "silakMonthly" || activeKey === "silakYearly") {
+      return silakSub.find((s) => s.key === activeKey)?.component;
+    }
+    return flatReports.find((r) => r.key === activeKey)?.component;
+  })();
+
   return (
-    <div className="flexbetween report-screen" style={{ height: "97vh" }}>
-      <div className="header">
-        <Header />
-      </div>
-      <div className="report-dashboard">
-        {/* Left Sidebar */}
-        <div className="report-left-side" style={{ gap: "0" }}>
-          {reportOptions.map((report) => (
-            <div key={report.key}>
+    <div className="admin-report-page">
+      <aside className="admin-report-sidebar" aria-label="Report types">
+        <div className="admin-report-sidebar-head">
+          <div className="admin-report-sidebar-head-icon" aria-hidden>
+            <LuBarChart3 />
+          </div>
+          <div className="admin-report-sidebar-head-text">
+            <span className="admin-report-sidebar-title">Reports</span>
+            <span className="admin-report-sidebar-sub admin-report-sidebar-sub--reserved" aria-hidden="true">
+              {"\u00a0"}
+            </span>
+          </div>
+        </div>
+        <nav className="admin-report-nav">
+          {flatReports.map((report) => {
+            const Icon = report.icon;
+            const isActive = activeKey === report.key;
+            return (
               <button
-                className={`sidebar-link ${activeReport === report.key ? "active" : ""}`}
-                onClick={() => {
-                  setActiveReport(report.key);
-                  if (report.hasSubReports) {
-                    setOpenDropdown(openDropdown === report.key ? null : report.key);
-                    setReportType(report.subReports[0].key); // Default to first subReport
-                  } else {
-                    setOpenDropdown(null);
-                    setReportType(report.key); // Ensure direct report selection
-                  }
-                }}
+                key={report.key}
+                type="button"
+                className={`admin-report-nav-btn${isActive ? " is-active" : ""}`}
+                onClick={() => setActiveKey(report.key)}
               >
-                {report.label}{" "}
-                {report.hasSubReports && (
-                  <span className="arrow">{openDropdown === report.key ? "▲" : "▼"}</span>
-                )}
+                <Icon className="admin-report-nav-btn-icon" aria-hidden />
+                <span className="admin-report-nav-btn-label">{report.label}</span>
               </button>
+            );
+          })}
 
-              {/* Dropdown for Sub Reports */}
-              {openDropdown === report.key && report.hasSubReports && (
-                <div className="dropdown-menu">
-                  {report.subReports.map((sub) => (
-                    <button
-                      key={sub.key}
-                      className={`dropdown-item ${reportType === sub.key ? "active" : ""}`}
-                      onClick={() => {
-                        setReportType(sub.key);
-                      }}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+          <div
+            className={`admin-report-nav-group${activeKey.startsWith("silak") ? " has-active" : ""}`}
+          >
+            <div className="admin-report-nav-parent">
+              <LuLineChart className="admin-report-nav-parent-icon" aria-hidden />
+              <span>Silak report</span>
             </div>
-          ))}
-        </div>
+            <div className="admin-report-nav-sub">
+              {silakSub.map((sub) => {
+                const subActive = activeKey === sub.key;
+                return (
+                  <button
+                    key={sub.key}
+                    type="button"
+                    className={`admin-report-nav-btn admin-report-nav-btn-sub${
+                      subActive ? " is-active" : ""
+                    }`}
+                    onClick={() => setActiveKey(sub.key)}
+                  >
+                    <LuCircleDot
+                      className="admin-report-nav-sub-bullet"
+                      aria-hidden
+                    />
+                    <span className="admin-report-nav-btn-label">{sub.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+      </aside>
 
-        {/* Right Side Content */}
-        <div className="report-right-side">
-          {reportOptions.some((r) => r.key === activeReport && r.hasSubReports)
-            ? reportOptions
-                .find((r) => r.key === activeReport)
-                ?.subReports.find((s) => s.key === reportType)?.component
-            : reportOptions.find((r) => r.key === activeReport)?.component}
-        </div>
-      </div>
+      <div className="admin-report-main">{mainContent}</div>
     </div>
   );
 };

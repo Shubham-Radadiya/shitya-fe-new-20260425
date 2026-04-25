@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from "react";
-import * as XLSX from "xlsx";
+import { API_URL } from "../../constant/config";
 import "./index.css";
 import download from "../images/download.png";
+import { ReportTablesLoaderWrap } from "./ReportTableLoader";
+import {
+  silakCategoryTotalAmount,
+  silakVadGhatDelta,
+  getSilakVadGhatColorStyle,
+} from "../../utils/silakReportHelpers";
+import { buildDateRangeReportTitleRows } from "../../utils/reportDomExcelExport";
+import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
+import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { saveReportExcelWithToast } from "../../utils/excelExport";
+import { toast } from "react-toastify";
 
 const SilakMonthlyReport = () => {
+  const { reportExportDirectoryHandle } = useStoreSettings();
   const [reportData, setReportData] = useState([]); // always array
+  const [silakLoading, setSilakLoading] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [financialYear, setFinancialYear] = useState("");
   const [months, setMonths] = useState([]);
@@ -59,19 +72,19 @@ const SilakMonthlyReport = () => {
   }, [selectedMonth, startYear, endYear]);
 
   const fetchFinancialYearData = async (start, end) => {
+    if (!start || !end) {
+      console.warn("Skipping fetch, startYear or endYear is undefined");
+      return;
+    }
+    setSilakLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-
-      if (!start || !end) {
-        console.warn("Skipping fetch, startYear or endYear is undefined");
-        return;
-      }
 
       const startDate = `${start}-04-01`;
       const endDate = `${end}-03-31`;
 
       const response = await fetch(
-        "http://localhost:3010/report/silak/monthly",
+        `${API_URL}/report/silak/monthly`,
         {
           method: "POST",
           headers: {
@@ -93,6 +106,8 @@ const SilakMonthlyReport = () => {
     } catch (error) {
       console.error("Error fetching report data:", error);
       setReportData([]);
+    } finally {
+      setSilakLoading(false);
     }
   };
 
@@ -107,53 +122,45 @@ const SilakMonthlyReport = () => {
       })
     : [];
 
-  const exportToExcel = () => {
-    const table = document.querySelector(".userreport-table");
-    if (!table) return;
+  const exportToExcel = async () => {
+    try {
+      const table = document.querySelector(".userreport-table");
+      if (!table) return;
 
-    const tableClone = table.cloneNode(true);
-    const rows = tableClone.querySelectorAll("tr");
+      const tableClone = table.cloneNode(true);
+      const rows = tableClone.querySelectorAll("tr");
 
-    rows.forEach((row) => {
-      if (row.querySelector(".tfootgroup")) {
-        row.parentNode.removeChild(row);
-      }
-    });
+      rows.forEach((row) => {
+        if (row.querySelector(".tfootgroup")) {
+          row.parentNode.removeChild(row);
+        }
+      });
 
-    const worksheet = XLSX.utils.aoa_to_sheet([]);
-    const currentDate = new Date().toLocaleDateString();
-    const titleAndDate = [["Silak Monthly Report"], [`Date: ${currentDate}`]];
-    XLSX.utils.sheet_add_aoa(worksheet, titleAndDate, { origin: "A1" });
+      const sm = selectedMonth || new Date();
+      const y = sm.getFullYear();
+      const mo = sm.getMonth();
+      const monthStart = new Date(y, mo, 1);
+      const monthEnd = new Date(y, mo + 1, 0);
+      const titleAndDate = buildDateRangeReportTitleRows(
+        "Silak Monthly Report",
+        monthStart,
+        monthEnd
+      );
 
-    const tableData = Array.from(tableClone.querySelectorAll("tr")).map((row) =>
-      Array.from(row.querySelectorAll("th, td")).map((cell) => cell.textContent)
-    );
-    XLSX.utils.sheet_add_aoa(worksheet, tableData, { origin: "A3" });
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-
-    const workbookOut = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "binary",
-    });
-    const s2ab = (s) => {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff;
-      return buf;
-    };
-    const blob = new Blob([s2ab(workbookOut)], {
-      type: "application/octet-stream",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "SilakMonthlyreport.xlsx";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+      const tableData = Array.from(tableClone.querySelectorAll("tr")).map((row) =>
+        Array.from(row.querySelectorAll("th, td")).map((cell) => cell.textContent.trim())
+      );
+      const fullAoa = [...titleAndDate, ...tableData];
+      const blob = await reportExcelBlobFromAoa(fullAoa, "Report");
+      await saveReportExcelWithToast(
+        blob,
+        "SilakMonthlyreport.xlsx",
+        reportExportDirectoryHandle
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error("Could not create Excel.");
+    }
   };
 
   const getCategoryTotal = (categoryName) => {
@@ -193,6 +200,11 @@ const SilakMonthlyReport = () => {
     return acc;
   }, 0);
 
+  const totalVadGhatSum = (filteredReportData || []).reduce(
+    (acc, silak) => acc + silakVadGhatDelta(silak),
+    0
+  );
+
   return (
     <div className="user-template">
       <div className="user-container">
@@ -201,7 +213,7 @@ const SilakMonthlyReport = () => {
           style={{ justifyContent: "space-between" }}
         >
           <div className="tfootgroup" style={{ width: "100%" }}>
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
               <label>Financial Year: {financialYear}</label>
               <select
                 value={selectedMonth?.toISOString()}
@@ -221,16 +233,20 @@ const SilakMonthlyReport = () => {
           </div>
         </div>
 
-        <div className="userreport-table-wrapper">
+        <ReportTablesLoaderWrap
+          loading={silakLoading}
+          label="Loading report…"
+          className="userreport-table-wrapper"
+          minHeight={200}
+        >
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "30px",
-              maxHeight: "80.5vh",
+              gap: "20px",
             }}
           >
-            <table className="userreport-table" style={{ width: "106%" }}>
+            <table className="userreport-table" style={{ width: "100%", maxWidth: "100%" }}>
               <thead style={{ fontSize: "17px" }}>
                 <tr>
                   {[
@@ -263,53 +279,29 @@ const SilakMonthlyReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredReportData?.map((silak, index) => {
-                  let murtiAmount = 0,
-                    vaghaAmount = 0,
-                    gharenaAmount = 0,
-                    pujaAmount = 0,
-                    pustakAmount = 0,
-                    generalAmount = 0;
+                {!silakLoading &&
+                (!filteredReportData || filteredReportData.length === 0) ? (
+                  <tr>
+                    <td
+                      colSpan={14}
+                      className="report-table-empty-message"
+                    >
+                      No data found
+                    </td>
+                  </tr>
+                ) : (
+                filteredReportData?.map((silak, index) => {
+                  const {
+                    murtiAmount,
+                    vaghaAmount,
+                    gharenaAmount,
+                    pujaAmount,
+                    pustakAmount,
+                    generalAmount,
+                    totalAmount,
+                  } = silakCategoryTotalAmount(silak);
 
-                  const categories = Array.isArray(silak?.categories)
-                    ? silak.categories
-                    : [];
-
-                  categories.forEach((category) => {
-                    switch (category?.categoryName) {
-                      case "મુર્તિ":
-                        murtiAmount = category?.totalBuyingAmountPerCategory ?? 0;
-                        break;
-                      case "વાઘા":
-                        vaghaAmount = category?.totalBuyingAmountPerCategory ?? 0;
-                        break;
-                      case "ઘરેણા":
-                        gharenaAmount =
-                          category?.totalBuyingAmountPerCategory ?? 0;
-                        break;
-                      case "પુજા":
-                        pujaAmount = category?.totalBuyingAmountPerCategory ?? 0;
-                        break;
-                      case "પુસ્તક":
-                        pustakAmount =
-                          category?.totalBuyingAmountPerCategory ?? 0;
-                        break;
-                      case "જનરલ":
-                        generalAmount =
-                          category?.totalBuyingAmountPerCategory ?? 0;
-                        break;
-                      default:
-                        break;
-                    }
-                  });
-
-                  const totalAmount =
-                    murtiAmount +
-                    vaghaAmount +
-                    gharenaAmount +
-                    pujaAmount +
-                    pustakAmount +
-                    generalAmount;
+                  const vadGhatDeltaRow = silakVadGhatDelta(silak);
 
                   const dateParts = silak?.createdAt
                     ? silak.createdAt.split("-")
@@ -366,17 +358,20 @@ const SilakMonthlyReport = () => {
                           silak?.silkData?.kharch ?? 0
                         )}
                       </td>
-                      <td style={{ textAlign: "end", border: "1px solid #000000" }}>
-                        {new Intl.NumberFormat("en-IN").format(
-                          (silak?.silkData?.openSilak ?? 0) +
-                            totalAmount -
-                            (silak?.silkData?.closeSilak ?? 0) -
-                            (silak?.silkData?.jamaRakam ?? 0)
-                        )}
+                      <td
+                        style={{
+                          textAlign: "end",
+                          border: "1px solid #000000",
+                          fontWeight: 600,
+                          ...getSilakVadGhatColorStyle(vadGhatDeltaRow),
+                        }}
+                      >
+                        {new Intl.NumberFormat("en-IN").format(vadGhatDeltaRow)}
                       </td>
                     </tr>
                   );
-                })}
+                })
+                )}
               </tbody>
               <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
                 <tr>
@@ -463,12 +458,21 @@ const SilakMonthlyReport = () => {
                   >
                     {new Intl.NumberFormat("en-IN").format(totalKharch ?? 0)}
                   </td>
-                  <td></td>
+                  <td
+                    style={{
+                      textAlign: "end",
+                      fontWeight: "bold",
+                      border: "1px solid #000000",
+                      ...getSilakVadGhatColorStyle(totalVadGhatSum),
+                    }}
+                  >
+                    {new Intl.NumberFormat("en-IN").format(totalVadGhatSum)}
+                  </td>
                 </tr>
               </tfoot>
             </table>
           </div>
-        </div>
+        </ReportTablesLoaderWrap>
       </div>
     </div>
   );

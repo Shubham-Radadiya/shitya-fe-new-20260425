@@ -1,5 +1,7 @@
 // billSaga.js
 import { all, call, put, takeLatest } from "redux-saga/effects";
+import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 import * as billServices from "../../services/bill.services";
 import {
   REQUEST_CREATE_BILL,
@@ -27,7 +29,9 @@ function* requestCreateBill(action) {
     yield put({ type: SET_CREATE_BILL, payload: data });
     yield call(requestBillNo)
   } catch (error) {
-    yield put({ type: ERROR_CREATE_BILL, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_CREATE_BILL, payload: msg });
   }
 }
 
@@ -36,7 +40,8 @@ function* requestBillNo() {
     const { data } = yield call(billServices.getBillNo);
     yield put({ type: SET_BILL_NO, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
+    const msg = handleError(error);
+    yield put({ type: ERROR_BILL_NO, payload: msg });
   }
 }
 
@@ -45,7 +50,8 @@ function* requestBhetBillNo() {
     const { data } = yield call(billServices.getBhetBillNo);
     yield put({ type: SET_BILL_NO, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
+    const msg = handleError(error);
+    yield put({ type: ERROR_BILL_NO, payload: msg });
   }
 }
 
@@ -54,7 +60,8 @@ function* requestBhetReturnBillNo() {
     const { data } = yield call(billServices.getBhetReturnBillNo);
     yield put({ type: SET_BILL_NO, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
+    const msg = handleError(error);
+    yield put({ type: ERROR_BILL_NO, payload: msg });
   }
 }
 
@@ -63,7 +70,8 @@ function* requestreturnBillNo() {
     const { data } = yield call(billServices.getReturnBillNo);
     yield put({ type: SET_BILL_NO, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
+    const msg = handleError(error);
+    yield put({ type: ERROR_BILL_NO, payload: msg });
   }
 }
 
@@ -73,7 +81,9 @@ function* requestBillDetails(action) {
     const { data } = yield call(billServices.getBillDetails, action.payload);
     yield put({ type: SET_BILL_DETAILS, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_BILL_NO, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_BILL_NO, payload: msg });
   }
 }
 function* requestReprintBill(action) {
@@ -81,7 +91,9 @@ function* requestReprintBill(action) {
     const data = yield call(billServices.reprintBill, action.payload);
     yield put({ type: SET_REPRINT_BILL, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_REPRINT_BILL, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_REPRINT_BILL, payload: msg });
   }
 }
 
@@ -90,21 +102,17 @@ function* requestReturnBill(action) {
     const data = yield call(billServices.returnBill, action.payload);
     yield put({ type: SET_RETURN_BILL, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_RETURN_BILL, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_RETURN_BILL, payload: msg });
   }
 }
 
 function handleError(error) {
-  let message = "Something went wrong, please try again after some time.";
-  if (error.response) {
-    const { status, data } = error.response;
-    if (status === 500) {
-      message = "Something happened wrong, try again after some time.";
-    } else if (status === 422 || status === 415) {
-      message = data.message || "Please provide valid content.";
-    }
-  }
-  return message;
+  return getApiErrorMessage(
+    error,
+    "Something went wrong, please try again after some time."
+  );
 }
 
 export function* billSaga() {

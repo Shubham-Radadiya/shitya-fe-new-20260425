@@ -3,6 +3,7 @@ import {
   PRODUCT_REQUEST,
   SET_PRODUCT,
   REQUEST_STOCK_QUANTITY,
+  REQUEST_GET_STOCk,
   GET_STOCK,
 } from "./ProductAction";
 import { useSelector } from "react-redux";
@@ -12,6 +13,7 @@ const initialState = {
   message: "",
   products: [],
   stock: [],
+  stockLoading: false,
 };
 
 const ProductReducer = (state = initialState, action) => {
@@ -43,10 +45,16 @@ const ProductReducer = (state = initialState, action) => {
         busy: false,
         message: action.payload,
       };
+    case REQUEST_GET_STOCk:
+      return {
+        ...state,
+        stockLoading: true,
+      };
     case GET_STOCK:
       return {
         ...state,
         busy: false,
+        stockLoading: false,
         stock: action.payload,
       };
     default:

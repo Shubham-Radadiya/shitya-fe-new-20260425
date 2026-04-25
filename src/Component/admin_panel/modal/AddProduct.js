@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./modalstyle.css";
 import { CREATE_PRODUCT_REQUEST } from "../../../store/product/ProductAction";
 import { useDispatch, useSelector } from "react-redux";
 import { REQUEST_CATEGORY } from "../../../store/category/categoryActionType";
 import { REQUEST_SUBCATEGORY } from "../../../store/subcategory/SubCategoryAction";
+import {
+  sortCategoriesForAdminDisplay,
+  sortSubcategoriesForAdmin,
+} from "../../../utils/productDisplayOrder";
 
 const AddProduct = ({ closeModal }) => {
   const dispatch = useDispatch();
@@ -11,9 +15,18 @@ const AddProduct = ({ closeModal }) => {
     image: "./",
     price: 0,
     priceType: "CUSTOM",
+    isDeActive: false,
   });
   const [subCatgeroty, setSubcategory] = useState({});
   const categories = useSelector((state) => state.category.categories);
+  const sortedCategories = useMemo(
+    () => sortCategoriesForAdminDisplay(categories || []),
+    [categories]
+  );
+  const sortedSubOptions = useMemo(
+    () => sortSubcategoriesForAdmin(subCatgeroty?.subCategory || []),
+    [subCatgeroty]
+  );
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -40,6 +53,11 @@ const AddProduct = ({ closeModal }) => {
           priceType: value,
         });
       }
+    } else if (name === "isDeActive") {
+      setProductData({
+        ...productData,
+        isDeActive: value === "true",
+      });
     } else {
       setProductData({
         ...productData,
@@ -50,8 +68,9 @@ const AddProduct = ({ closeModal }) => {
 
   const HandleCreateProduct = async () => {
     try {
-      // remove categoryId from payload
-      const { categoryId, ...payload } = productData;
+      // remove categoryId from payload, ensure isDeActive is boolean
+      const { categoryId, ...rest } = productData;
+      const payload = { ...rest, isDeActive: !!rest.isDeActive };
 
       await dispatch({ type: CREATE_PRODUCT_REQUEST, payload });
       closeModal();
@@ -88,7 +107,7 @@ const AddProduct = ({ closeModal }) => {
                   <option value="" disabled selected>
                     Category
                   </option>
-                  {categories.map((category) => (
+                  {sortedCategories.map((category) => (
                     <option key={category._id} value={category._id}>
                       {category.name}
                     </option>
@@ -107,7 +126,7 @@ const AddProduct = ({ closeModal }) => {
                   <option value="" disabled>
                     Sub Category
                   </option>
-                  {subCatgeroty?.subCategory?.map((subCategory) => (
+                  {sortedSubOptions.map((subCategory) => (
                     <option key={subCategory._id} value={subCategory._id}>
                       {subCategory.name}
                     </option>
@@ -164,6 +183,20 @@ const AddProduct = ({ closeModal }) => {
                   />
                 </label>
               )}
+
+              <label className="modal-label">
+                Status:
+                <select
+                  className="modal-input"
+                  id="isDeActive"
+                  name="isDeActive"
+                  value={productData.isDeActive === true ? "true" : "false"}
+                  onChange={handleChange}
+                >
+                  <option value="false">Active</option>
+                  <option value="true">Deactive</option>
+                </select>
+              </label>
             </div>
             <div className="modal-bottom-btn">
               <button

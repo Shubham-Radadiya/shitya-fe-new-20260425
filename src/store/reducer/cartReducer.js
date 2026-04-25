@@ -38,7 +38,7 @@ export const cartReducer = (state = initialState, action) => {
     ...state,
     items: state.items.map((item) =>
       item._id === action.payload.id
-        ? { ...item, price: action.payload.price } // 👈 override price
+        ? { ...item, price: action.payload.price }
         : item
     ),
     purchaseItems: state.purchaseItems.map((item) =>

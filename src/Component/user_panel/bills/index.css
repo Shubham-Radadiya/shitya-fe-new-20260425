@@ -107,8 +107,8 @@
 }
 
 .bill_table thead,
-tfoot,
-tr {
+.bill_table tfoot,
+.bill_table tr {
   display: table;
   width: 100%;
   table-layout: fixed;
@@ -240,8 +240,8 @@ tr {
   border-bottom: 1px solid var(--black-color);
 }
 .bill_table thead,
-tfoot,
-tr {
+.bill_table tfoot,
+.bill_table tr {
   display: table;
   width: 100%;
   table-layout: fixed;
@@ -468,15 +468,15 @@ tr {
 }
 .pin-prompt div {
   background: white;
-    padding: 20px;
-    border-radius: 10px;
-    display: flex;
-    text-align: center;
-    width: 20%;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  text-align: center;
+  width: 20%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .pin-prompt input {
   width: 80%;
@@ -488,22 +488,68 @@ tr {
   text-align: center;
 }
 
-/* Submit button */
+/* PIN modal actions — default (fallback) */
 .pin-prompt button {
-  background: #228e09; /* Green color */
+  background: #228e09;
   color: white;
   border: none;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
-  transition: background 0.3s;
+  transition:
+    background 0.2s ease,
+    filter 0.2s ease;
 }
 
 .pin-prompt button:hover {
-  background: #1a6607; /* Darker green */
+  background: #1a6607;
 }
-.button-group{
+
+.pin-prompt--purchase button {
+  background: var(--purchase-bg, rgb(113, 48, 142));
+  color: var(--white-color, #fff);
+}
+
+.pin-prompt--purchase button:hover {
+  background: var(--purchase-bg, rgb(113, 48, 142));
+  filter: brightness(0.92);
+}
+
+.pin-prompt--bhet button {
+  background: var(--bhet-bg, rgb(34, 78, 8));
+  color: var(--white-color, #fff);
+}
+
+.pin-prompt--bhet button:hover {
+  background: var(--bhet-bg, rgb(34, 78, 8));
+  filter: brightness(0.92);
+}
+
+.pin-prompt--purchase .modal-content {
+  border: 2px solid rgba(113, 48, 142, 0.28);
+}
+
+.pin-prompt--bhet .modal-content {
+  border: 2px solid rgba(34, 78, 8, 0.35);
+}
+
+.pin-prompt--purchase h3 {
+  color: var(--purchase-bg, rgb(113, 48, 142));
+}
+
+.pin-prompt--bhet h3 {
+  color: var(--bhet-bg, rgb(34, 78, 8));
+}
+
+.pin-prompt--purchase input {
+  border-color: rgba(113, 48, 142, 0.45);
+}
+
+.pin-prompt--bhet input {
+  border-color: rgba(34, 78, 8, 0.45);
+}
+.button-group {
   display: flex;
   gap: 15px;
 }
@@ -512,7 +558,7 @@ tr {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--purchase-bg); 
+  background-color: var(--purchase-bg);
   color: var(--white-color);
   border-radius: 0.4rem;
   cursor: pointer;

@@ -1,64 +1,76 @@
 .scroll-container {
   display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  height: 2.3rem;
-  padding: 0.5rem;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.2rem 0.2rem;
+  overflow: hidden;
+  border: 2px solid rgb(97 37 17 / 35%);
+  border-radius: 9px;
+  background-color: rgb(198 129 106 / 10%);
+  height: 67px;
 }
 
-.scroll-container::-webkit-scrollbar {
-  height: 4px;
+.scroll-container--purchase {
+  border: 2px solid rgba(113, 48, 142, 0.4);
+  background-color: rgba(113, 48, 142, 0.08);
 }
 
-.scroll-container::-webkit-scrollbar-thumb {
-  background: var(--brown-color);
-  border-radius: 10px;
+.scroll-container--bhet {
+  border: 2px solid rgba(34, 78, 8, 0.45);
+  background-color: rgba(34, 78, 8, 0.1);
 }
 
-.subcategory_contain {
-  color: var(--brown-color);
-  background-color: var(--white-color);
-  border: 1px solid var(--brown-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  border-radius: var(--btn-radius);
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.purchase_subcategory_contain {
-  color: var(--purchase-bg);
-  background-color: var(--white-color);
-  border: 1px solid var(--purchase-bg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  border-radius: var(--btn-radius);
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
+/* Shared layout — theme colors set per variant below */
+.subcategory_contain,
+.purchase_subcategory_contain,
 .bhet_subcategory_contain {
-  color: var(--bhet-bg);
-  background-color: var(--white-color);
-  border: 1px solid var(--bhet-bg);
+  flex: 0 0 calc(16.66% - 0.5rem);
+  height: 30px;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   border-radius: var(--btn-radius);
   cursor: pointer;
-  padding: 0.5rem 1rem;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* Sales (dashboard) — brown */
+.subcategory_contain {
+  background-color: #916c63;
+  border: 2px solid rgb(97, 37, 17);
+  color: white;
+}
+
+/* Purchase screen (/stock) — purple theme */
+.purchase_subcategory_contain {
+  background-color: rgba(113, 48, 142, 0.14);
+  border: 2px solid var(--purchase-bg);
+  color: var(--purchase-bg);
+}
+
+/* Bhet screen — green theme */
+.bhet_subcategory_contain {
+  background-color: rgba(34, 78, 8, 0.12);
+  border: 2px solid var(--bhet-bg);
+  color: var(--bhet-bg);
+}
+
+.subcategory_name {
+  font-size: 1rem;
+  margin: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1.5px solid white;
+  height: 26px;
+  width: 163px;
+  border-radius: 7px;
 }
 
 .subcategory_contain:hover {
@@ -66,22 +78,40 @@
   box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
 }
 
+.purchase_subcategory_contain:hover,
+.bhet_subcategory_contain:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
+}
+
 .subcategory_contain.active {
-  background-color: #7043302d;
+  background-color: #ffffff;
   color: var(--brown-color);
   border: 2px solid var(--brown-color);
 }
+
 .purchase_subcategory_contain.active {
-  background-color: rgb(79 19 106 / 9%);
-  color: var(--purchase-bg);
+  background-color: var(--purchase-bg);
+  color: var(--white-color);
   border: 2px solid var(--purchase-bg);
 }
+
 .bhet_subcategory_contain.active {
-  background-color: rgba(57, 32, 127, 0.156);
-  color: var(--bhet-bg);
+  background-color: var(--bhet-bg);
+  color: var(--white-color);
   border: 2px solid var(--bhet-bg);
 }
-.subcategory_name {
-  font-size: 1.2rem;
-  margin: 0;
+
+.purchase_subcategory_contain .subcategory_name {
+  border-color: rgba(113, 48, 142, 0.35);
+}
+
+.bhet_subcategory_contain .subcategory_name {
+  border-color: rgba(34, 78, 8, 0.35);
+}
+
+.purchase_subcategory_contain.active .subcategory_name,
+.bhet_subcategory_contain.active .subcategory_name {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--white-color);
 }

@@ -3,6 +3,22 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+}
+
+.menu-offline-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: #fce8e6;
+  color: #7a1f1a;
+  border-bottom: 1px solid #f0c4c0;
 }
 .menu_list {
   display: flex;

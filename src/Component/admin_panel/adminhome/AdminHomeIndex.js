@@ -11,9 +11,12 @@ import {
 import { useAuth } from "../../../store/auth/AuthReducers";
 import { LuEyeOff, LuEye } from "react-icons/lu";
 import { MdEdit } from "react-icons/md";
+import { useAdminSession } from "../../../context/AdminSessionContext";
+import { loginUserNameHint } from "../../../utils/loginUserName";
 
 const AdminHome = () => {
   const dispatch = useDispatch();
+  const { role: currentRole } = useAdminSession();
   const [showUserModal, setShowUserModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -54,63 +57,97 @@ const AdminHome = () => {
           <IoIosAddCircle className="add-icon" />
           Create User
         </button>
-        <table className="user-table">
-          <thead>
-            <tr>
-              <th style={{ width: "8%" }}>Sr. No.</th>
-              <th>Name</th>
-              <th style={{ width: "25%" }}>Email ID</th>
-              <th>User Type</th>
-              <th>Password</th>
-              <th style={{ width: "8%" }}>Action</th>
-            </tr>
-          </thead>
-          <tbody style={{ maxHeight: "70vh", overflowY: "auto" }}>
-            {users.map((user, index) => (
-              <tr
-                key={user._id}
-                className={index % 2 === 0 ? "even-row" : "odd-row"}
-              >
-                <td className="serial-no" style={{ width: "8%" }}>
-                  {index + 1}
-                </td>
-                <td>{user.fullName}</td>
-                <td style={{ width: "25%" }}>{user.userName}</td>
-                <td>{user.userType}</td>
-                <td className="flexgap">
-                  <div>
-                    {visiblePasswords[user._id] ? user.password : "******"}
-                  </div>
-                  {visiblePasswords[user._id] ? (
-                    <LuEye
-                      onClick={() => handleTogglePassword(user._id)}
-                      style={{
-                        fontSize: "1.2rem",
-                        position: "relative",
-                        top: "0.1rem",
-                        cursor:"pointer" 
-                      }}
-                    />
-                  ) : (
-                    <LuEyeOff
-                      onClick={() => handleTogglePassword(user._id)}
-                      style={{ fontSize: "1rem",cursor:"pointer" }}
-                    />
-                  )}
-                </td>
-                <td style={{ width: "8%" }}>
-                  <button
-                    className="action_btn"
-                    onClick={() => handleEditUser(user)}
-                  >
-                    <MdEdit className="action_icon" />
-                    Edit
-                  </button>
-                </td>
+        <div className="user-table-scroll">
+          <table
+            className={`user-table ${
+              currentRole === "SUPER ADMIN" ? "user-table--7" : "user-table--6"
+            }`}
+          >
+            <colgroup>
+              <col />
+              <col />
+              <col />
+              <col />
+              {currentRole === "SUPER ADMIN" && <col />}
+              <col />
+              <col />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Sr. No.</th>
+                <th scope="col">Branch name</th>
+                <th scope="col" title={loginUserNameHint}>
+                  Username
+                </th>
+                <th scope="col">User Role</th>
+                {currentRole === "SUPER ADMIN" && (
+                  <th scope="col" title="Allow Settings menu (stall, paths, backup)">
+                    Settings
+                  </th>
+                )}
+                <th scope="col">Password</th>
+                <th scope="col">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((user, index) => (
+                <tr
+                  key={user._id}
+                  className={index % 2 === 0 ? "even-row" : "odd-row"}
+                >
+                  <td className="serial-no">{index + 1}</td>
+                  <td>{user.branchName || "KUD"}</td>
+                  <td>{user.userName}</td>
+                  <td>{user.userType}</td>
+                  {currentRole === "SUPER ADMIN" && (
+                    <td>
+                      {user.userType === "MANAGER"
+                        ? user.canAccessSettings
+                          ? "Yes"
+                          : "No"
+                        : "—"}
+                    </td>
+                  )}
+                  <td>
+                    <div className="user-table-password-cell">
+                      <div className="user-table-password-mask">
+                        {visiblePasswords[user._id] ? user.password : "******"}
+                      </div>
+                      {visiblePasswords[user._id] ? (
+                        <LuEye
+                          onClick={() => handleTogglePassword(user._id)}
+                          style={{
+                            fontSize: "1.2rem",
+                            flexShrink: 0,
+                            cursor: "pointer",
+                          }}
+                        />
+                      ) : (
+                        <LuEyeOff
+                          onClick={() => handleTogglePassword(user._id)}
+                          style={{
+                            fontSize: "1rem",
+                            flexShrink: 0,
+                            cursor: "pointer",
+                          }}
+                        />
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <button
+                      className="action_btn"
+                      onClick={() => handleEditUser(user)}
+                    >
+                      <MdEdit className="action_icon" />
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       {showUserModal && (
         <CreateUser closeModal={() => setShowUserModal(false)} />

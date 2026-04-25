@@ -2,8 +2,10 @@
     background-color: var(--white-color);
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding-inline: 0.8rem;
     height: 100%;
+    flex-wrap: nowrap;
 }
 
 .title{
@@ -35,8 +37,9 @@
 .header-nav{
     display: flex;
     justify-content: center;
-   align-items:center;
-   gap:2rem;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: nowrap;
 }
 
 .navlinks{
@@ -44,18 +47,17 @@
     display: flex;
     align-items: center;
     flex-direction: row;
-    gap:2.5rem;
+    gap: 2rem;
     font-weight: bold;
+    flex-wrap: nowrap;
 }
 
 .navlinks a{
     color: var(--light-brown-color);
-    position: relative;
-    top: 0.7rem;
     text-decoration: none;
     font-size: medium;
     margin: 0;
-    height: 1.8rem;
+    white-space: nowrap;
 }
 
 .navlinks a:hover{
@@ -71,4 +73,69 @@
     text-decoration: none;
 }
 
+.header-sync-cluster {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    max-width: 11rem;
+    flex-shrink: 0;
+}
+
+.header-net-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.header-net-badge--on {
+    background: #e6f4ea;
+    color: #137333;
+}
+
+.header-net-badge--off {
+    background: #fce8e6;
+    color: #c5221f;
+}
+
+.header-sync-btn {
+    background: #5c4033;
+    color: #fff;
+    border: none;
+    border-radius: var(--btn-radius);
+    padding: 0.35rem 0.55rem;
+    font-size: 0.72rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.header-sync-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.header-sync-running {
+    font-size: 0.72rem;
+    color: #b06000;
+    font-weight: 600;
+}
+
+.header-sync-error {
+    font-size: 0.68rem;
+    color: #c5221f;
+    max-width: 11rem;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-sync-meta {
+    font-size: 0.62rem;
+    color: #666;
+    text-align: right;
+    line-height: 1.2;
+    max-width: 11rem;
+}
 

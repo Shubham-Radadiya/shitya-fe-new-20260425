@@ -3,17 +3,18 @@ import { useDispatch } from 'react-redux';
 import closeicon from "../../images/closeicon.png";
 import './modalstyle.css';
 import { DELETE_SUBCATEGORY } from '../../../store/subcategory/SubCategoryAction';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
 
 const RemoveSubcategory = ({ closeModal, confirmRemove, subcategoryId }) => {
   const dispatch = useDispatch();
 
-  const deleteSubcategory = async (id) => {
-    try {
-      await dispatch({ type: DELETE_SUBCATEGORY, payload: id });
+   const deleteSubcategory = (id) => {
+    dispatch({ type: DELETE_SUBCATEGORY, payload: id });
+    if (closeModal) {
+      closeModal();
+    }
+    if (confirmRemove) {
       confirmRemove();
-    } catch (error) {
-      toast.error("Error deleting subcategory:", error);
     }
   };
 

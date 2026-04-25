@@ -1,5 +1,6 @@
 // reportSaga.js
 import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 // import reportServices from "../../services/userreport.service";
 import {
@@ -21,8 +22,9 @@ function* getDailyReports(action) {
     const data = yield call(user_reportService.getdailyreports, action.payload);
     yield put({ type: GET_DAILY_REPORTS_SUCCESS, payload: data });
   } catch (error) {
-    yield put({ type: GET_DAILY_REPORTS_FAILURE, payload: error.message });
-    toast.error("Failed to fetch daily reports");
+    const msg = getApiErrorMessage(error, "Failed to fetch daily reports");
+    yield put({ type: GET_DAILY_REPORTS_FAILURE, payload: msg });
+    toast.error(msg);
   }
 }
 
@@ -31,8 +33,9 @@ function* getMonthlyReports(action) {
     const data = yield call(user_reportService.getmonthlyreports, action.payload);
     yield put({ type: GET_MONTHLY_REPORTS_SUCCESS, payload: data });
   } catch (error) {
-    yield put({ type: GET_MONTHLY_REPORTS_FAILURE, payload: error.message });
-    toast.error("Failed to fetch monthly reports");
+    const msg = getApiErrorMessage(error, "Failed to fetch monthly reports");
+    yield put({ type: GET_MONTHLY_REPORTS_FAILURE, payload: msg });
+    toast.error(msg);
   }
 }
 
@@ -41,8 +44,9 @@ function* getYearlyReports(action) {
     const data = yield call(user_reportService.getyearlyreports, action.payload);
     yield put({ type: GET_YEARLY_REPORTS_SUCCESS, payload: data });
   } catch (error) {
-    yield put({ type: GET_YEARLY_REPORTS_FAILURE, payload: error.message });
-    toast.error("Failed to fetch yearly reports");
+    const msg = getApiErrorMessage(error, "Failed to fetch yearly reports");
+    yield put({ type: GET_YEARLY_REPORTS_FAILURE, payload: msg });
+    toast.error(msg);
   }
 }
 

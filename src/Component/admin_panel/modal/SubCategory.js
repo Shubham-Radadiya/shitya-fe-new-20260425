@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import './modalstyle.css';
 import { CREATE_SUBCATEGORY_REQUEST } from '../../../store/subcategory/SubCategoryAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { REQUEST_CATEGORY } from '../../../store/category/categoryActionType';
+import { sortCategoriesForAdminDisplay } from '../../../utils/productDisplayOrder';
 
 const SubCategory = ({ closeModal }) => {
   const dispatch = useDispatch();
   const [subCategoryData, setSubCategoryData] = useState({});
   const categories = useSelector((state) => state.category.categories);
+  const sortedCategories = useMemo(
+    () => sortCategoriesForAdminDisplay(categories || []),
+    [categories]
+  );
 
   const handleChange = (event) => {
     setSubCategoryData({
@@ -49,7 +54,7 @@ const SubCategory = ({ closeModal }) => {
                 <option value="" disabled selected>
                   Category
                 </option>
-                {categories.map((category) => (
+                {sortedCategories.map((category) => (
                   <option key={category._id} value={category._id}>{category.name}</option>
                 ))}
               </select>

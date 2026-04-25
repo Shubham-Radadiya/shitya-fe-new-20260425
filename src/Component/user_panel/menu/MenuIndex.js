@@ -1,5 +1,6 @@
   import React, { useEffect, useRef, useState } from "react";
   import "./index.css";
+  import { useNavigatorOnline } from "../../../hooks/useNavigatorOnline";
   import { useDispatch, useSelector } from "react-redux";
   import { REQUEST_CATEGORY } from "../../../store/category/categoryActionType";
   import { LOGOUT_REQUEST } from "../../../store/auth/AuthAction";
@@ -12,6 +13,7 @@
 import { fetchInvoiceNumber } from "../../../store/invoice/InvoiceAction";
 
   const Menu = ({ updateName, sendData, setSelectedCategory }) => {
+    const isBrowserOnline = useNavigatorOnline();
     const dispatch = useDispatch();
     const [initialized, setInitialized] = useState(false);
     const [click, setClick] = useState("");
@@ -95,6 +97,11 @@ import { fetchInvoiceNumber } from "../../../store/invoice/InvoiceAction";
 
     return (
       <div className="menu-container">
+        {!isBrowserOnline && (
+          <div className="menu-offline-banner" role="status">
+            No internet — server actions will fail until you reconnect.
+          </div>
+        )}
         <div className="menu_list">
           <div className="menu_icon">
             <img src={img2} alt="Menu Logo" className="raja-home" />

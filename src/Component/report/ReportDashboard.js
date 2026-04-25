@@ -33,13 +33,12 @@ const ReportsDashboard = () => {
       dispatch(fetchInvoices(false));
     } else if (selectedSubReport === "purchaseReturn") {
       dispatch(fetchInvoices(true));
-    }
-    else if(selectedSubReport==="bhetReturn"){
-      dispatch(fetchBhet(true))
+    } else if (selectedSubReport === "bhetbill") {
+      dispatch(fetchBhet(false));
+    } else if (selectedSubReport === "bhetReturn") {
+      dispatch(fetchBhet(true));
     }
   }, [selectedSubReport, dispatch]);
-console.log("selectedSubReport",selectedSubReport);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -169,12 +168,15 @@ console.log("selectedSubReport",selectedSubReport);
   };
 
   return (
-    <div className="user-template">
+    <div className="user-template reports-dashboard-user reports-dashboard--viewport">
       <div className="user-container">
-        <div className="reportHeader">
+        <header className="reportHeader report-header-user">
           <div className="header-left">
-            <h2>Reports Dashboard</h2>
-            <div className="nav-buttons" style={{ display: "flex", gap: "10px" }}>
+            <h2 className="report-header-title">Reports</h2>
+            <p className="report-header-user-hint report-header-user-hint--reserved" aria-hidden="true">
+              {"\u00a0"}
+            </p>
+            <div className="nav-buttons">
               {reportOptions.map((report) => (
                 <button
                   key={report.key}
@@ -188,8 +190,16 @@ console.log("selectedSubReport",selectedSubReport);
               ))}
             </div>
           </div>
-          <img className="home-icon" src={Home} alt="Home" onClick={goToDashboard} />
-        </div>
+          <button
+            type="button"
+            className="home-icon-btn"
+            onClick={goToDashboard}
+            title="Home"
+            aria-label="Home"
+          >
+            <img className="home-icon" src={Home} alt="" />
+          </button>
+        </header>
 
         <div className="report-right-side">
           {selectedSubReport

@@ -13,6 +13,8 @@ import {
   REQUEST_CREATE_RETURN_INVOICE,
   REQUEST_EDIT_INVOICE_DATA,
   REQUEST_FETCH_INVOICE_NUMBER,
+  BHET_DATA_FETCH_ERROR,
+  INVOICE_DATA_FETCH_ERROR,
   REQUEST_INVOICE_DATA,
   REQUEST_RETURN_BHET,
   REQUEST_RETURN_PURCHASE,
@@ -26,13 +28,16 @@ import {
 
 } from "./InvoiceAction";
 import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 function* requestCreateInvoice(action) {
   try {
     const data = yield call(invoiceServices.createInvoice, action.payload);
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_CREATE_INVOICE, payload: msg });
   }
 }
 function* requestCreateBhet(action) {
@@ -40,26 +45,52 @@ function* requestCreateBhet(action) {
     const data = yield call(invoiceServices.createBhet, action.payload);
     yield put({ type: SET_CREATE_BHET, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_BHET, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_CREATE_BHET, payload: msg });
   }
 }
 
 function* requestInvoiceData(action) {
   try {
-    const data = yield call(invoiceServices.getInvoices, action.payload);
+    const p = action.payload;
+    const isReturned = typeof p === "boolean" ? p : Boolean(p?.isReturned);
+    const range =
+      typeof p === "object" && p?.startDate && p?.endDate
+        ? { startDate: p.startDate, endDate: p.endDate }
+        : undefined;
+    const storeWide = Boolean(
+      typeof p === "object" && p && p.storeWide === true
+    );
+    const data = yield call(
+      invoiceServices.getInvoices,
+      isReturned,
+      range,
+      storeWide
+    );
     yield put({ type: SET_INVOICE_DATA, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({
+      type: INVOICE_DATA_FETCH_ERROR,
+      payload: msg,
+    });
   }
 }
 
 function* requestBhetData(action) {
   try {
     console.log("Saga - Fetching Bhet Data with isReturned:", action.payload);
-    const data = yield call(invoiceServices.getBhet, action.payload); 
+    const data = yield call(invoiceServices.getBhet, action.payload);
     yield put({ type: SET_BHET_DATA, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_BHET, payload: error.message });
+    const msg = handleError(error, "Failed to load bhet data");
+    toast.error(msg);
+    yield put({
+      type: BHET_DATA_FETCH_ERROR,
+      payload: msg,
+    });
   }
 }
 
@@ -73,7 +104,9 @@ function* requestEditInvoice(action) {
     toast.success("Invoice updated successfully");
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_CREATE_INVOICE, payload: msg });
   }
 }
 
@@ -87,7 +120,9 @@ function* requestCreateReturnInvoice(action) {
     toast.success("Return invoice created successfully");
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_CREATE_INVOICE, payload: msg });
   }
 }
 
@@ -101,7 +136,9 @@ function* requestEditreturnBhet(action) {
     toast.success("Return invoice created successfully");
     yield put({ type: SET_CREATE_INVOICE, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_CREATE_INVOICE, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_CREATE_INVOICE, payload: msg });
   }
 }
 
@@ -110,7 +147,9 @@ function* requestReturnPurchase(action) {
     const data = yield call(invoiceServices.createInvoiceReturn, action.payload);
     yield put({ type: SET_RETURN_PURCHASE, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_RETURN_PURCHASE, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_RETURN_PURCHASE, payload: msg });
   }
 }
 
@@ -119,21 +158,17 @@ function* requestReturnBhet(action) {
     const data = yield call(invoiceServices.createReturnBhet, action.payload);
     yield put({ type: SET_RETURN_BHET, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_RETURN_BHET, payload: handleError(error) });
+    const msg = handleError(error);
+    toast.error(msg);
+    yield put({ type: ERROR_RETURN_BHET, payload: msg });
   }
 }
 
-function handleError(error) {
-  let message = "Something went wrong, please try again later.";
-  if (error.response) {
-    const { status, data } = error.response;
-    if (status === 500) {
-      message = "Server error. Try again later.";
-    } else if (status === 422 || status === 415) {
-      message = data.message || "Invalid data.";
-    }
-  }
-  return message;
+function handleError(error, fallback) {
+  return getApiErrorMessage(
+    error,
+    fallback || "Something went wrong, please try again later."
+  );
 }
 
 function* requestFetchInvoiceNumber(action) {
@@ -141,7 +176,9 @@ function* requestFetchInvoiceNumber(action) {
     const data = yield call(invoiceServices.fetchInvoiceNumber, action.payload);
     yield put({ type: SET_FETCH_INVOICE_NUMBER, payload: data });
   } catch (error) {
-    yield put({ type: ERROR_FETCH_INVOICE_NUMBER, payload: error.message });
+    const msg = handleError(error, "Could not fetch invoice number.");
+    toast.error(msg);
+    yield put({ type: ERROR_FETCH_INVOICE_NUMBER, payload: msg });
   }
 }
 

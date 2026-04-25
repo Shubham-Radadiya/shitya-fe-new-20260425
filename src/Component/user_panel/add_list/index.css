@@ -21,6 +21,7 @@
   padding: 0.5rem;
   background-color: var(--white-color);
   border-radius: var(--btn-radius);
+  margin-top: 4px;
 }
 
 .product-grid {
@@ -45,6 +46,58 @@
 
 .product-box:hover {
   transform: scale(1.05);
+}
+
+/* Deactive product styles - content faded, thick dark red X on top corner-to-corner */
+.product-box--deactive {
+  cursor: not-allowed;
+  position: relative;
+}
+
+.product-box--deactive .product-price,
+.product-box--deactive .product-name,
+.product-box--deactive .product-id {
+  opacity: 0.4;
+}
+
+.product-box--deactive:hover {
+  transform: none;
+}
+
+.deactive-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Thick dark red X - corner to corner, fully opaque */
+.deactive-overlay::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 7px;
+  background: rgb(240 11 11);
+  transform: translate(-50%, -50%) rotate(-50deg);
+}
+
+.deactive-overlay::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 7px;
+  background: rgb(240 11 11);
+  transform: translate(-50%, -50%) rotate(50deg);
 }
 
 .product-price {

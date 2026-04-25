@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import ReactToPrint, { useReactToPrint } from "react-to-print";
@@ -40,6 +40,35 @@ import {
 } from "../../../store/invoice/InvoiceAction";
 import NotesComponent from "../notes/Notes";
 import { fetchInvoiceNumber } from "../../../store/invoice/InvoiceAction";
+import {
+  buildPrintDocumentTitle,
+  getPrintTitleForBillScreen,
+} from "../../../utils/salesPrintFilename";
+import { useStoreSettings } from "../../../context/StoreSettingsContext";
+
+const pinGateTitle = (gate) => {
+  if (!gate) return "";
+  if (gate.type === "navigate") {
+    if (gate.screen === "stock") return "Purchase";
+    if (gate.screen === "bhet") return "Bhet";
+    return gate.screen;
+  }
+  return gate.isBhet ? "Bhet return" : "Purchase return";
+};
+
+/** PIN modal accent: purchase (/stock) = purple, bhet = green */
+const pinPromptThemeClass = (gate) => {
+  if (!gate) return "";
+  if (gate.type === "navigate") {
+    if (gate.screen === "bhet") return "pin-prompt--bhet";
+    if (gate.screen === "stock") return "pin-prompt--purchase";
+    return "";
+  }
+  if (gate.type === "return") {
+    return gate.isBhet ? "pin-prompt--bhet" : "pin-prompt--purchase";
+  }
+  return "";
+};
 
 const Bills = ({ returnMode, setReturnMode }) => {
   const dispatch = useDispatch();
@@ -66,46 +95,47 @@ const Bills = ({ returnMode, setReturnMode }) => {
   const [purchaseLabel, setPurchaseLabel] = useState("Total Purchase");
   const [showExcelTable, setShowExcelTable] = useState(false);
   const printRef = useRef();
+  const { entryPin: entryPinFromSettings } = useStoreSettings();
+  const effectiveEntryPin = (entryPinFromSettings || "").trim();
   const [pin, setPin] = useState("");
-  const [showPinPrompt, setShowPinPrompt] = useState(null);
+  /** null | { type: 'navigate', screen } | { type: 'return', isBhet } */
+  const [pinGate, setPinGate] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [showNotes, setShowNotes] = useState(false);
   const [isReturnMode, setIsReturnMode] = useState(false);
-  const [bhetPin, setBhetPin] = useState("");
-  const [showBhetPinPrompt, setShowBhetPinPrompt] = useState(false);
-  const [customPrices, setCustomPrices] = useState({}); // 🔹 local state for inputs
-
-  const pinConfig = {
-    bhetReturn: "4455", // PIN only for bhet return
-  };
-
-  const correctPin = "2812";
+  const [customPrices, setCustomPrices] = useState({});
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPurchaseprice, setTotalPurchasePrice] = useState(0);
+  const [totalBhetprice, setTotalBhetPrice] = useState(0);
 
   const handlePinChange = (e) => {
     setPin(e.target.value);
   };
 
-  const handlePinSubmit = () => {
-    if (pin === correctPin && showPinPrompt) {
-      navigate(`/${showPinPrompt}`);
-      setShowPinPrompt(null);
-      setPin("");
-    } else {
-      alert("Incorrect PIN");
-    }
+  const toNum = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
   };
 
   const handleButtonClick = (screen) => {
-    if (location.pathname !== `/${screen}`) {
-      setShowPinPrompt(screen);
+    if (location.pathname === `/${screen}`) return;
+    if (!effectiveEntryPin) {
+      navigate(`/${screen}`);
+      return;
     }
+    setPin("");
+    setPinGate({ type: "navigate", screen });
   };
   useEffect(() => {
     if (currentLocation.pathname === "/bhet") {
       dispatch({ type: REQUEST_BHET_BILL_NO });
     }
   }, [currentLocation.pathname, dispatch]);
+
+  useEffect(() => {
+    console.log(customPrices, "customPrices");
+  }, [customPrices]);
 
   useEffect(() => {
     if (currentLocation.pathname === "/bhet") {
@@ -130,12 +160,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
       );
     });
   }, []);
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handlePinSubmit();
-    }
-  };
 
   useEffect(() => {
     if (currentLocation.pathname === "/dashboard") {
@@ -163,28 +187,61 @@ const Bills = ({ returnMode, setReturnMode }) => {
     (total, item) => total + item.quantity,
     0
   );
-
-  const totalPrice = items.reduce((sum, product) => {
-    const price = customPrices[product._id] ?? product.price;
-    return sum + price * product.quantity;
-  }, 0);
+  const priceOf = (p) => {
+    const key = p.uniqueKey || p._id; 
+    if (currentLocation.pathname === "/stock" && currentLocation.state?.edit) {
+      return toNum(p.price);
+    }
   
-  const totalPurchaseprice = purchaseItems.reduce((sum, product) => {
-    const price = customPrices[product._id] ?? product.price;
-    return sum + price * product.quantity;
-  }, 0);
+    if (p.priceType === "FIXED") return toNum(p.price);
+    if (customPrices[key] !== undefined && customPrices[key] !== "") {
+      return toNum(customPrices[key]);
+    }
+    if (p.price > 0) return toNum(p.price);
+    return 0;
+  };
+  const qtyOf = (p) => toNum(p.quantity);
+  const line = (p) => priceOf(p) * qtyOf(p);
+  const calcTotal = (arr = [], customPrices = {}, isPurchase = false) => {
+    if (isPurchase && currentLocation.pathname === "/stock" && currentLocation.state?.edit) {
+      return arr.reduce((sum, p) => sum + toNum(p.price) * toNum(p.quantity), 0);
+    }
+    return arr.reduce((sum, p, idx) => {
+      const key = p.uniqueKey || `${p._id}-${idx}`;
+      const price =
+        p.priceType === "FIXED"
+          ? toNum(p.price)
+          : customPrices[key] !== undefined && customPrices[key] !== ""
+          ? toNum(customPrices[key])
+          : 0;
+      return sum + price * toNum(p.quantity);
+    }, 0);
+  };
   
-  const totalBhetprice = bhetItems.reduce((sum, product) => {
-    const price = customPrices[product._id] ?? product.price;
-    return sum + price * product.quantity;
-  }, 0);
+  useEffect(() => {
+    setTotalPrice(calcTotal(items, customPrices));
+    setTotalPurchasePrice(calcTotal(purchaseItems, customPrices, true)); // ✅ pass true for purchaseItems
+    setTotalBhetPrice(calcTotal(bhetItems, customPrices));
+  }, [items, purchaseItems, bhetItems, customPrices, currentLocation]);
+  
 
   const reprintTotalQuantity = reprintBill?.productId?.reduce(
     (total, item) => total + item.quantity,
     0
   );
+  const excelPrintDocumentTitle = useMemo(
+    () =>
+      buildPrintDocumentTitle(
+        "excel",
+        `${Date.now().toString(36)}`,
+        new Date()
+      ),
+    [excelBill]
+  );
+
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
+    documentTitle: excelPrintDocumentTitle,
   });
   useEffect(() => {
     if (excelBill && excelBill.length > 0) {
@@ -192,7 +249,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
       handlePrint();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [excelBill]);
 
   const handlePrintClick = () => {
@@ -263,14 +319,37 @@ const Bills = ({ returnMode, setReturnMode }) => {
       </table>
     </div>
   );
-
-  const printDiv = (items) => {
+  const generateProfessionalId = () => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+  
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  
+    return `CP-${yyyy}${mm}${dd}-${hh}${min}${ss}-${rand}`;
+  };
+  const printDiv = (list) => {
     const payload = {
-      productId: items.map((item) => ({
-        _id: item._id,
-        quantity: item.quantity,
-        price: item.price,
-      })),
+      productId: list.map((item, idx) => {
+        const key = item.uniqueKey || `${item._id}-${idx}`;
+        const price =
+          item.priceType === "FIXED"
+            ? toNum(item.price)
+            : customPrices[key] !== undefined && customPrices[key] !== ""
+            ? toNum(customPrices[key])
+            : 0;
+
+        return {
+          _id: item._id,
+          quantity: toNum(item.quantity),
+          price,
+          customProductId: item.customProductId || generateProfessionalId()
+        };
+      }),
       totalAmount:
         currentLocation.pathname === "/stock"
           ? totalPurchaseprice
@@ -279,58 +358,56 @@ const Bills = ({ returnMode, setReturnMode }) => {
           : totalPrice,
     };
 
-    if (showReprintBill) {
-      return null;
+    if (showReprintBill) return;
+
+    if (returnMode) {
+      dispatch({
+        type:
+          currentLocation.pathname === "/stock"
+            ? REQUEST_RETURN_PURCHASE
+            : currentLocation.pathname === "/bhet"
+            ? REQUEST_RETURN_BHET
+            : REQUEST_RETURN_BILL,
+        payload,
+      });
     } else {
-      if (returnMode) {
+      if (
+        currentLocation.pathname === "/stock" &&
+        currentLocation.state?.edit
+      ) {
+        dispatch({
+          type: REQUEST_EDIT_INVOICE_DATA,
+          payload,
+          id: currentLocation.state?.id,
+        });
+      } else if (
+        currentLocation.pathname === "/stock" &&
+        currentLocation.state?.returnEdit
+      ) {
+        dispatch({
+          type: REQUEST_CREATE_RETURN_INVOICE,
+          payload,
+          id: currentLocation.state?.id,
+        });
+      } else if (
+        currentLocation.pathname === "/bhet" &&
+        currentLocation.state?.returnEdit
+      ) {
+        dispatch({
+          type: REQUEST_CREATE_RETURN_BHET,
+          payload,
+          id: currentLocation.state?.id,
+        });
+      } else {
         dispatch({
           type:
             currentLocation.pathname === "/stock"
-              ? REQUEST_RETURN_PURCHASE
+              ? REQUEST_CREATE_INVOICE
               : currentLocation.pathname === "/bhet"
-              ? REQUEST_RETURN_BHET
-              : REQUEST_RETURN_BILL,
+              ? REQUEST_CREATE_BHET
+              : REQUEST_CREATE_BILL,
           payload,
         });
-      } else {
-        if (
-          currentLocation.pathname === "/stock" &&
-          currentLocation.state?.edit === true
-        ) {
-          dispatch({
-            type: REQUEST_EDIT_INVOICE_DATA,
-            payload,
-            id: currentLocation.state?.id,
-          });
-        } else if (
-          currentLocation.pathname === "/stock" &&
-          currentLocation.state?.returnEdit
-        ) {
-          dispatch({
-            type: REQUEST_CREATE_RETURN_INVOICE,
-            payload,
-            id: currentLocation.state?.id,
-          });
-        } else if (
-          currentLocation.pathname === "/bhet" &&
-          currentLocation.state?.returnEdit
-        ) {
-          dispatch({
-            type: REQUEST_CREATE_RETURN_BHET,
-            payload,
-            id: currentLocation.state?.id,
-          });
-        } else {
-          dispatch({
-            type:
-              currentLocation.pathname === "/stock"
-                ? REQUEST_CREATE_INVOICE
-                : currentLocation.pathname === "/bhet"
-                ? REQUEST_CREATE_BHET
-                : REQUEST_CREATE_BILL,
-            payload,
-          });
-        }
       }
     }
   };
@@ -339,19 +416,19 @@ const Bills = ({ returnMode, setReturnMode }) => {
     dispatch({ type: CLEAR_CART });
     setShowReprintBill(false);
     setIsReturnMode(false);
+    setCustomPrices({});
+
     currentLocation.pathname === "/bhet"
       ? dispatch({ type: REQUEST_BHET_BILL_NO })
       : dispatch({ type: REQUEST_BILL_NO });
 
     setReturnMode(false);
-
     dispatch(fetchInvoiceNumber(false));
 
     currentLocation.pathname === "/bhet"
       ? setBhetNumber(bhetNo?.bhetNo)
       : setInvoiceNumber(invoiceN);
   };
-
   const openModal = (item) => {
     setCurrentItem(item);
     setNewQuantity(item.quantity);
@@ -423,7 +500,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
     } else {
       setReturnMode(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reprintField]);
 
   useEffect(() => {
@@ -443,23 +519,48 @@ const Bills = ({ returnMode, setReturnMode }) => {
 
   const [invoiceNumber, setInvoiceNumber] = useState("");
 
-  useEffect(() => {
-    console.log(invoiceNumber, invoiceN, "invoiceNumber");
-  }, [invoiceNumber, invoiceN]);
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isReturnMode) {
-        dispatch(fetchInvoiceNumber(true));
-        setInvoiceNumber(`R${invoiceN}`);
-      } else {
-        dispatch(fetchInvoiceNumber(false));
-        setInvoiceNumber(invoiceN);
-      }
-    };
+  const billPrintDocumentTitle = useMemo(
+    () =>
+      getPrintTitleForBillScreen({
+        pathname: currentLocation.pathname,
+        billNumber,
+        invoiceNumber,
+        bhetNumber,
+        showReprintBill,
+        reprintBill,
+      }),
+    [
+      currentLocation.pathname,
+      billNumber,
+      invoiceNumber,
+      bhetNumber,
+      showReprintBill,
+      reprintBill,
+    ]
+  );
 
-    fetchData();
+  // useEffect(() => {
+  //   console.log(invoiceNumber, invoiceN, "invoiceNumber");
+  // }, [invoiceNumber, invoiceN]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (
+      currentLocation.pathname === "/stock" &&
+      currentLocation.state?.invoiceId
+    ) {
+      setInvoiceNumber(currentLocation.state.invoiceId);
+    } else {
+      const fetchData = async () => {
+        if (isReturnMode) {
+          dispatch(fetchInvoiceNumber(true));
+          setInvoiceNumber(`R${invoiceN}`);
+        } else {
+          dispatch(fetchInvoiceNumber(false));
+          setInvoiceNumber(invoiceN);
+        }
+      };
+      fetchData();
+    }
   }, [invoiceN, currentLocation, isReturnMode]);
 
   const handleReturnBill = async () => {
@@ -477,125 +578,163 @@ const Bills = ({ returnMode, setReturnMode }) => {
     setPurchaseLabel("Total Purchase Return");
   };
 
-  const renderProductRows = (productList) => {
-    console.log(productList, "productList");
-    return productList.length > 0 ? (
-      productList.map((product) => {
-        // ✅ Always prefer local custom price, fallback to API price
-        const localPrice =
-          customPrices[product._id] !== undefined
-            ? customPrices[product._id]
-            : product.price;
-
-        return (
-          <tr key={product._id}>
-            <td title={product.productId} style={{ width: "48px", padding: 0 }}>
-              {truncateText(product.productId, 8)}
-            </td>
-
-            <td title={product.name} style={{ width: "100px", padding: 0 }}>
-              {truncateText(product.name, 15)}
-            </td>
-
-            <td style={{ padding: 0 }}>
-              <div className="quantity_control">
-                <button
-                  onClick={() => {
-                    dispatch({
-                      type:
-                        currentLocation.pathname === "/stock"
-                          ? ADD_TO_PURCHASE_CART
-                          : currentLocation.pathname === "/bhet"
-                          ? ADD_TO_BHET_CART
-                          : ADD_TO_CART,
-                      payload: product,
-                    });
-                    setShowReprintBill(false);
-                  }}
-                >
-                  +
-                </button>
-
-                <span
-                  onClick={() => openModal(product)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {returnMode
-                    ? -new Intl.NumberFormat("en-IN").format(product.quantity)
-                    : new Intl.NumberFormat("en-IN").format(product.quantity)}
-                </span>
-
-                <button
-                  onClick={() => {
-                    dispatch({
-                      type:
-                        currentLocation.pathname === "/stock"
-                          ? REMOVE_FROM_PURCHASE_CART
-                          : currentLocation.pathname === "/bhet"
-                          ? REMOVE_FROM_BHET_CART
-                          : REMOVE_FROM_CART,
-                      payload: product._id,
-                    });
-                    setShowReprintBill(false);
-                  }}
-                >
-                  -
-                </button>
-              </div>
-            </td>
-
-            {/* 🔹 Amount / Price column */}
-            <td>
-  {product.priceType === "FIXED" ? (
-    <span>{product.price}</span>
-  ) : (
-    <input
-  type="text"   
-  inputMode="numeric" 
-  style={{
-    padding: "0px 4px",
-    textAlign: "right",
-    width: "60%",
-    lineHeight: "1",   
-  }}
-  className="form-control"
-  value={customPrices[product._id] ?? product.price}
-  onChange={(e) => {
-    let newVal = e.target.value;
-
-    // Prevent empty → keep 0 instead
-    if (newVal === "" || isNaN(newVal)) {
-      newVal = 0;
+  const handlePinSubmit = () => {
+    if (!pinGate) return;
+    if (pin !== effectiveEntryPin) {
+      alert("Incorrect PIN");
+      return;
+    }
+    if (pinGate.type === "navigate") {
+      navigate(`/${pinGate.screen}`);
     } else {
-      newVal = Number(newVal);
+      handleReturnBill();
+    }
+    setPinGate(null);
+    setPin("");
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handlePinSubmit();
+    }
+  };
+
+  const renderProductRows = (productList) => {
+    if (!productList.length) {
+      return (
+        <tr>
+          <td colSpan="5" className="no-data">
+            No Data Available
+          </td>
+        </tr>
+      );
     }
 
-    // 1️⃣ Update local state so total updates immediately
-    setCustomPrices((prev) => ({
-      ...prev,
-      [product._id]: newVal,
-    }));
+    return productList.map((product, index) => {
+      const prod =
+        product._id && typeof product._id === "object" ? product._id : product;
+      const key = product.uniqueKey || `${prod._id}-${index}`;
+      return (
+        <tr key={key}>
+          <td title={prod.productId} style={{ width: "48px", padding: 0 }}>
+            {truncateText(prod.productId, 8)}
+          </td>
+          <td title={prod.name} style={{ width: "100px", padding: 0 }}>
+            {truncateText(prod.name, 15)}
+          </td>
+          <td style={{ padding: 0 }}>
+            <div className="quantity_control">
+              <button
+                onClick={() => {
+                  dispatch({
+                    type:
+                      currentLocation.pathname === "/stock"
+                        ? ADD_TO_PURCHASE_CART
+                        : currentLocation.pathname === "/bhet"
+                        ? ADD_TO_BHET_CART
+                        : ADD_TO_CART,
+                    payload:
+                      product.priceType === "CUSTOM"
+                        ? { ...product, uniqueKey: product.uniqueKey }
+                        : product,
+                  });
+                  setShowReprintBill(false);
+                }}
+              >
+                +
+              </button>
+              <span
+                onClick={() => openModal(product)}
+                style={{ cursor: "pointer" }}
+              >
+                {returnMode
+                  ? -new Intl.NumberFormat("en-IN").format(product.quantity)
+                  : new Intl.NumberFormat("en-IN").format(product.quantity)}
+              </span>
 
-    // 2️⃣ Update Redux if you want persistence
-    dispatch({
-      type: "UPDATE_CUSTOM_PRICE",
-      payload: { id: product._id, price: newVal },
+              <button
+                onClick={() => {
+                  dispatch({
+                    type:
+                      currentLocation.pathname === "/stock"
+                        ? REMOVE_FROM_PURCHASE_CART
+                        : currentLocation.pathname === "/bhet"
+                        ? REMOVE_FROM_BHET_CART
+                        : REMOVE_FROM_CART,
+                    payload:
+                      product.uniqueKey
+                        || product._id || product.productID,
+                  });
+                  setShowReprintBill(false);
+                }}
+              >
+                -
+              </button>
+            </div>
+          </td>
+          <td>
+            {prod.priceType === "CUSTOM" ? (
+                <input
+                  type="number"
+                  className="form-control"
+                  value={(() => {
+                    // Get unit price: either custom or fixed
+                    const unitPrice =
+                      customPrices[product.uniqueKey] !== undefined
+                        ? toNum(customPrices[product.uniqueKey])
+                        : toNum(product.price);
+
+                    // Show total in input
+                    return  unitPrice * Math.max(toNum(product.quantity), 1); 
+                  })()}
+                  onFocus={(e) => {
+                    if (e.target.value === "0") e.target.value = "";
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value === "") e.target.value = "0";
+                  }}
+                  onChange={(e) => {
+                    const totalValue = toNum(e.target.value);
+                    const qty = Math.max(toNum(product.quantity), 1);
+                    const newUnitPrice =
+                      totalValue / qty;
+                      const key = product.uniqueKey || `${prod._id}-${index}-${Math.random()}`;
+
+                    setCustomPrices((prev) => ({
+                      ...prev,
+                      [product.uniqueKey]: newUnitPrice,
+                    }));
+                    dispatch({
+                      type: "UPDATE_CART_ITEM_PRICE", // you create this action
+                      payload: {
+                        uniqueKey: product.uniqueKey,
+                        price: newUnitPrice,
+                      },
+                    });
+                  }}
+                  style={{
+                    width: "100%",
+                    minWidth: "70px",
+                    maxWidth: "120px",
+                    textAlign: "right",
+                    padding: "1px 0px",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    fontSize: "14px",
+                    boxSizing: "border-box",
+                  }}
+                />
+            ) : (
+              <span>
+                {new Intl.NumberFormat("en-IN").format(
+                  toNum(product.price * product.quantity)
+                )}
+              </span>
+            )}
+          </td>
+        </tr>
+      );
     });
-  }}
-/>
-
-  )}
-</td>
-          </tr>
-        );
-      })
-    ) : (
-      <tr>
-        <td colSpan="4" className="no-data">
-          No Data Available
-        </td>
-      </tr>
-    );
   };
 
   return (
@@ -666,17 +805,6 @@ const Bills = ({ returnMode, setReturnMode }) => {
             Reset
           </button>
 
-          {/* {currentLocation.pathname === "/stock" && (
-            <label className="purchase-file-upload">
-              <span>Excel</span>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                accept=".xls,.xlsx,.csv"
-              />
-            </label>
-          )} */}
-
           <button
             className={
               currentLocation.pathname === "/stock"
@@ -686,11 +814,15 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 : "icon-button"
             }
             onClick={() => {
-              if (currentLocation.pathname === "/bhet") {
-                setShowBhetPinPrompt(true);
-              } else {
+              if (!effectiveEntryPin) {
                 handleReturnBill();
+                return;
               }
+              setPin("");
+              setPinGate({
+                type: "return",
+                isBhet: currentLocation.pathname === "/bhet",
+              });
             }}
           >
             Return
@@ -720,6 +852,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                     </p>
                   )}
                   content={() => componentRef.current}
+                  documentTitle={billPrintDocumentTitle}
                   onAfterPrint={handleAfterPrint}
                   removeAfterPrint={false}
                 />
@@ -760,6 +893,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                     </p>
                   )}
                   content={() => componentRef.current}
+                  documentTitle={billPrintDocumentTitle}
                   onAfterPrint={handleAfterPrint}
                   removeAfterPrint={false}
                 />
@@ -795,6 +929,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                   </p>
                 )}
                 content={() => componentRef.current}
+                documentTitle={billPrintDocumentTitle}
                 onAfterPrint={handleAfterPrint}
                 removeAfterPrint={false}
               />
@@ -847,7 +982,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 <thead>
                   <tr>
                     <th style={{ width: "45px" }}>ID</th>
-                    <th style={{ width: "100px" }}>Item</th>
+                    <th style={{ width: "107px" }}>Item</th>
                     <th>Qty</th>
                     <th style={{ fontWeight: "bolder" }}>Amt</th>
                   </tr>
@@ -864,7 +999,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       <td
                         title={product._id.name}
                         style={{
-                          width: "100px",
+                          width: "107px",
                           textAlign: "start",
                           padding: 0,
                         }}
@@ -882,9 +1017,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       </td>
                       <td style={{ fontWeight: "bolder", padding: 0 }}>
                         {returnMode ? "-" : null}
-                        {new Intl.NumberFormat("en-IN").format(
-                          product.price * product.quantity
-                        )}
+                        {new Intl.NumberFormat("en-IN").format(line(product))}
                       </td>
                     </tr>
                   ))}
@@ -895,7 +1028,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       style={{
                         fontWeight: "bolder",
                         textAlign: "start",
-                        width: "85px",
+                        width: "74px",
                       }}
                     >
                       {currentLocation.pathname === "/stock"
@@ -936,7 +1069,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                 <thead>
                   <tr>
                     <th style={{ width: "48px" }}>ID</th>
-                    <th style={{ width: "100px" }}>Item</th>
+                    <th style={{ width: "107px" }}>Item</th>
                     <th>Qty</th>
                     <th style={{ fontWeight: "bolder" }}>Amt</th>
                   </tr>
@@ -957,7 +1090,7 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       style={{
                         fontWeight: "bolder",
                         textAlign: "start",
-                        width: "115px",
+                        width: "120px",
                       }}
                     >
                       {currentLocation.pathname === "/stock"
@@ -1165,7 +1298,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
                     className="product_price_report"
                     style={{ fontSize: "15px" }}
                   >
-                    {new Intl.NumberFormat("en-IN").format(product.price)}
+                    {new Intl.NumberFormat("en-IN").format(
+                      ((customPrices?.[product._id] ?? product.price) || 0) *
+                        (product.quantity || 1)
+                    )}
                   </p>
                 </div>
               </div>
@@ -1333,7 +1469,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
                           style={{ fontSize: "15px", textAlign: "center" }}
                         >
                           {new Intl.NumberFormat("en-IN").format(
-                            product.price * product.quantity
+                            ((customPrices?.[product._id] ?? product.price) ||
+                              0) * (product.quantity || 1)
                           )}
                         </p>
                       </div>
@@ -1382,8 +1519,14 @@ const Bills = ({ returnMode, setReturnMode }) => {
                         >
                           {new Intl.NumberFormat("en-IN").format(
                             returnMode
-                              ? -product.price * product.quantity
-                              : product.price * product.quantity
+                              ? -(
+                                  (customPrices?.[product._id] ??
+                                    product.price) ||
+                                  0
+                                ) * (product.quantity || 1)
+                              : ((customPrices?.[product._id] ??
+                                  product.price) ||
+                                  0) * (product.quantity || 1)
                           )}
                         </p>
                       </div>
@@ -1431,8 +1574,10 @@ const Bills = ({ returnMode, setReturnMode }) => {
                       >
                         {new Intl.NumberFormat("en-IN").format(
                           returnMode
-                            ? -product.price * product.quantity
-                            : product.price * product.quantity
+                            ? ((customPrices?.[product._id] ?? product.price) ||
+                                0) * (product.quantity || 1)
+                            : ((customPrices?.[product._id] ?? product.price) ||
+                                0) * (product.quantity || 1)
                         )}
                       </p>
                     </div>
@@ -1543,19 +1688,11 @@ const Bills = ({ returnMode, setReturnMode }) => {
           </div>
         </div>
       )}
-      {/* 
-      {excelModalOpen && (
-        <ExcelBillPrint
-          excelBill={excelBillPrint}
-          onClose={() => setModalOpen(false)}
-          componentRef={componentRef}
-        />
-      )} */}
 
-      {showPinPrompt && (
-        <div className="pin-prompt">
+      {pinGate && (
+        <div className={`pin-prompt ${pinPromptThemeClass(pinGate)}`}>
           <div className="modal-content">
-            <h3>Enter PIN for {showPinPrompt.toUpperCase()}</h3>
+            <h3>Enter PIN for {pinGateTitle(pinGate)}</h3>
             <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="text"
@@ -1577,48 +1714,8 @@ const Bills = ({ returnMode, setReturnMode }) => {
               <button onClick={handlePinSubmit}>Submit</button>
               <button
                 className="close-btn"
-                onClick={() => setShowPinPrompt(null)}
-              >
-                X
-              </button>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {showBhetPinPrompt && (
-        <div className="pin-prompt">
-          <div className="modal-content">
-            <h3>Enter PIN for Bhet Return</h3>
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="password"
-                inputMode="numeric"
-                value={bhetPin}
-                onChange={(e) => setBhetPin(e.target.value)}
-                placeholder="Enter PIN"
-                autoFocus
-                maxLength={4}
-              />
-            </form>
-            <p className="button-group">
-              <button
                 onClick={() => {
-                  if (bhetPin === pinConfig.bhetReturn) {
-                    handleReturnBill(); // ✅ allowed only with correct PIN
-                    setShowBhetPinPrompt(false);
-                    setPin("");
-                  } else {
-                    alert("Incorrect PIN");
-                  }
-                }}
-              >
-                Submit
-              </button>
-              <button
-                className="close-btn"
-                onClick={() => {
-                  setShowBhetPinPrompt(false);
+                  setPinGate(null);
                   setPin("");
                 }}
               >

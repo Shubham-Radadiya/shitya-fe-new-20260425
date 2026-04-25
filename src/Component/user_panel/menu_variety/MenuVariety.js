@@ -41,7 +41,17 @@ const MenuVariety = ({ selectedCategory, setSelectedSubCategory }) => {
         position: "relative",
       }}
     >
-      <div className="scroll-container" ref={scrollContainerRef}>
+      <div
+        className={`scroll-container${
+          currentLocation.pathname === "/stock"
+            ? " scroll-container--purchase"
+            : currentLocation.pathname === "/bhet"
+              ? " scroll-container--bhet"
+              : ""
+        }`}
+        ref={scrollContainerRef}
+      >
+       
         {selectedCategoryData?.subCategory?.map((subcategory) => (
           <div
             key={subcategory._id}
@@ -58,15 +68,16 @@ const MenuVariety = ({ selectedCategory, setSelectedSubCategory }) => {
                     subcategory.name === names ? "active" : ""
                   }`
             }
-            style={{ padding: "1rem" }}
             onClick={() => handleSubCategoryClick(subcategory)}
           >
             <h4 className="subcategory_name" style={{ userSelect: "none" }}>
-              {subcategory.name}
+              {subcategory.name.length > 14
+                ? subcategory.name.slice(0, 14) + "..."
+                : subcategory.name}
             </h4>
           </div>
         ))}
-      </div>
+        </div>
     </div>
   );
 };

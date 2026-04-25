@@ -59,6 +59,7 @@ export const getBillDetails = async (payload) => {
   });
   return response.data;
 };
+/** Server route is `POST /bill/re-print` (hyphenated), not `/bill/reprint`. */
 export const reprintBill = async (payload) => {
   const response = await axios.post(`${API_URL}/bill/re-print`, payload, {
     headers: { Authorization: localStorage.getItem("access_token") },

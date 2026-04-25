@@ -1,3 +1,178 @@
+/* --------------------------------------------------------------------------
+   Admin product — professional layout (warm neutral + clear hierarchy)
+   Root uses #admin-product-page so styles beat report/index.css (same class names).
+   -------------------------------------------------------------------------- */
+#admin-product-page.product-container {
+    background-color: #e8e0d8;
+    background-image: linear-gradient(
+        165deg,
+        #ddd4cb 0%,
+        #f2ebe4 42%,
+        #e5dcd3 100%
+    );
+    border-radius: 14px;
+    box-shadow:
+        0 0 0 1px rgba(97, 39, 17, 0.1),
+        inset 0 4px 0 0 #612711;
+    padding: 1.25rem 1.35rem 1.5rem;
+    height: auto;
+    min-height: 87vh;
+    border: 1px solid rgba(97, 39, 17, 0.12);
+}
+
+.product-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    margin-bottom: 1.1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(97, 39, 17, 0.1);
+}
+
+.product-page-title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #2c1810;
+    line-height: 1.2;
+}
+
+.product-page-subtitle {
+    margin: 0.35rem 0 0;
+    max-width: 42rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: rgba(44, 24, 16, 0.62);
+    font-weight: 500;
+}
+
+.product-page-header-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.product-stat-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 2px rgba(44, 24, 16, 0.06);
+}
+
+.product-stat-pill--total {
+    background: #fff;
+    border-color: rgba(97, 39, 17, 0.12);
+    color: #4a3228;
+}
+
+.product-stat-pill--filtered {
+    background: linear-gradient(135deg, #612711 0%, #4a1f0d 100%);
+    color: #fff;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.product-stat-pill__value {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+
+.product-stat-pill__label {
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    opacity: 0.88;
+    font-weight: 600;
+}
+
+.product-stat-pill--filtered .product-stat-pill__label {
+    opacity: 0.9;
+}
+
+@media (max-width: 720px) {
+    .product-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .product-page-header-stats {
+        width: 100%;
+    }
+}
+
+.product-toolbar-shell {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid rgba(97, 39, 17, 0.1);
+    box-shadow:
+        0 1px 2px rgba(61, 36, 22, 0.04),
+        0 8px 24px rgba(61, 36, 22, 0.06);
+    padding: 0.65rem 0.7rem;
+    margin-bottom: 1rem;
+}
+
+.product-table-shell.product-excel-scroll-wrap {
+    border-radius: 12px;
+    border: 1px solid rgba(97, 39, 17, 0.12);
+    box-shadow:
+        0 1px 3px rgba(61, 36, 22, 0.05),
+        0 16px 40px rgba(61, 36, 22, 0.07);
+    background: #fff;
+    max-height: calc(100vh - 280px);
+}
+
+.product-btn-primary.add-btn {
+    background: linear-gradient(180deg, #7a3820 0%, #612711 100%);
+    color: #fff !important;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0 0.65rem;
+    box-shadow: 0 1px 2px rgba(97, 39, 17, 0.2);
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        filter 0.12s ease;
+}
+
+.product-btn-primary.add-btn:hover {
+    background: linear-gradient(180deg, #8b4328 0%, #6d2f14 100%);
+    color: #fff !important;
+    filter: brightness(1.03);
+    box-shadow: 0 3px 10px rgba(97, 39, 17, 0.25);
+    transform: translateY(-1px);
+}
+
+.product-btn-secondary.add-btn,
+label.product-btn-secondary.custom-file-upload {
+    background: #faf8f5;
+    color: var(--brown-color) !important;
+    border: 1px solid rgba(97, 39, 17, 0.22);
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.product-btn-secondary.add-btn:hover,
+label.product-btn-secondary.custom-file-upload:hover {
+    background: #fff;
+    border-color: var(--brown-color);
+    box-shadow: 0 2px 8px rgba(97, 39, 17, 0.1);
+    color: var(--brown-color) !important;
+}
+
 .create-buttons {
     display: flex;
     gap: 1rem;
@@ -6,6 +181,84 @@
     /* position: relative; */
     /* bottom: 0.5rem;
     padding-block: 0.5rem; */
+}
+
+/* Single-row toolbar: add / excel + category & sub-category manage */
+.create-buttons.product-toolbar-one-line.flexgap {
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.45rem 0.55rem;
+    padding: 0.25rem 0.15rem;
+    box-sizing: border-box;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    font-size: 0.82rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0;
+}
+
+.product-toolbar-sep {
+    flex: 0 0 auto;
+    width: 1px;
+    align-self: stretch;
+    min-height: 1.75rem;
+    margin: 0 0.35rem;
+    background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(97, 37, 17, 0.2) 20%,
+        rgba(97, 37, 17, 0.2) 80%,
+        transparent
+    );
+}
+
+.product-toolbar-btn,
+.product-toolbar-upload {
+    flex-shrink: 0;
+}
+
+.product-manage-group-inline {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.create-buttons.product-toolbar-one-line .product-manage-label {
+    min-width: auto;
+    white-space: nowrap;
+}
+
+.create-buttons.product-toolbar-one-line .product-manage-select {
+    min-width: 7rem;
+    max-width: 10.5rem;
+}
+
+.create-buttons.product-toolbar-one-line .product-manage-select-wide {
+    min-width: 9rem;
+    max-width: 15rem;
+}
+
+.create-buttons.product-toolbar-one-line .add-btn.product-toolbar-btn {
+    height: 1.85rem;
+    padding: 0 0.5rem;
+    font-size: 0.78rem;
+    gap: 0.2rem;
+}
+
+.create-buttons.product-toolbar-one-line .add-icon {
+    font-size: 1.15rem;
+}
+
+.create-buttons.product-toolbar-one-line .custom-file-upload.product-toolbar-upload {
+    width: auto;
+    min-width: 7rem;
+    height: 1.85rem;
+    font-size: 0.78rem;
+    flex-shrink: 0;
 }
 
 .add-btn {
@@ -37,6 +290,511 @@
     border-radius: 1rem;
 }
 
+.product-container-flat {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.product-manage-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.5rem;
+}
+
+.product-manage-label {
+    font-weight: 700;
+    color: var(--brown-color);
+    min-width: 5.5rem;
+}
+
+.product-manage-select {
+    min-width: 10rem;
+    max-width: 14rem;
+    height: 1.85rem;
+    border-radius: 8px;
+    border: 1px solid rgba(97, 39, 17, 0.2);
+    padding: 0 0.45rem;
+    color: var(--brown-color);
+    background: #faf9f7;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease;
+}
+
+.product-manage-select:hover {
+    border-color: rgba(97, 39, 17, 0.35);
+    background: #fff;
+}
+
+.product-manage-select:focus {
+    outline: none;
+    border-color: var(--brown-color);
+    box-shadow: 0 0 0 3px rgba(97, 39, 17, 0.12);
+    background: #fff;
+}
+
+.product-manage-select-wide {
+    min-width: 14rem;
+    max-width: 22rem;
+}
+
+.product-manage-btn {
+    padding: 0.28rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid rgba(97, 39, 17, 0.25);
+    background: #fff;
+    color: var(--brown-color);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.product-manage-btn:hover:not(:disabled) {
+    background: var(--brown-color);
+    color: var(--white-color);
+}
+
+.product-manage-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.product-manage-btn-danger {
+    border-color: #a53030;
+    color: #a53030;
+}
+
+.product-manage-btn-danger:hover:not(:disabled) {
+    background: #a53030;
+    color: #fff;
+}
+
+/* Scroll area: avoid global `.table-container { overflow: hidden }` — do not use table-container here */
+.product-excel-scroll-wrap.product-flat-table-wrap {
+    flex: 1;
+    min-height: 86%;
+    margin-top: 0;
+    overflow: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid rgba(97, 39, 17, 0.12);
+    border-radius: 12px;
+    background: var(--white-color);
+    max-height: calc(100vh - 260px);
+}
+
+.product-flat-table-wrap {
+    flex: 1;
+    min-height: 0;
+}
+
+/* One real HTML table — thead + tbody share column widths (colgroup) */
+.product-excel-scroll-wrap .product-table-excel {
+    display: table !important;
+    width: 100%;
+    min-width: 1080px;
+    border-collapse: collapse !important;
+    border-spacing: 0;
+    border: none;
+    margin: 0;
+    table-layout: fixed;
+}
+
+.product-excel-scroll-wrap .product-table-excel thead {
+    display: table-header-group !important;
+}
+
+.product-excel-scroll-wrap .product-table-excel tbody {
+    display: table-row-group !important;
+}
+
+.product-excel-scroll-wrap .product-table-excel thead.product-excel-thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    box-shadow: 0 4px 12px rgba(44, 24, 16, 0.12);
+}
+
+.product-excel-scroll-wrap .product-table-excel tr {
+    display: table-row !important;
+    width: auto !important;
+}
+
+.product-excel-scroll-wrap .product-table-excel th,
+.product-excel-scroll-wrap .product-table-excel td {
+    /* display: table-cell ; */
+    box-sizing: border-box;
+}
+
+.product-table-excel col.col-cat {
+    width: 15%;
+}
+
+.product-table-excel col.col-sub {
+    width: 15%;
+}
+
+.product-table-excel col.col-pid {
+    width: 11%;
+}
+
+.product-table-excel col.col-name {
+    width: 18%;
+}
+
+.product-table-excel col.col-price-type {
+    width: 8%;
+}
+
+.product-table-excel col.col-price {
+    width: 8%;
+}
+
+.product-table-excel col.col-status {
+    width: 7%;
+}
+
+.product-table-excel col.col-actions {
+    width: 9%;
+}
+
+/* Row 1: column titles (Excel header) */
+.product-excel-scroll-wrap .product-th-title {
+    padding: 0.45rem 0.4rem !important;
+    vertical-align: middle !important;
+    text-align: left;
+    background: linear-gradient(180deg, #5c3d2e 0%, #3d261c 100%) !important;
+    color: #fff !important;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.25;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+}
+
+.product-excel-scroll-wrap .product-filter-title-row .col-price {
+    text-align: right;
+}
+
+.product-th-title-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.22rem;
+    min-width: 0;
+}
+
+.product-th-price-header {
+    justify-content: flex-end;
+}
+
+.product-th-price-header .product-th-text {
+    flex: 1 1 auto;
+    text-align: right;
+}
+
+.product-th-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.product-col-filter-trigger {
+    flex-shrink: 0;
+    width: 1.42rem;
+    height: 1.42rem;
+    padding: 0;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.55rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.12s ease,
+        border-color 0.12s ease;
+}
+
+.product-col-filter-trigger:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.product-col-filter-trigger.is-active {
+    background: #f0d4a8;
+    color: #2c1810;
+    border-color: rgba(255, 255, 255, 0.85);
+    font-weight: 800;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+/* Actions column: label + clear filters icon, one line */
+.product-excel-scroll-wrap .product-th-actions-col {
+    text-align: left !important;
+    vertical-align: middle !important;
+}
+
+.product-th-actions-inner {
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.product-th-text-actions {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.product-th-clear-filters-icon {
+    flex-shrink: 0;
+    width: 1.38rem;
+    height: 1.38rem;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.product-th-clear-filters-icon svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    flex-shrink: 0;
+}
+
+.product-th-clear-filters-icon:hover {
+    background: rgba(255, 182, 120, 0.45);
+    border-color: #fff;
+    color: #3d2414;
+}
+
+/* Inline clear (empty filter state) */
+.product-inline-clear-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-left: 0.15rem;
+    padding: 0;
+    border: 1px solid var(--brown-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--brown-color);
+    cursor: pointer;
+    line-height: 0;
+}
+
+.product-inline-clear-icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.product-inline-clear-icon:hover {
+    background: var(--brown-color);
+    color: var(--white-color);
+}
+
+/* Portal filter panel (Excel-style) */
+.product-excel-filter-panel {
+    box-sizing: border-box;
+}
+
+.product-excel-filter-panel-inner {
+    background: #fff;
+    border: 1px solid rgba(97, 39, 17, 0.18);
+    border-radius: 12px;
+    box-shadow:
+        0 4px 16px rgba(44, 24, 16, 0.12),
+        0 24px 48px rgba(44, 24, 16, 0.14);
+    display: flex;
+    flex-direction: column;
+    max-height: min(360px, 55vh);
+    overflow: hidden;
+}
+
+.product-excel-filter-search {
+    margin: 0.45rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #a08060;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    box-sizing: border-box;
+}
+
+.product-excel-filter-actions {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0 0.45rem 0.35rem;
+    flex-wrap: wrap;
+}
+
+.product-excel-filter-actions button {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1px solid #4a2c1a;
+    background: var(--bg-color);
+    color: var(--brown-color);
+    cursor: pointer;
+}
+
+.product-excel-filter-actions button:hover {
+    background: #4a2c1a;
+    color: #fff;
+}
+
+.product-excel-filter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0.35rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    border-top: 1px solid #dcc;
+    border-bottom: 1px solid #dcc;
+}
+
+.product-excel-filter-empty {
+    padding: 0.75rem;
+    text-align: center;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.product-excel-filter-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.25rem 0.15rem;
+    font-size: 0.78rem;
+    color: #2d2d2d;
+    cursor: pointer;
+}
+
+.product-excel-filter-row input {
+    margin-top: 0.12rem;
+    flex-shrink: 0;
+}
+
+.product-excel-filter-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    padding: 0.45rem;
+    background: #f5f0e8;
+}
+
+.product-excel-filter-ok {
+    padding: 0.35rem 0.85rem;
+    font-weight: 700;
+    border-radius: 4px;
+    border: 1px solid #2d5a27;
+    background: #2d5a27;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.78rem;
+}
+
+.product-excel-filter-cancel {
+    padding: 0.35rem 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1px solid #666;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.78rem;
+}
+
+.product-inline-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--brown-color);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: inherit;
+}
+
+/* Excel-style grid + Gujarati-friendly stack */
+.product-table-excel {
+    font-family: "Open Sans", "Noto Sans Gujarati", "Arial Unicode MS",
+        system-ui, sans-serif;
+}
+
+.product-table-excel th,
+.product-table-excel td {
+    border: 1px solid rgba(97, 37, 17, 0.35);
+    vertical-align: middle;
+}
+
+/* Default thead th — product list uses scoped .product-th-title above */
+.product-table-excel thead th {
+    background-color: #4a2c1a;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: none;
+    letter-spacing: 0.02em;
+}
+
+.product-table-excel tbody tr:nth-child(even) {
+    background: rgba(97, 39, 17, 0.028);
+}
+
+.product-table-excel tbody tr:hover {
+    background: rgba(97, 39, 17, 0.07);
+    box-shadow: inset 0 1px 0 rgba(97, 39, 17, 0.04);
+}
+
+/* Column widths: use colgroup above; cell alignment only */
+.product-table-excel .col-price {
+    text-align: right;
+}
+
+.product-mono {
+    font-variant-numeric: tabular-nums;
+}
+
+.product-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.product-table-empty-message {
+    text-align: center;
+    color: rgba(44, 24, 16, 0.55);
+    padding: 3rem 1.5rem !important;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    font-weight: 500;
+    background: linear-gradient(180deg, rgba(97, 39, 17, 0.03), transparent);
+}
+
 .product-table {
     width: 100%;
     border-collapse: separate;
@@ -62,13 +820,39 @@
 }
 
 .product-action-btn {
-    background: var(--bg-color);
-    border: 1px solid var(--brown-color);
+    background: #faf9f7;
+    border: 1px solid rgba(97, 39, 17, 0.2);
+    border-radius: 8px;
+    padding: 0.28rem 0.5rem;
     cursor: pointer;
     color: var(--brown-color);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-  }
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.product-action-btn:hover {
+    background: #fff;
+    border-color: var(--brown-color);
+    box-shadow: 0 2px 8px rgba(97, 39, 17, 0.1);
+}
+
+.product-action-btn--danger {
+    color: #9a2c2c;
+    border-color: rgba(154, 44, 44, 0.35);
+    background: #fff8f8;
+}
+
+.product-action-btn--danger:hover {
+    background: #9a2c2c;
+    color: #fff;
+    border-color: #9a2c2c;
+}
   
   .action_icon {
     margin-right: 0.3rem;
@@ -80,24 +864,42 @@
 
 .product-action {
     display: flex;
-    align-items: left;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
 }
 
 .product-table thead {
-    display: table;
+    display: table-header-group;
     width: 100%;
     table-layout: fixed;
 }
 
 .product-table tbody {
+    display: table-row-group;
+    width: 100%;
+}
+
+/* Stock / legacy nested tables: scroll inside tbody */
+.product-table:not(.product-table-excel) tbody {
     display: block;
     max-height: 65vh;
     overflow-y: auto;
     width: 100%;
 }
 
+.product-table:not(.product-table-excel) thead {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
 .product-table tbody tr {
+    display: table-row;
+    width: 100%;
+}
+
+.product-table:not(.product-table-excel) tbody tr {
     display: table;
     width: 100%;
     table-layout: fixed;
@@ -130,4 +932,151 @@
     opacity: 0;
     overflow: hidden;
   }
+
+/* Inline edit cells (admin product table) */
+.product-cell-input,
+.product-cell-select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.99rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+}
+
+.product-cell-input:focus,
+.product-cell-select:focus {
+    border-color: var(--brown-color);
+    background: #fff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(97, 39, 17, 0.12);
+}
+
+.product-cell-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.product-cell-input-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.product-table-excel .col-status {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.product-status-toggle {
+    position: relative;
+    width: 2.95rem;
+    height: 1.52rem;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(27, 94, 32, 0.55);
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.22);
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+/* Active / on — darker green */
+.product-status-toggle.is-on {
+    background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+    border-color: rgba(13, 59, 16, 0.85);
+}
+
+/* Inactive / off — red track */
+.product-status-toggle.is-off {
+    background: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
+    border-color: rgba(127, 17, 17, 0.75);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.product-status-toggle:focus {
+    outline: 2px solid rgba(97, 37, 17, 0.45);
+    outline-offset: 1px;
+}
+
+.product-status-toggle-knob {
+    position: absolute;
+    top: 0.14rem;
+    left: 0.18rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+    transition: transform 0.15s ease;
+    pointer-events: none;
+}
+
+.product-status-toggle.is-on .product-status-toggle-knob {
+    transform: translateX(1.28rem);
+}
+
+/* -----------------------------------------------------------------------------
+   report/index.css is imported by ReportScreen and loads AFTER this file.
+   It redefines .product-container, .product-table, .product-action-btn, etc.
+   These #admin-product-page rules restore the admin product UI (id beats classes).
+   ----------------------------------------------------------------------------- */
+#admin-product-page .product-excel-scroll-wrap .product-table-excel tbody {
+    display: table-row-group !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    width: 100% !important;
+}
+
+#admin-product-page .product-excel-scroll-wrap .product-table-excel thead {
+    display: table-header-group !important;
+}
+
+#admin-product-page .product-excel-scroll-wrap .product-table-excel tbody tr {
+    display: table-row !important;
+    width: auto !important;
+    table-layout: auto !important;
+}
+
+#admin-product-page .product-action-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    border-radius: 8px !important;
+    padding: 0.28rem 0.5rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    background: #faf9f7 !important;
+    border: 1px solid rgba(97, 39, 17, 0.2) !important;
+    color: var(--brown-color) !important;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+#admin-product-page .product-action-btn:hover {
+    background: #fff !important;
+    border-color: var(--brown-color) !important;
+    box-shadow: 0 2px 8px rgba(97, 39, 17, 0.1) !important;
+}
+
+#admin-product-page .product-action-btn--danger {
+    color: #9a2c2c !important;
+    border-color: rgba(154, 44, 44, 0.35) !important;
+    background: #fff8f8 !important;
+}
+
+#admin-product-page .product-action-btn--danger:hover {
+    background: #9a2c2c !important;
+    color: #fff !important;
+    border-color: #9a2c2c !important;
+}
   

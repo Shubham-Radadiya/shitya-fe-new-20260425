@@ -25,65 +25,69 @@ const initialState = {
 
 const cartReducer = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_TO_CART:
+    case ADD_TO_CART: {
+      const product = action.payload;
+
+      // Use uniqueKey if present, otherwise productId
+      const key = product.uniqueKey || product.productId;
+
       const existingItemIndex = state.items.findIndex(
-        (item) => item.productId === action.payload.productId
+        (item) => (item.uniqueKey || item.productId) === key
       );
+
       if (existingItemIndex !== -1) {
+        // If already exists, increase quantity
         const updatedItems = [...state.items];
         updatedItems[existingItemIndex].quantity += 1;
-
-        return {
-          ...state,
-          items: updatedItems,
-        };
-      } else {
-        return {
-          ...state,
-          items: [...state.items, { ...action.payload, quantity: 1 }],
-        };
+        return { ...state, items: updatedItems };
       }
 
-    case ADD_TO_PURCHASE_CART:
-      const existingItemIndex1 = state.purchaseItems.findIndex(
-        (item) => item.productId === action.payload.productId
+      // If not exist, add new
+      return {
+        ...state,
+        items: [...state.items, { ...product, quantity: 1 }],
+      };
+    }
+
+    case ADD_TO_PURCHASE_CART: {
+      const product = action.payload;
+      const key = product.uniqueKey || product.productId;
+
+      const existingItemIndex = state.purchaseItems.findIndex(
+        (item) => (item.uniqueKey || item.productId) === key
       );
-      if (existingItemIndex1 !== -1) {
+
+      if (existingItemIndex !== -1) {
         const updatedItems = [...state.purchaseItems];
-        updatedItems[existingItemIndex1].quantity += 1;
-
-        return {
-          ...state,
-          purchaseItems: updatedItems,
-        };
-      } else {
-        return {
-          ...state,
-          purchaseItems: [
-            ...state.purchaseItems,
-            { ...action.payload, quantity: 1 },
-          ],
-        };
+        updatedItems[existingItemIndex].quantity += 1;
+        return { ...state, purchaseItems: updatedItems };
       }
 
-    case ADD_TO_BHET_CART:
-      const existingItemIndex2 = state.bhetItems.findIndex(
-        (item) => item.productId === action.payload.productId
+      return {
+        ...state,
+        purchaseItems: [...state.purchaseItems, { ...product, quantity: 1 }],
+      };
+    }
+
+    case ADD_TO_BHET_CART: {
+      const product = action.payload;
+      const key = product.uniqueKey || product.productId;
+
+      const existingItemIndex = state.bhetItems.findIndex(
+        (item) => (item.uniqueKey || item.productId) === key
       );
-      if (existingItemIndex2 !== -1) {
-        const updatedItems = [...state.bhetItems];
-        updatedItems[existingItemIndex2].quantity += 1;
 
-        return {
-          ...state,
-          bhetItems: updatedItems,
-        };
-      } else {
-        return {
-          ...state,
-          bhetItems: [...state.bhetItems, { ...action.payload, quantity: 1 }],
-        };
+      if (existingItemIndex !== -1) {
+        const updatedItems = [...state.bhetItems];
+        updatedItems[existingItemIndex].quantity += 1;
+        return { ...state, bhetItems: updatedItems };
       }
+
+      return {
+        ...state,
+        bhetItems: [...state.bhetItems, { ...product, quantity: 1 }],
+      };
+    }
 
     case ADD_TO_UPDATEDCART:
       const existingItemIndexs = state.items.findIndex(
@@ -121,6 +125,40 @@ const cartReducer = (state = initialState, action) => {
           purchaseItems: action.payload,
         };
       }
+      // case "UPDATE_CART_ITEM_PRICE": {
+      //   const updatePrice = (arr) =>
+      //     arr.map((item, index) => {
+      //       const key = item.uniqueKey || `${item._id}-${index}`;
+      //       return item.priceType === "CUSTOM" && key === action.payload.uniqueKey
+      //         ? { ...item, price: action.payload.price }
+      //         : item;
+      //     });
+      
+      //   return {
+      //     ...state,
+      //     items: updatePrice(state.items),
+      //     purchaseItems: updatePrice(state.purchaseItems),
+      //     bhetItems: updatePrice(state.bhetItems),
+      //   };
+      // }
+      
+      case "UPDATE_CART_ITEM_PRICE": {
+        const updatePrice = (arr) =>
+          arr.map((item) =>
+            item.uniqueKey === action.payload.uniqueKey
+              ? { ...item, price: action.payload.price }
+              : item
+          );
+      
+        return {
+          ...state,
+          items: updatePrice(state.items),
+          purchaseItems: updatePrice(state.purchaseItems),
+          bhetItems: updatePrice(state.bhetItems),
+        };
+      }
+
+      
 
     case ADD_TO_UPDATEBHETCART:
       const existingItemIndexs2 = state.bhetItems.findIndex(
@@ -141,9 +179,44 @@ const cartReducer = (state = initialState, action) => {
         };
       }
 
-    case REMOVE_FROM_CART:
+    case REMOVE_FROM_PURCHASE_CART: {
+      const exitingIndex = state.purchaseItems.findIndex(
+        (item) =>
+          (item.uniqueKey || item._id || item.productId) === action.payload
+      );
+
+      if (exitingIndex !== -1) {
+        const updatedItems = [...state.purchaseItems];
+        if (updatedItems[exitingIndex].quantity > 1) {
+          updatedItems[exitingIndex].quantity -= 1;
+        } else {
+          updatedItems.splice(exitingIndex, 1);
+        }
+        return { ...state, purchaseItems: updatedItems };
+      }
+      return state; // always return state if item not found
+    }
+
+    case REMOVE_FROM_BHET_CART: {
+      const exitingIndex = state.bhetItems.findIndex(
+        (item) => (item.uniqueKey || item._id) === action.payload
+      );
+
+      if (exitingIndex !== -1) {
+        const updatedItems = [...state.bhetItems];
+        if (updatedItems[exitingIndex].quantity > 1) {
+          updatedItems[exitingIndex].quantity -= 1;
+        } else {
+          updatedItems.splice(exitingIndex, 1);
+        }
+        return { ...state, bhetItems: updatedItems };
+      }
+      return state;
+    }
+
+    case REMOVE_FROM_CART: {
       const exitingIndex = state.items.findIndex(
-        (item) => item._id === action.payload
+        (item) => (item.uniqueKey || item._id) === action.payload
       );
 
       if (exitingIndex !== -1) {
@@ -158,45 +231,8 @@ const cartReducer = (state = initialState, action) => {
           items: updatedItems,
         };
       }
-      break;
-
-    case REMOVE_FROM_PURCHASE_CART:
-      const exitingIndex1 = state.purchaseItems.findIndex(
-        (item) => item._id === action.payload
-      );
-
-      if (exitingIndex1 !== -1) {
-        const updatedItems = [...state.purchaseItems];
-        if (updatedItems[exitingIndex1].quantity > 1) {
-          updatedItems[exitingIndex1].quantity -= 1;
-        } else {
-          updatedItems.splice(exitingIndex1, 1);
-        }
-        return {
-          ...state,
-          purchaseItems: updatedItems,
-        };
-      }
-      break;
-
-    case REMOVE_FROM_BHET_CART:
-      const exitingIndex2 = state.bhetItems.findIndex(
-        (item) => item._id === action.payload
-      );
-
-      if (exitingIndex2 !== -1) {
-        const updatedItems = [...state.bhetItems];
-        if (updatedItems[exitingIndex2].quantity > 1) {
-          updatedItems[exitingIndex2].quantity -= 1;
-        } else {
-          updatedItems.splice(exitingIndex2, 1);
-        }
-        return {
-          ...state,
-          bhetItems: updatedItems,
-        };
-      }
-      break;
+      return state;
+    }
 
     case CLEAR_CART:
       return {
@@ -211,6 +247,7 @@ const cartReducer = (state = initialState, action) => {
       return { ...state, bhetItems: [] };
 
     case EDIT_PURCHASE_DATA:
+      console.log("Updated purchaseItems:", action.payload);
       return {
         ...state,
         purchaseItems: action.payload,

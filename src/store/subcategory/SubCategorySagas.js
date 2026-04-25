@@ -9,13 +9,14 @@ import {
   REQUEST_UPDATE_SUBCATEGORY,
 } from "./SubCategoryAction";
 import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 function* requestSubCategory() {
   try {
     const result = yield call(subCategoryServices.SubCategoryrequest);
     yield put({ type:RECEIVE_SUBCATEGORY, payload: result?.data });
   } catch (error) {
-    toast.error("Error fetching categories", error);
+    toast.error(getApiErrorMessage(error, "Error fetching sub-categories"));
   }
 }
 function* createSubCategorySaga(action) {
@@ -26,7 +27,7 @@ function* createSubCategorySaga(action) {
     );
     toast.success("sub-category created Successfully");
   } catch (error) {
-    toast.error("sub-category didn't created");
+    toast.error(getApiErrorMessage(error, "Sub-category didn't create"));
   }
 }
 
@@ -37,18 +38,19 @@ function* updateSubCategorySaga(action) {
     toast.success("Sub-Category updated successfully", response);
     yield put({ type: RECEIVE_SUBCATEGORY });
   } catch (error) {
-    toast.error("Sub-Category update failed", error);
-    yield put({ type: ERROR_SUBCATEGORY});
+    const msg = getApiErrorMessage(error, "Sub-Category update failed");
+    toast.error(msg);
+    yield put({ type: ERROR_SUBCATEGORY, payload: msg });
   }
 }
 
 function* deleteSubCategorySaga(action) {
   try {
-      yield call(subCategoryServices.deleteSubCategory, action.payload);
-      yield call(requestSubCategory);
-    toast.success("Sub-Category deleted successfully");
+    yield call(subCategoryServices.deleteSubCategory, action.payload);
+        toast.success("Sub-Category deleted successfully");
+    yield put({ type: REQUEST_SUBCATEGORY });  
   } catch (error) {
-    toast.error("Sub-Category didn't deleted", error);
+    toast.error(getApiErrorMessage(error, "Sub-Category didn't delete"));
   }
 }
 

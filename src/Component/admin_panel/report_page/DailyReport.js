@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import {
   FILTER_DAILY,
@@ -7,15 +7,25 @@ import {
 import { REQUEST_USER } from "../../../store/auth/AuthAction";
 import { useAuth } from "../../../store/auth/AuthReducers";
 import ReactToPrint from "react-to-print";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useReport } from "../../../store/admin_report/ReportReducer";
+import { useStoreSettings } from "../../../context/StoreSettingsContext";
+import { saveReportExcelWithToast } from "../../../utils/excelExport";
+import {
+  getDailyProductLineTotal,
+  getDailyProductUnitRate,
+} from "../../../utils/dailyReportProduct";
+import { ReportTableLoadingOverlay } from "../../report/ReportTableLoader";
+import "../../report/reportTableLoader.css";
+import { formatInrMoney } from "../../../utils/formatInr";
+import { formatExcelDateDDMMYY } from "../../../utils/reportPayloadDate";
+import { reportExcelBlobFromAoa } from "../../../utils/reportExcelStyled";
 
 const DailyReport = () => {
-  const { dailyreport } = useReport();
+  const { dailyreport, loadingDaily } = useReport();
+  const { stallName, reportExportDirectoryHandle } = useStoreSettings();
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const dispatch = useDispatch();
@@ -32,21 +42,39 @@ const DailyReport = () => {
     getDailyReport();
   }, [selectedDate, dispatch]);
 
+  /** /report/daily (user + manager): flat `products` on each row. Legacy /daily/admin: nested `data[].products`. */
   const getProducts = (report) => {
-    return report?.flatMap((item) =>
-      item?.data?.flatMap((dataItem) => dataItem.products || [])
-    );
+    if (!Array.isArray(report) || report.length === 0) return [];
+    return report.flatMap((item) => {
+      if (Array.isArray(item?.products) && item.products.length > 0) {
+        return item.products;
+      }
+      return item?.data?.flatMap((dataItem) => dataItem?.products || []) || [];
+    });
   };
 
   const getTotalAmount = (products) =>
-    products.reduce(
-      (acc, product) => acc + (product.price * product.totalBuyingCount || 0),
-      0
-    );
+    products.reduce((acc, product) => acc + getDailyProductLineTotal(product), 0);
 
-  const filteredReport = selectedUser
-    ? dailyreport.filter((item) => item.userFullName === selectedUser.fullName)
-    : dailyreport;
+  const isMergedStoreWide = useMemo(
+    () =>
+      Array.isArray(dailyreport) &&
+      dailyreport.length === 1 &&
+      (dailyreport[0]?.userFullName === "All users" ||
+        dailyreport[0]?.userName === "store"),
+    [dailyreport]
+  );
+
+  useEffect(() => {
+    if (isMergedStoreWide && selectedUser) {
+      setSelectedUser(null);
+    }
+  }, [isMergedStoreWide, selectedUser]);
+
+  const filteredReport =
+    selectedUser && !isMergedStoreWide
+      ? dailyreport.filter((item) => item.userFullName === selectedUser.fullName)
+      : dailyreport;
 
   const productsArray = getProducts(filteredReport);
 
@@ -68,65 +96,64 @@ const DailyReport = () => {
     dispatch({ type: REQUEST_TODAY_PRODUCT, payload: data });
   };
 
-  const exportToExcel = () => {
-    const wb = XLSX.utils.book_new();
+  const exportToExcel = async () => {
     const sheetData = [];
 
-    // Add the "Daily Report" text in the first row
-    sheetData.push(["Daily Report"]);
+    const reportTitle = stallName
+      ? `${stallName} - Daily Sales Report`
+      : "Daily Sales Report";
 
-    // Add the current date in the second row
-    const currentDate = new Date().toLocaleDateString();
-    sheetData.push([`Date: ${currentDate}`]);
+    sheetData.push([reportTitle]);
+
+    sheetData.push([`Date: ${formatExcelDateDDMMYY(selectedDate)}`]);
 
     // Add the table headers in the third row
-    sheetData.push(["Sr. No.", "Product ID", "Product", "Quantity", "Price"]);
+    sheetData.push([
+      "Sr. No.",
+      "Product ID",
+      "Product",
+      "Quantity",
+      "Rate (unit)",
+      "Amount (total)",
+    ]);
 
     // Start the serial number at 1 and add the product data
     let serialNumber = 1;
     productsArray.forEach((product) => {
+      const lineTotal = getDailyProductLineTotal(product);
+      const unitRate = getDailyProductUnitRate(product);
       sheetData.push([
         serialNumber++,
         product.productId || "N/A",
         product.name || "N/A",
         product.totalBuyingCount || "N/A",
-        (product.price * product.totalBuyingCount || 0).toFixed(2),
+        formatInrMoney(unitRate),
+        formatInrMoney(lineTotal),
       ]);
     });
 
     // Calculate the total amount
-    const getTotalAmount = (products) => {
-      return products.reduce((acc, product) => {
-        return acc + (product.price * product.totalBuyingCount || 0);
-      }, 0);
-    };
+    const sumLineTotals = (products) =>
+      products.reduce((acc, product) => acc + getDailyProductLineTotal(product), 0);
 
-    // Add the total row at the end
-    const totalAmount = getTotalAmount(productsArray);
+    const totalAmount = sumLineTotals(productsArray);
     const totalRow = [
       "",
       "",
       "",
+      "",
       "Total:",
-      `${new Intl.NumberFormat("en-IN").format(totalAmount.toFixed(2))}`,
+      formatInrMoney(totalAmount),
     ];
     sheetData.push(totalRow);
 
-    // Create the worksheet from the sheetData array
-    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    const blob = await reportExcelBlobFromAoa(sheetData, "Daily Report");
 
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Daily Report");
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const fileName = `daily_sales_${dateStr}.xlsx`;
 
-    // Generate binary data and convert it to a Blob for download
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
-    const buf = new ArrayBuffer(wbout.length);
-    const view = new Uint8Array(buf);
-    for (let i = 0; i < wbout.length; i++) view[i] = wbout.charCodeAt(i) & 0xff;
-
-    // Create a Blob and trigger the download
-    const blob = new Blob([buf], { type: "application/octet-stream" });
-    saveAs(blob, "DailyReport.xlsx");
+    await saveReportExcelWithToast(blob, fileName, reportExportDirectoryHandle);
   };
 
   const uniqueUsers = Array.from(
@@ -149,6 +176,7 @@ const DailyReport = () => {
               dateFormat="dd/MM/yyyy, EEEE"
               className="date-picker"
               popperPlacement="bottom-start"
+              disabled={loadingDaily}
             />
           </div>
           <div style={{ width: "200px" }}>
@@ -162,6 +190,12 @@ const DailyReport = () => {
               }}
               value={selectedUser ? selectedUser.fullName : ""}
               style={{ width: "70%", height: "32px", borderRadius: "8px" }}
+              disabled={loadingDaily || isMergedStoreWide}
+              title={
+                isMergedStoreWide
+                  ? "Report is merged for all staff (same as user sales report)"
+                  : undefined
+              }
             >
               <option value="">All</option>
               {uniqueUsers.map((user, index) => (
@@ -173,7 +207,16 @@ const DailyReport = () => {
           </div>
         </div>
 
-        <div ref={componentRef}>
+        <div
+          ref={componentRef}
+          className="report-tables-with-loader"
+          style={{ position: "relative", minHeight: 120 }}
+        >
+          <ReportTableLoadingOverlay
+            show={loadingDaily}
+            label="Loading report…"
+          />
+          <div className={loadingDaily ? "report-tables-dimmed" : undefined}>
           <div className="print-header">
             <h1 style={{ textAlign: "center" }}>જય સ્વામિનારાયણ</h1>
             <h3>
@@ -188,13 +231,14 @@ const DailyReport = () => {
                   Product ID
                 </th>
                 <th style={{ textAlign: "left", width: "32%" }}>Product</th>
-                <th style={{ textAlign: "center", width: "18%" }}>Quantity</th>
+                <th style={{ textAlign: "center", width: "14%" }}>Quantity</th>
+                <th style={{ textAlign: "right", width: "14%" }}>Rate</th>
                 <th
                   style={{
                     textAlign: "right",
-                    width: "17%",
-                    paddingLeft: "18px",
-                    paddingRight: "19px",
+                    width: "16%",
+                    paddingLeft: "8px",
+                    paddingRight: "12px",
                   }}
                 >
                   Amount
@@ -202,7 +246,7 @@ const DailyReport = () => {
               </tr>
             </thead>
             <tbody className="tab-body">
-              {isDataAvailable ? (
+              {!loadingDaily && isDataAvailable ? (
                 productsArray.map((product, index) => {
                   const currentSerialNumber = index + 1;
                   return (
@@ -217,35 +261,39 @@ const DailyReport = () => {
                       <td style={{ textAlign: "left", width: "32%" }}>
                         {product.name || "N/A"}
                       </td>
-                      <td style={{ textAlign: "center", width: "18%" }}>
+                      <td style={{ textAlign: "center", width: "14%" }}>
                         {new Intl.NumberFormat("en-IN").format(
                           product.totalBuyingCount || "N/A"
                         )}
                       </td>
-                      <td style={{ textAlign: "right", width: "18%" }}>
+                      <td style={{ textAlign: "right", width: "14%" }}>
                         {new Intl.NumberFormat("en-IN").format(
-                          product.totalBuyingCount * product.price
-                        ) || 0}
+                          getDailyProductUnitRate(product)
+                        )}
+                      </td>
+                      <td style={{ textAlign: "right", width: "16%" }}>
+                        {new Intl.NumberFormat("en-IN").format(
+                          getDailyProductLineTotal(product)
+                        )}
                       </td>
                     </tr>
                   );
                 })
-              ) : (
+              ) : !loadingDaily ? (
                 <tr>
-                  <td colSpan="5" className="no-data-cell">
-                    No Data Found
+                  <td
+                    colSpan="6"
+                    className="no-data-cell report-table-empty-message"
+                  >
+                    No data found
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
             <tfoot className="tab-footer">
               <tr>
                 <td colSpan="5">
                   <div className="flexgap">
-                    {/* <ReactToPrint
-                      trigger={() => <button className="print-btn" style={{ cursor: "pointer" }}>Print</button>}
-                      content={() => componentRef.current}
-                    /> */}
                     <button
                       className="print-btn"
                       style={{ cursor: "pointer" }}
@@ -255,20 +303,19 @@ const DailyReport = () => {
                     </button>
                   </div>
                 </td>
-                <td></td>
-                <td></td>
                 <td
                   className="total-amount"
                   style={{ textAlign: "right", paddingRight: "16px" }}
                 >
                   Total Amount:{" "}
                   {new Intl.NumberFormat("en-IN").format(
-                    getTotalAmount(productsArray).toFixed(2)
+                    getTotalAmount(productsArray)
                   )}
                 </td>
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
       </div>
     </div>

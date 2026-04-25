@@ -1,22 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./modalstyle.css";
 import { REQUEST_UPDATE_PRODUCT } from "../../../store/product/ProductAction";
 import { useDispatch, useSelector } from "react-redux";
 import { REQUEST_CATEGORY } from "../../../store/category/categoryActionType";
 import { REQUEST_SUBCATEGORY } from "../../../store/subcategory/SubCategoryAction";
 import { toast } from "react-toastify";
+import {
+  sortCategoriesForAdminDisplay,
+  sortSubcategoriesForAdmin,
+} from "../../../utils/productDisplayOrder";
 
 const UpdateProduct = ({ closeModal, product, productId }) => {
   const dispatch = useDispatch();
   const [productData, setProductData] = useState(product || {});
   const [subCategoryData, setSubCategoryData] = useState({});
   const categories = useSelector((state) => state.category.categories);
+  const sortedCategories = useMemo(
+    () => sortCategoriesForAdminDisplay(categories || []),
+    [categories]
+  );
+  const sortedSubOptions = useMemo(
+    () => sortSubcategoriesForAdmin(subCategoryData?.subCategory || []),
+    [subCategoryData]
+  );
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     if (name === 'categoryId') {
       const selectedCategory = categories.find((category) => category._id === value);
-      setSubCategoryData(selectedCategory); 
+      setSubCategoryData(selectedCategory);
+    } else if (name === 'priceType') {
+      setProductData({
+        ...productData,
+        priceType: value,
+        ...(value === 'CUSTOM' ? { price: 0 } : {}),
+      });
+    } else if (name === 'isDeActive') {
+      setProductData({
+        ...productData,
+        isDeActive: value === 'true',
+      });
     } else {
       setProductData({
         ...productData,
@@ -27,7 +50,14 @@ const UpdateProduct = ({ closeModal, product, productId }) => {
 
   const handleUpdateProduct = async () => {
     try {
-      const updateData = { name: productData.name, subCategoryId: productData.subCategoryId, price:productData.price, productId: productData.productId };
+      const updateData = {
+        name: productData.name,
+        subCategoryId: productData.subCategoryId,
+        price: productData.price,
+        productId: productData.productId,
+        priceType: productData.priceType || 'FIXED',
+        isDeActive: productData.isDeActive === true || productData.isDeActive === 'true',
+      };
       await dispatch({ type: REQUEST_UPDATE_PRODUCT, payload: { data: updateData, id: productId } });
       closeModal();
     } catch (error) {
@@ -59,7 +89,7 @@ const UpdateProduct = ({ closeModal, product, productId }) => {
                 onChange={handleChange}
               >
                 <option value="" disabled>Select Category</option>
-                {categories.map((category) => (
+                {sortedCategories.map((category) => (
                   <option key={category._id} value={category._id}>
                     {category.name}
                   </option>
@@ -76,7 +106,7 @@ const UpdateProduct = ({ closeModal, product, productId }) => {
                 onChange={handleChange}
               >
                 <option value="" disabled>Select Sub Category</option>
-                {subCategoryData?.subCategory?.map((subCategory) => (
+                {sortedSubOptions.map((subCategory) => (
                   <option key={subCategory._id} value={subCategory._id}>
                     {subCategory.name}
                   </option>
@@ -106,15 +136,43 @@ const UpdateProduct = ({ closeModal, product, productId }) => {
               />
             </label>
             <label className="modal-label">
-              Price:
-              <input
-                id="price"
-                type="number"
-                name="price"
+              Price Type:
+              <select
                 className="modal-input"
-                value={productData.price || ''}
+                id="priceType"
+                name="priceType"
+                value={productData.priceType || 'FIXED'}
                 onChange={handleChange}
-              />
+              >
+                <option value="CUSTOM">CUSTOM</option>
+                <option value="FIXED">FIXED</option>
+              </select>
+            </label>
+            {productData.priceType === 'FIXED' && (
+              <label className="modal-label">
+                Price:
+                <input
+                  id="price"
+                  type="number"
+                  name="price"
+                  className="modal-input"
+                  value={productData.price ?? ''}
+                  onChange={handleChange}
+                />
+              </label>
+            )}
+            <label className="modal-label">
+              Status:
+              <select
+                className="modal-input"
+                id="isDeActive"
+                name="isDeActive"
+                value={productData.isDeActive === true || productData.isDeActive === 'true' ? 'true' : 'false'}
+                onChange={handleChange}
+              >
+                <option value="false">Active</option>
+                <option value="true">Deactive</option>
+              </select>
             </label>
           </div>
           <div className="modal-bottom-btn">

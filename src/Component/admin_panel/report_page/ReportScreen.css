@@ -1,0 +1,237 @@
+/* Full-width report area: sidebar + content — light theme (admin panel) */
+.admin-report-page {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  box-sizing: border-box;
+  background: var(--white-color, #fff);
+  border-radius: var(--btn-radius, 0.65rem);
+  border: 1px solid rgba(97, 37, 17, 0.15);
+  box-shadow: 0 2px 12px rgba(97, 37, 17, 0.06);
+  overflow: hidden;
+}
+
+/* ---- Sidebar (light) ---- */
+.admin-report-sidebar {
+  width: 262px;
+  min-width: 220px;
+  max-width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-color, #fffef9);
+  color: var(--brown-color, #612711);
+  box-sizing: border-box;
+  border-right: 1px solid rgba(97, 37, 17, 0.18);
+}
+
+.admin-report-sidebar-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px dashed rgba(97, 37, 17, 0.28);
+  flex-shrink: 0;
+  background: var(--white-color, #fff);
+}
+
+.admin-report-sidebar-head-icon {
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: var(--btn-radius, 0.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color, #fffef9);
+  border: 1px solid var(--brown-color, #612711);
+  color: var(--brown-color, #612711);
+}
+
+.admin-report-sidebar-head-icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.admin-report-sidebar-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.admin-report-sidebar-title {
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--brown-color, #612711);
+  line-height: 1.2;
+}
+
+.admin-report-sidebar-sub {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--light-brown-color, #8b6914);
+  letter-spacing: 0.02em;
+}
+
+.admin-report-sidebar-sub--reserved {
+  display: inline-block;
+  min-height: 1.15em;
+  line-height: 1.15;
+}
+
+.admin-report-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.7rem 0.65rem 1rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Top-level & sub nav buttons */
+.admin-report-nav-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(97, 37, 17, 0.22);
+  border-radius: var(--btn-radius, 0.5rem);
+  background: var(--white-color, #fff);
+  color: var(--brown-color, #612711);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.3;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.admin-report-nav-btn-icon {
+  width: 1.08rem;
+  height: 1.08rem;
+  flex-shrink: 0;
+  margin-top: 0.12rem;
+  opacity: 0.92;
+  color: var(--brown-color, #612711);
+}
+
+.admin-report-nav-btn-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-report-nav-btn:hover {
+  background: rgba(97, 37, 17, 0.06);
+  border-color: var(--brown-color, #612711);
+}
+
+.admin-report-nav-btn:focus {
+  outline: none;
+}
+
+.admin-report-nav-btn:focus-visible {
+  outline: 2px solid var(--brown-color, #612711);
+  outline-offset: 2px;
+}
+
+.admin-report-nav-btn.is-active {
+  background: var(--brown-color, #612711);
+  color: var(--white-color, #fff);
+  border-color: var(--brown-color, #612711);
+  box-shadow: 0 2px 8px rgba(97, 37, 17, 0.2);
+}
+
+.admin-report-nav-btn.is-active .admin-report-nav-btn-icon {
+  opacity: 1;
+  color: var(--white-color, #fff);
+}
+
+/* Grouped reports */
+.admin-report-nav-group {
+  border-radius: var(--btn-radius, 0.65rem);
+  padding: 0.4rem 0.35rem 0.55rem;
+  background: var(--white-color, #fff);
+  border: 1px dashed rgba(97, 37, 17, 0.35);
+}
+
+.admin-report-nav-group.has-active {
+  border-color: var(--brown-color, #612711);
+  border-style: solid;
+  box-shadow: 0 0 0 1px rgba(97, 37, 17, 0.08);
+}
+
+.admin-report-nav-parent {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brown-color, #612711);
+  padding: 0.4rem 0.5rem 0.45rem;
+}
+
+.admin-report-nav-parent-icon {
+  width: 0.92rem;
+  height: 0.92rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+  color: var(--brown-color, #612711);
+}
+
+.admin-report-nav-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding-left: 0.35rem;
+  margin-left: 0.45rem;
+  border-left: 2px solid rgba(97, 37, 17, 0.22);
+}
+
+.admin-report-nav-btn-sub {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.46rem 0.55rem;
+  background: var(--bg-color, #fffef9);
+  border-color: rgba(97, 37, 17, 0.14);
+}
+
+.admin-report-nav-sub-bullet {
+  width: 0.42rem;
+  height: 0.42rem;
+  flex-shrink: 0;
+  margin-top: 0.4rem;
+  opacity: 0.75;
+  color: var(--brown-color, #612711);
+}
+
+.admin-report-nav-btn-sub.is-active .admin-report-nav-sub-bullet {
+  color: var(--white-color, #fff);
+  opacity: 1;
+}
+
+/* Main content — no outer pane scroll; table area scrolls inside */
+.admin-report-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--white-color, #fff);
+  padding: 0.5rem 20px 0.65rem;
+  box-sizing: border-box;
+}

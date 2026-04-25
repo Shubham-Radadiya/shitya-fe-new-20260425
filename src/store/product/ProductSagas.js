@@ -1,5 +1,6 @@
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import productServices from "../../services/product.services";
+import { REQUEST_CATEGORY } from "../category/categoryActionType";
 import {
   CREATE_PRODUCT_REQUEST,
   DELETE_PRODUCT,
@@ -12,14 +13,18 @@ import {
   GET_STOCK,
 } from "./ProductAction";
 import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 function* createProductSaga(action) {
   try {
     const { data } = yield call(productServices.createProduct, action.payload);
     toast.success("Product created Successfully", data);
+    yield put({ type: REQUEST_CATEGORY });
     yield put({ type: PRODUCT_REQUEST });
   } catch (error) {
-    toast.error("Product creation failed", error);
+    toast.error(
+      getApiErrorMessage(error, "Product creation failed")
+    );
   }
 }
 
@@ -28,7 +33,7 @@ function* requestProductSaga() {
     const data = yield call(productServices.getProduct);
     yield put({ type: SET_PRODUCT, payload: data });
   } catch (error) {
-    toast.error("Failed to fetch products", error);
+    toast.error(getApiErrorMessage(error, "Failed to fetch products"));
   }
 }
 
@@ -37,10 +42,12 @@ function* updateProductSaga(action) {
     const { data, id } = action.payload;
     const response = yield call(productServices.updateProduct, data, id);
     toast.success("Product updated successfully", response);
+    yield put({ type: REQUEST_CATEGORY });
     yield put({ type: PRODUCT_REQUEST });
   } catch (error) {
-    toast.error("Product update failed", error);
-    yield put({ type: ERROR_PRODUCT, payload: "Product update failed" });
+    const msg = getApiErrorMessage(error, "Product update failed");
+    toast.error(msg);
+    yield put({ type: ERROR_PRODUCT, payload: msg });
   }
 }
 
@@ -51,27 +58,32 @@ function* updateStockQuantitySaga(action) {
     toast.success("Stock quantity updated successfully");
     yield put({ type: PRODUCT_REQUEST });
   } catch (error) {
-    toast.error("Stock update failed", error);
-    yield put({ type: ERROR_PRODUCT, payload: "Stock update failed" });
+    const msg = getApiErrorMessage(error, "Stock update failed");
+    toast.error(msg);
+    yield put({ type: ERROR_PRODUCT, payload: msg });
   }
 }
 
 function* deleteProductSaga(action) {
   try {
     yield call(productServices.deleteProduct, action.payload);
+    yield put({ type: REQUEST_CATEGORY });
     yield call(requestProductSaga);
     toast.success("Product deleted successfully");
   } catch (error) {
+    toast.error(getApiErrorMessage(error, "Could not delete product"));
     yield put({ type: ERROR_PRODUCT });
   }
 }
 
-function* requestStockSaga() {
+function* requestStockSaga(action) {
   try {
-    const data = yield call(productServices.getStock);
+    const range = action?.payload || {};
+    const data = yield call(productServices.getStock, range);
     yield put({ type: GET_STOCK, payload: data });
   } catch (error) {
-    toast.error("Failed to fetch products", error);
+    toast.error(getApiErrorMessage(error, "Failed to fetch stock"));
+    yield put({ type: GET_STOCK, payload: [] });
   }
 }
 

@@ -39,10 +39,15 @@ const deleteProduct = async (id) => {
   return response.data;
 };
 
-const getStock = async () => {
-  const response = await axios.get(`${API_URL}/stock`, {
+const getStock = async (range = {}) => {
+  const { startDate, endDate } = range;
+  const cfg = {
     headers: { Authorization: localStorage.getItem("access_token") },
-  });
+  };
+  if (startDate && endDate) {
+    cfg.params = { startDate, endDate };
+  }
+  const response = await axios.get(`${API_URL}/stock`, cfg);
   return response.data;
 };
 

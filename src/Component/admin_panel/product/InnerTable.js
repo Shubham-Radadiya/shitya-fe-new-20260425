@@ -9,6 +9,7 @@ import RemoveSubcategory from "../modal/RemoveSubcategory";
 import UpdateSubCategory from "../modal/UpdateSubcategory";
 import UpdateProduct from "../modal/UpdateProduct";
 import AddStockModal from "../modal/AddStockModal";
+import { formatInr } from "../../../utils/formatInr";
 
 const InnerTable = ({
   subCategories,
@@ -141,8 +142,14 @@ const InnerTable = ({
                       <td width={"22%"}>{product.name}</td>
                       <td width={"13%"}>
                         {pageType === "product"
-                          ? `${product.price}`
-                          : product.quantity ?? 0}
+                          ? formatInr(product.price, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })
+                          : formatInr(product.quantity ?? 0, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            })}
                       </td>
 
                       <td className="product-action">

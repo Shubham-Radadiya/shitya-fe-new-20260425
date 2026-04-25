@@ -13,9 +13,12 @@ import TableRow from "@mui/material/TableRow";
 import { FILTER_MONTHLY } from "../../../store/admin_report/ReportAction";
 import TableFooter from "@mui/material/TableFooter";
 import { styled } from "@mui/material/styles";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { useStoreSettings } from "../../../context/StoreSettingsContext";
+import { saveReportExcelWithToast } from "../../../utils/excelExport";
+import { formatExcelDateDDMMYY } from "../../../utils/reportPayloadDate";
+import { reportExcelBlobFromAoa } from "../../../utils/reportExcelStyled";
 import { REQUEST_MONTHLY_PRODUCT } from "../../../store/admin_report/ReportAction";
+import { ReportTableLoadingOverlay } from "../../report/ReportTableLoader";
 // Styled container for table with overflow handling
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   maxHeight: 540, // Adjust height as needed
@@ -24,7 +27,8 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
 }));
 
 export default function MonthlyReport() {
-  const { monthlyreport } = useReport();
+  const { monthlyreport, loadingMonthly } = useReport();
+  const { reportExportDirectoryHandle } = useStoreSettings();
   const dispatch = useDispatch();
   const users = useAuth();
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -399,8 +403,7 @@ export default function MonthlyReport() {
     setDate({ start: formatDate(start), end: formatDate(end) });
   };
 
-  const exportToExcel = () => {
-    const wb = XLSX.utils.book_new();
+  const exportToExcel = async () => {
     let lastCategory = "";
     let lastSubCategory = "";
     const wsData = [
@@ -409,9 +412,9 @@ export default function MonthlyReport() {
         "Category",
         "Sub-Category",
         "Product",
-        ...dates.map((date) => `${date}`),
+        ...dates.map((date) => formatExcelDateDDMMYY(date)),
         "Total Qty",
-        ...dates.map((date) => `${date}`),
+        ...dates.map((date) => formatExcelDateDDMMYY(date)),
         "Total Amount",
       ],
       // Data Rows
@@ -448,20 +451,16 @@ export default function MonthlyReport() {
       ],
     ];
 
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "Monthly Report");
-
-    // Write the workbook and trigger download
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    saveAs(
-      new Blob([wbout], { type: "application/octet-stream" }),
-      "monthly_report.xlsx"
-    );
+    const blob = await reportExcelBlobFromAoa(wsData, "Monthly Report");
+    const fileName = "monthly_report.xlsx";
+    await saveReportExcelWithToast(blob, fileName, reportExportDirectoryHandle);
   };
   const { rows, overallTotals, grandTotals } = generateRows(
     productsArray,
     dates
   );
+
+  const monthlyEmptyColSpan = Math.max(12, 6 + (dynamicColumns?.length || 0));
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -533,9 +532,19 @@ export default function MonthlyReport() {
           </div>
         </div>
         <Paper
-          style={{ border: "1px solid var(--brown-color)" }}
+          style={{
+            border: "1px solid var(--brown-color)",
+            position: "relative",
+            minHeight: 120,
+          }}
           ref={componentRef}
+          className="report-tables-with-loader"
         >
+          <ReportTableLoadingOverlay
+            show={loadingMonthly}
+            label="Loading report…"
+          />
+          <div className={loadingMonthly ? "report-tables-dimmed" : undefined}>
           <StyledTableContainer sx={{ maxHeight: 475 }}>
             <Table>
               <TableHead>
@@ -667,7 +676,18 @@ export default function MonthlyReport() {
               </TableHead>
 
               <TableBody>
-                {rows.map((row) => (
+                {!loadingMonthly && rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={monthlyEmptyColSpan}
+                      align="center"
+                      sx={{ py: 3, fontWeight: 500, color: "#555" }}
+                    >
+                      No data found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                rows.map((row) => (
                   <React.Fragment key={row.sr_no}>
                     {row.isCategory && (
                       <React.Fragment>
@@ -929,7 +949,8 @@ export default function MonthlyReport() {
                       </React.Fragment>
                     )}
                   </React.Fragment>
-                ))}
+                ))
+                )}
               </TableBody>
 
               <TableFooter>
@@ -1016,6 +1037,7 @@ export default function MonthlyReport() {
               </TableFooter>
             </Table>
           </StyledTableContainer>
+          </div>
         </Paper>
         <div className="flexgap">
           {/* <ReactToPrint

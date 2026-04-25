@@ -57,7 +57,7 @@ const Home = () => {
           >
             જય સ્વામિનારાયણ
           </h2>
-          <div style={{ height: "3.5rem" }}>
+          <div style={{ height: "3.7rem", paddingTop:"17px", backgroundColor: "white", borderRadius:"10px" }}>
             <MenuVariety
               name={name}
               updateProduct={updateProduct}

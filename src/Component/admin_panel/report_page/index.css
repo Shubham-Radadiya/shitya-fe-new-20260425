@@ -38,8 +38,6 @@
   border-collapse: collapse;
   font-weight: 600;
   border: 1px solid var(--brown-color);
-  display: flex;
-  flex-direction: column;
 }
 .date-picker-container {
   display: flex;
@@ -64,9 +62,7 @@
   align-items: center;
 }
 .tab-body {
-  display: block;
-  overflow-y: auto;
-  max-height: 58vh;
+  font-size: inherit;
 }
 
 .report-table thead th,
@@ -130,7 +126,7 @@
   }
 
   .tab-body {
-    display: table;
+    display: table-row-group;
     width: 100%;
     overflow: visible;
   }

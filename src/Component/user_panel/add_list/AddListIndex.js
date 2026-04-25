@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import {
   ADD_TO_BHET_CART,
@@ -7,6 +7,8 @@ import {
 } from "../../../store/cart/cartActionType";
 import "./index.css";
 import { useLocation } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import { formatInr } from "../../../utils/formatInr";
 
 const AddList = ({
   main,
@@ -16,16 +18,30 @@ const AddList = ({
 }) => {
   const dispatch = useDispatch();
   const currentLocation = useLocation();
+
   const handleAddToCart = (product) => {
-    if (currentLocation.pathname === "/stock") {
-      dispatch({ type: ADD_TO_PURCHASE_CART, payload: product });
-    } else if (currentLocation.pathname === "/bhet") {
-      dispatch({ type: ADD_TO_BHET_CART, payload: product });
-    } else {
-      dispatch({ type: ADD_TO_CART, payload: product });
+    if (product.isDeActive) return;
+
+    let productToAdd = { ...product };
+
+  if (product.priceType === "CUSTOM") {
+    if (!productToAdd.uniqueKey) {
+      productToAdd.uniqueKey = uuidv4(); // generate once
     }
-    setShowReprintBill(false);
-  };
+    productToAdd.quantity = 1;
+  }
+
+  const actionType =
+    currentLocation.pathname === "/stock"
+      ? ADD_TO_PURCHASE_CART
+      : currentLocation.pathname === "/bhet"
+      ? ADD_TO_BHET_CART
+      : ADD_TO_CART;
+
+  dispatch({ type: actionType, payload: productToAdd });
+  setShowReprintBill(false);
+};
+
 
   function sortBySubId(a, b) {
     return a.productId - b.productId;
@@ -58,16 +74,25 @@ const AddList = ({
     return 0;
   }
 
+  /* Active products first, deactive at the bottom; within each group sort by productId */
+  function sortActiveFirstThenById(a, b) {
+    const aDeactive = !!a.isDeActive;
+    const bDeactive = !!b.isDeActive;
+    if (aDeactive !== bDeactive) return aDeactive ? 1 : -1;
+    return sortById(a, b);
+  }
+
   return (
     <div className="add-list-container">
       <div className="product-grid">
         {newState
-          ? allProducts.sort(sortById).map((product, index) => (
+          ? allProducts.sort(sortActiveFirstThenById).map((product, index) => (
               <div
-                className="product-box"
+                className={`product-box ${product.isDeActive ? "product-box--deactive" : ""}`}
                 key={index}
                 onClick={() => handleAddToCart(product)}
               >
+                {product.isDeActive && <div className="deactive-overlay" />}
                 <p
                   className="product-price"
                   style={{
@@ -113,9 +138,9 @@ const AddList = ({
                 </div>
               </div>
             ))
-          : filteredProducts?.sort(sortById).map((product, index) => (
+          : filteredProducts?.sort(sortActiveFirstThenById).map((product, index) => (
               <div
-                className="product-box"
+                className={`product-box ${product.isDeActive ? "product-box--deactive" : ""}`}
                 style={{
                   border:
                     currentLocation.pathname === "/stock"
@@ -127,6 +152,7 @@ const AddList = ({
                 key={index}
                 onClick={() => handleAddToCart(product)}
               >
+                {product.isDeActive && <div className="deactive-overlay" />}
                 <p
                   className="product-price"
                   style={{
@@ -149,15 +175,16 @@ const AddList = ({
                         : currentLocation.pathname === "/bhet"
                         ? "rgb(34 78 8 / 25%)"
                         : "rgb(198 129 106 / 25%)",
-                    width: "102px", // fixed width to maintain space
+                    width: "102px",
                     display: "inline-block",
                   }}
                 >
                   {product.priceType === "CUSTOM"
                     ? "\u00A0" // hide for custom
-                    : `₹ ${new Intl.NumberFormat("en-IN").format(
-                        product.price
-                      )}`}
+                    : `₹ ${formatInr(product.price, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2,
+                      })}`}
                 </p>
                 <div>
                   <div

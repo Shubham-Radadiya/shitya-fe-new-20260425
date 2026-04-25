@@ -1,33 +1,71 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useDispatch } from "react-redux";
-import * as XLSX from "xlsx";
-import { GET_DAILY_REPORTS_REQUEST } from "../../store/user_report/UserReportAction";
-import { useReport } from "../../store/user_report/UserReportReducer";
 import "./index.css";
 import { useBhet } from "../../store/invoice/InvoiceReducer";
 import { AiOutlinePrinter } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
-import Edit from "../images/edit.png";
 import ReactToPrint from "react-to-print";
-import { MdOutlineFileUpload } from "react-icons/md";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
+import { API_URL } from "../../constant/config";
+import invoiceServices from "../../services/invoice.services";
 import download from "../images/download.png";
+import { ReportTablesLoaderWrap } from "./ReportTableLoader";
+import { formatInr } from "../../utils/formatInr";
+import ReportEntryModeToolbar from "./ReportEntryModeToolbar";
+import {
+  filterNestedUserDataByMode,
+  listIndianFYOptions,
+} from "../../utils/reportEntryFilters";
+import {
+  bucketAmountsFromBuyingCategories,
+  sumBuckets,
+  buildDayRowsForYmdRange,
+  buildFiscalMonthRowsFromUsers,
+} from "../../utils/reportCategoryAggregation";
+import {
+  ReportMergedUserProductsCategories,
+  ReportCategoryPeriodTable,
+} from "./ReportSharedTables";
+import {
+  formatLocalDateYMD,
+  formatReportMonthWiseDateLabel,
+  formatExcelDateDDMMYY,
+} from "../../utils/reportPayloadDate";
+import { reportCategoryPeriodRowHasValue } from "../../utils/reportNonZeroRows";
+import {
+  buildEntryToolbarReportTitleRows,
+  buildAlignedPeriodCategoryFooterRow,
+  tableRowsForExport,
+  appendMergedEntryTableFooter,
+} from "../../utils/reportDomExcelExport";
+import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
+import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { saveReportExcelWithToast } from "../../utils/excelExport";
+import { toast } from "react-toastify";
 
 const BhetReport = () => {
   const componentRef = useRef();
+  const exportTableRef = useRef();
   const dispatch = useDispatch();
-  const { bhetData } = useBhet();
-  const { dailyReport } = useReport();
-  const [reportType, setReportType] = useState("daily");
-  const printRef = useRef();
+  const { reportExportDirectoryHandle } = useStoreSettings();
+  const { bhetData, bhetDataLoading } = useBhet();
+  const defaultFy = useMemo(
+    () => listIndianFYOptions(12)[0]?.value ?? new Date().getFullYear(),
+    []
+  );
+  const [entryMode, setEntryMode] = useState("entry");
+  const [filterDateRangeStart, setFilterDateRangeStart] = useState(() => new Date());
+  const [filterDateRangeEnd, setFilterDateRangeEnd] = useState(() => new Date());
+  const [filterMonthDate, setFilterMonthDate] = useState(() => new Date());
+  const [fyStartYear, setFyStartYear] = useState(() => defaultFy);
+  const [entrySummaryUsers, setEntrySummaryUsers] = useState([]);
+  const [entrySummaryLoading, setEntrySummaryLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   const fetchInvoiceData = async (invoiceId) => {
     try {
       const token = localStorage.getItem("access_token");
-      const response = await fetch(`http://localhost:3010/bhet/${invoiceId}`, {
+      const response = await fetch(`${API_URL}/bhet/${invoiceId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -54,123 +92,230 @@ const BhetReport = () => {
   };
 
   useEffect(() => {
-    dispatch({ type: REQUEST_BHET_DATA });
-  }, []);
+    dispatch({ type: REQUEST_BHET_DATA, payload: false });
+  }, [dispatch]);
 
   useEffect(() => {
-    handleFetchReports(reportType);
-  }, [reportType]);
-
-  const handleFetchReports = (type) => {
-    setReportType(type);
-    if (type === "daily") {
-      const startDate = new Date();
-      const endDate = new Date();
-
-      dispatch({
-        type: GET_DAILY_REPORTS_REQUEST,
-        payload: { startDate, endDate },
+    let cancelled = false;
+    setEntrySummaryLoading(true);
+    invoiceServices
+      .getBhetEntrySummary(false)
+      .then((data) => {
+        if (!cancelled) {
+          setEntrySummaryUsers(Array.isArray(data) ? data : []);
+          setEntrySummaryLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setEntrySummaryUsers([]);
+          setEntrySummaryLoading(false);
+        }
       });
-    }
-  };
-
-  const getCurrentReportData = () => {
-    switch (reportType) {
-      case "daily":
-        return dailyReport;
-      default:
-        return [];
-    }
-  };
-
-  const getTotalAmount = (categories) =>
-    categories?.reduce(
-      (acc, category) => acc + (category.totalBuyingAmount || 0),
-      0
-    ) || 0;
-
-  const currentReport = getCurrentReportData();
-
-  const filteredProducts = currentReport[0]?.products || [];
-  const calculateTotalAmount = () => {
-    if (reportType === "daily") {
-      return filteredProducts.reduce((sum, item) => {
-        const price = item.price || 0;
-        const quantity = item.totalBuyingCount || 0;
-        return sum + price * quantity;
-      }, 0);
-    } else {
-      return filteredProducts.reduce(
-        (sum, item) => sum + getTotalAmount(item.categories),
-        0
-      );
-    }
-  };
-
-  const Amount =
-    reportType === "daily" ? calculateTotalAmount() : calculateTotalAmount();
-  const totalAmount = reportType === "daily" ? calculateTotalAmount() : Amount;
-
-  const exportToExcel = () => {
-    const table = document.querySelector(".userreport-table");
-    const tableClone = table.cloneNode(true);
-    const rows = tableClone.querySelectorAll("tr");
-
-    // Remove footer or any other unwanted rows
-    rows.forEach((row) => {
-      if (row.querySelector(".tfootgroup")) {
-        row.parentNode.removeChild(row);
-      }
-    });
-
-    // Create a new empty worksheet
-    const worksheet = XLSX.utils.aoa_to_sheet([]);
-
-    // Add the title and date rows only
-    const currentDate = new Date().toLocaleDateString();
-    const titleAndDate = [
-      ["Purchase Report"], // First row: Title
-      [`Date: ${currentDate}`], // Second row: Date
-    ];
-
-    // Add the title and date to the worksheet at the top
-    XLSX.utils.sheet_add_aoa(worksheet, titleAndDate, { origin: "A1" });
-
-    const tableData = Array.from(tableClone.querySelectorAll("tr")).map((row) =>
-      Array.from(row.querySelectorAll("th, td")).map((cell) => cell.textContent)
-    );
-    XLSX.utils.sheet_add_aoa(worksheet, tableData, { origin: "A3" });
-
-    const totalRow = ["", "", "", "Total:", `${Amount.toFixed(2)}`];
-    XLSX.utils.sheet_add_aoa(worksheet, [totalRow], { origin: -1 });
-
-    // Create a new workbook and append the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-
-    // Write the workbook to binary and create a Blob for download
-    const workbookOut = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "binary",
-    });
-    const s2ab = (s) => {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff;
-      return buf;
+    return () => {
+      cancelled = true;
     };
-    const blob = new Blob([s2ab(workbookOut)], {
-      type: "application/octet-stream",
-    });
+  }, []);
 
-    // Create a download link and trigger the download
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "PurchaseReport.xlsx";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const tableLoading = bhetDataLoading;
+
+  const handleFilterDateRangeChange = useCallback((start, end) => {
+    if (!start) return;
+    if (end == null) {
+      setFilterDateRangeStart(start);
+      setFilterDateRangeEnd(null);
+      return;
+    }
+    if (start.getTime() <= end.getTime()) {
+      setFilterDateRangeStart(start);
+      setFilterDateRangeEnd(end);
+    } else {
+      setFilterDateRangeStart(end);
+      setFilterDateRangeEnd(start);
+    }
+  }, []);
+
+  const sortedBhetUsers = useMemo(() => {
+    if (!Array.isArray(bhetData)) return [];
+    return bhetData.map((user) => ({
+      ...user,
+      data: [...(user.data || [])].sort(
+        (a, b) => Number(a.billId) - Number(b.billId)
+      ),
+    }));
+  }, [bhetData]);
+
+  const filteredBhetUsers = useMemo(
+    () =>
+      filterNestedUserDataByMode(sortedBhetUsers, entryMode, {
+        dateRangeStart: filterDateRangeStart,
+        dateRangeEnd: filterDateRangeEnd,
+        monthDate: filterMonthDate,
+        fyStartYear,
+      }),
+    [
+      sortedBhetUsers,
+      entryMode,
+      filterDateRangeStart,
+      filterDateRangeEnd,
+      filterMonthDate,
+      fyStartYear,
+    ]
+  );
+
+  const monthYmdBounds = useMemo(() => {
+    const d = filterMonthDate;
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    return {
+      start: formatLocalDateYMD(new Date(y, m, 1)),
+      end: formatLocalDateYMD(new Date(y, m + 1, 0)),
+    };
+  }, [filterMonthDate]);
+
+  const bhetDateDocRows = useMemo(() => {
+    if (entryMode !== "date") return [];
+    const rows = [];
+    filteredBhetUsers.forEach((user, userIndex) => {
+      (user.data || []).forEach((invoice, invoiceIndex) => {
+        const buckets = bucketAmountsFromBuyingCategories(invoice.categories);
+        const row = {
+          key: `d-${userIndex}-${invoiceIndex}-${invoice.billId}`,
+          docNo: invoice.billId,
+          reportType: "Bhet",
+          periodLabel: String(invoice.billId ?? "—"),
+          secondaryPeriodLabel: formatReportMonthWiseDateLabel(
+            formatLocalDateYMD(invoice.createdAt)
+          ),
+          buckets,
+          amount: sumBuckets(buckets),
+          actionPrimary: (
+            <span
+              style={{ fontSize: "26px", cursor: "pointer" }}
+              onClick={() => fetchInvoiceDataForModal(invoice.billId)}
+              title="Print / preview"
+            >
+              <AiOutlinePrinter />
+            </span>
+          ),
+          actionSecondary: null,
+        };
+        if (reportCategoryPeriodRowHasValue(row)) rows.push(row);
+      });
+    });
+    return rows;
+  }, [entryMode, filteredBhetUsers]);
+
+  const bhetMonthDayRows = useMemo(() => {
+    if (entryMode !== "month") return [];
+    return buildDayRowsForYmdRange(
+      filteredBhetUsers,
+      monthYmdBounds.start,
+      monthYmdBounds.end
+    )
+      .map((d) => ({
+        key: d.ymd,
+        periodLabel: d.dateLabel,
+        buckets: d.buckets,
+        amount: d.amount,
+      }))
+      .filter(reportCategoryPeriodRowHasValue);
+  }, [entryMode, filteredBhetUsers, monthYmdBounds]);
+
+  const bhetYearMonthRows = useMemo(() => {
+    if (entryMode !== "year") return [];
+    return buildFiscalMonthRowsFromUsers(filteredBhetUsers, fyStartYear)
+      .map((m) => ({
+        key: m.key,
+        periodLabel: formatExcelDateDDMMYY(m.monthDate),
+        buckets: m.buckets,
+        amount: m.amount,
+      }))
+      .filter(reportCategoryPeriodRowHasValue);
+  }, [entryMode, filteredBhetUsers, fyStartYear]);
+
+  const bhetDateDocFooter = useMemo(() => {
+    const colSums = [0, 0, 0, 0, 0, 0];
+    let grand = 0;
+    for (const r of bhetDateDocRows) {
+      (r.buckets || []).forEach((v, i) => {
+        colSums[i] += v;
+      });
+      grand += r.amount || 0;
+    }
+    return { colSums, grand };
+  }, [bhetDateDocRows]);
+
+  const monthDayFooter = useMemo(() => {
+    const colSums = [0, 0, 0, 0, 0, 0];
+    let grand = 0;
+    for (const r of bhetMonthDayRows) {
+      (r.buckets || []).forEach((v, i) => {
+        colSums[i] += v;
+      });
+      grand += r.amount || 0;
+    }
+    return { colSums, grand };
+  }, [bhetMonthDayRows]);
+
+  const yearMonthFooter = useMemo(() => {
+    const colSums = [0, 0, 0, 0, 0, 0];
+    let grand = 0;
+    for (const r of bhetYearMonthRows) {
+      (r.buckets || []).forEach((v, i) => {
+        colSums[i] += v;
+      });
+      grand += r.amount || 0;
+    }
+    return { colSums, grand };
+  }, [bhetYearMonthRows]);
+
+  const exportToExcel = async () => {
+    try {
+      const titleAndDate = buildEntryToolbarReportTitleRows({
+        reportTitle: "Bhet Report",
+        entryMode,
+        filterDateRangeStart,
+        filterDateRangeEnd,
+        filterMonthDate,
+        monthYmdBounds,
+        fyStartYear,
+      });
+
+      let tableData = [];
+      if (entryMode === "entry") {
+        const tables = Array.from(
+          exportTableRef.current?.querySelectorAll("table.userreport-table") || []
+        );
+        for (const tbl of tables) {
+          tableData.push(...tableRowsForExport(tbl));
+          appendMergedEntryTableFooter(tbl, tableData);
+          tableData.push([]);
+        }
+      } else {
+        const table = exportTableRef.current?.querySelector("table.userreport-table");
+        if (!table) return;
+        tableData = tableRowsForExport(table);
+        const footer =
+          entryMode === "date"
+            ? bhetDateDocFooter
+            : entryMode === "month"
+            ? monthDayFooter
+            : yearMonthFooter;
+        tableData.push(buildAlignedPeriodCategoryFooterRow(entryMode, footer));
+      }
+
+      const fullAoa = [...titleAndDate, ...tableData];
+      const blob = await reportExcelBlobFromAoa(fullAoa, "Report");
+      await saveReportExcelWithToast(
+        blob,
+        "BhetReport.xlsx",
+        reportExportDirectoryHandle
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error("Could not create Excel.");
+    }
   };
 
   const totalQuantity = selectedInvoice?.productId.reduce(
@@ -182,15 +327,43 @@ const BhetReport = () => {
 
   return (
     <>
-      <div className="user-template">
+      <div className="user-template bhet-report-root">
         <div className="user-container">
           <div
             className="userreport-box"
-            style={{ justifyContent: "flex-end" }}
+            style={{
+              justifyContent: "space-between",
+              width: "100%",
+              flexWrap: "wrap",
+              gap: "20px",
+            }}
           >
+            <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+              <ReportEntryModeToolbar
+                mode={entryMode}
+                onModeChange={setEntryMode}
+                dateRangeStart={filterDateRangeStart}
+                dateRangeEnd={filterDateRangeEnd}
+                onDateRangeChange={handleFilterDateRangeChange}
+                monthDate={filterMonthDate}
+                onMonthDateChange={setFilterMonthDate}
+                fyStartYear={fyStartYear}
+                onFyStartYearChange={setFyStartYear}
+                disabled={tableLoading}
+              />
+            </div>
             <div className="tfootgroup">
-              <div className="download" onClick={exportToExcel}>
-                <img style={{ width: "50px" }} src={download} atl="down" />
+              <div
+                className="report-action-download--primary report-action-download--bhet"
+                onClick={exportToExcel}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") exportToExcel();
+                }}
+                title="Export to Excel"
+              >
+                <img style={{ width: "50px" }} src={download} alt="Download Excel" />
               </div>
               {/* <button className="userreprt-button" onClick={exportToExcel}>
                 Export to Excel
@@ -198,400 +371,59 @@ const BhetReport = () => {
             </div>
           </div>
 
-          <div className="userreport-table-wrapper">
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "30px",
-              }}
-            >
-              <>
-                <table className="userreport-table">
-                  <thead>
-                    <tr>
-                      <th
-                        className="stocktable"
-                        style={{ width: "9%", textAlign: "center" }}
-                      >
-                        Bhet. No.
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        Bhet. Date
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        મુર્તિ
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        વાઘા
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        ઘરેણા
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        પુજા
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        પુસ્તક
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        જનરલ
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                      >
-                        Amount
-                      </th>
-                      <th
-                        className="stocktable"
-                        style={{ width: "12%", textAlign: "center" }}
-                        colSpan={2}
-                      >
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bhetData
-                      .map((user) => ({
-                        ...user,
-                        data: [...user.data].sort(
-                          (a, b) => Number(a.billId) - Number(b.billId)
-                        ),
-                      }))
-                      .map((user, userIndex) =>
-                        user.data.map((invoice, invoiceIndex) => {
-                          const { billId, createdAt, categories } = invoice;
-                          const formattedDate = new Date(createdAt)
-                            .toISOString()
-                            .split("T")[0]
-                            .split("-")
-                            .reverse()
-                            .map((item, index) =>
-                              index === 2 ? item.slice(-2) : item
-                            )
-                            .join("-");
-
-                          let murtiAmount = 0,
-                            vaghaAmount = 0,
-                            gharenaAmount = 0,
-                            pujaAmount = 0,
-                            pustakAmount = 0,
-                            generalAmount = 0;
-
-                          categories.forEach((category) => {
-                            switch (category.categoryName) {
-                              case "મુર્તિ":
-                                murtiAmount = category.totalBuyingAmount;
-                                break;
-                              case "વાઘા":
-                                vaghaAmount = category.totalBuyingAmount;
-                                break;
-                              case "ઘરેણા":
-                                gharenaAmount = category.totalBuyingAmount;
-                                break;
-                              case "પુજા":
-                                pujaAmount = category.totalBuyingAmount;
-                                break;
-                              case "પુસ્તક":
-                                pustakAmount = category.totalBuyingAmount;
-                                break;
-                              case "જનરલ":
-                                generalAmount = category.totalBuyingAmount;
-                                break;
-                              default:
-                                break;
-                            }
-                          });
-
-                          const totalAmount =
-                            murtiAmount +
-                            vaghaAmount +
-                            gharenaAmount +
-                            pujaAmount +
-                            pustakAmount +
-                            generalAmount;
-
-                          return (
-                            <tr key={`${userIndex}-${invoiceIndex}`}>
-                              <td style={{ width: "9%" }}>{billId}</td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {formattedDate}
-                              </td>
-                              <td style={{ textAlign: "end", width: "12%" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  murtiAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  vaghaAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  gharenaAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  pujaAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  pustakAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  generalAmount || 0
-                                )}
-                              </td>
-                              <td style={{ width: "12%", textAlign: "end" }}>
-                                {new Intl.NumberFormat("en-IN").format(
-                                  totalAmount
-                                ) || 0}
-                              </td>
-                              <td
-                                style={{
-                                  width: "11.8%",
-                                  padding: "0px",
-                                  textAlign: "center",
-                                  verticalAlign: "middle",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    fontSize: "26px",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() =>
-                                    fetchInvoiceDataForModal(invoice.billId)
-                                  }
-                                >
-                                  <AiOutlinePrinter />
-                                </span>
-                              </td>
-                              <td
-                                style={{
-                                  padding: "0px",
-                                  textAlign: "center",
-                                  verticalAlign: "middle",
-                                }}
-                              >
-                                {/* <span
-                                  style={{
-                                    fontSize: "26px",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() =>
-                                    fetchInvoiceDataForStock(invoice.billId)
-                                  }
-                                >
-                                  <img
-                                    style={{ width: "20px" }}
-                                    src={Edit}
-                                    alt="edit"
-                                  />
-                                </span> */}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                  </tbody>
-                  <tfoot style={{ borderTop: "1px solid var(--brown-color)" }}>
-                    <tr>
-                      <td style={{ width: "21%", fontWeight: "bold" }}>
-                        Total:-
-                      </td>
-                      <td style={{ width: "0%" }}></td>
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              const murtiAmount =
-                                categories.find(
-                                  (category) =>
-                                    category.categoryName === "મુર્તિ"
-                                )?.totalBuyingAmount || 0;
-                              acc += murtiAmount;
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              const vaghaAmount =
-                                categories.find(
-                                  (category) => category.categoryName === "વાઘા"
-                                )?.totalBuyingAmount || 0;
-                              acc += vaghaAmount;
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              const gharenaAmount =
-                                categories.find(
-                                  (category) =>
-                                    category.categoryName === "ઘરેણા"
-                                )?.totalBuyingAmount || 0;
-                              acc += gharenaAmount;
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              const pujaAmount =
-                                categories.find(
-                                  (category) => category.categoryName === "પુજા"
-                                )?.totalBuyingAmount || 0;
-                              acc += pujaAmount;
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              const pustakAmount =
-                                categories.find(
-                                  (category) =>
-                                    category.categoryName === "પુસ્તક"
-                                )?.totalBuyingAmount || 0;
-                              acc += pustakAmount;
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              const generalAmount =
-                                categories.find(
-                                  (category) => category.categoryName === "જનરલ"
-                                )?.totalBuyingAmount || 0;
-                              acc += generalAmount;
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          width: "12%",
-                          textAlign: "end",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-IN").format(
-                          bhetData.reduce((acc, user) => {
-                            user.data.forEach((invoice) => {
-                              const { categories } = invoice;
-                              acc += categories.reduce(
-                                (sum, category) =>
-                                  sum + category.totalBuyingAmount,
-                                0
-                              );
-                            });
-                            return acc;
-                          }, 0)
-                        )}
-                      </td>
-                      <td style={{ width: "12%" }} colSpan={2}></td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </>
+          <ReportTablesLoaderWrap
+            loading={tableLoading || (entryMode === "entry" && entrySummaryLoading)}
+            label="Loading report…"
+            className="userreport-table-wrapper bhet-report-table-wrapper"
+            minHeight={200}
+          >
+            <div className="bhet-report-table-inner" ref={exportTableRef}>
+              {entryMode === "entry" && (
+                <ReportMergedUserProductsCategories
+                  users={entrySummaryUsers}
+                  categorySubtitle="... Category Wise Bhet Report ..."
+                  tableClassName="userreport-table bhet-report-table"
+                />
+              )}
+              {entryMode === "date" && (
+                <ReportCategoryPeriodTable
+                  periodColumnLabel="Bhet No."
+                  secondaryPeriodColumnLabel="Date"
+                  showDocColumns={false}
+                  showActionColumn={false}
+                  rows={bhetDateDocRows}
+                  footerBuckets={bhetDateDocFooter.colSums}
+                  footerTotal={bhetDateDocFooter.grand}
+                  emptyMessage="No data found"
+                  className="userreport-table bhet-report-table"
+                />
+              )}
+              {entryMode === "month" && (
+                <ReportCategoryPeriodTable
+                  periodColumnLabel="Date"
+                  showDocColumns={false}
+                  showActionColumn={false}
+                  rows={bhetMonthDayRows}
+                  footerBuckets={monthDayFooter.colSums}
+                  footerTotal={monthDayFooter.grand}
+                  emptyMessage="No data found"
+                  className="userreport-table bhet-report-table"
+                />
+              )}
+              {entryMode === "year" && (
+                <ReportCategoryPeriodTable
+                  periodColumnLabel="Month"
+                  showDocColumns={false}
+                  showActionColumn={false}
+                  rows={bhetYearMonthRows}
+                  footerBuckets={yearMonthFooter.colSums}
+                  footerTotal={yearMonthFooter.grand}
+                  emptyMessage="No data found"
+                  className="userreport-table bhet-report-table"
+                />
+              )}
             </div>
-          </div>
+          </ReportTablesLoaderWrap>
         </div>
       </div>
 
@@ -616,7 +448,7 @@ const BhetReport = () => {
                     <strong>Date:</strong>{" "}
                     {new Date(selectedInvoice.createdAt).toLocaleDateString()}
                   </p>
-                  <h2>Bhet.No: {selectedInvoice.billId}</h2>
+                  <h2>Bhet No.: {selectedInvoice.billId}</h2>
 
                   <p>
                     <strong>Total Amount:</strong>{" "}
@@ -647,13 +479,22 @@ const BhetReport = () => {
                           {product._id.name}
                         </td>
                         <td style={{ textAlign: "right", width: "5%" }}>
-                          {product.quantity.toLocaleString()}
+                          {formatInr(product.quantity, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })}
                         </td>
                         <td style={{ textAlign: "right", width: "7%" }}>
-                          {product.price.toLocaleString()}
+                          {formatInr(product.price, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })}
                         </td>
                         <td style={{ textAlign: "right", width: "7%" }}>
-                          {(product.price * product.quantity).toLocaleString()}
+                          {formatInr(product.price * product.quantity, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })}
                         </td>
                       </tr>
                     ))}
@@ -710,7 +551,7 @@ const BhetReport = () => {
               paddingRight: "5px",
             }}
           >
-            Sr.No: {selectedInvoice?.invoiceId}
+            Bhet No.: {selectedInvoice?.billId}
           </h8>
         </div>
         <div className="bill_header_main"></div>

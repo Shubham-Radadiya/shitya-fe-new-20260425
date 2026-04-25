@@ -1,7 +1,7 @@
 .login-container {
   position: relative;
   width: 19rem;
-  height: 20rem;
+  min-height: 22rem;
   padding: 1.5rem;
   background-color: rgba(255, 255, 255, 0.9);
   z-index: 1;
@@ -34,12 +34,24 @@
   margin-bottom: 0.3rem;
 }
 
-.form-group input {
+.login-field-hint {
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: #6b5d4f;
+}
+
+.form-group input,
+.form-group select,
+.login-input-select {
   width: 100%;
   padding: 0.5rem;
   border-radius: 0.5rem;
   border: 1px solid var(--brown-color);
   box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: #fff;
+  color: var(--brown-color);
 }
 
 .login-btn {
