@@ -10,6 +10,7 @@ import axios from "axios";
 import { API_URL } from "../../constant/config";
 import { REQUEST_BHET_DATA } from "../../store/invoice/InvoiceAction";
 import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { useAdminReportBranch } from "../../context/AdminReportBranchContext";
 import { saveReportExcelWithToast } from "../../utils/excelExport";
 import {
   getDailyProductLineTotal,
@@ -129,8 +130,9 @@ const ReportIndex = ({ variant = "sales" }) => {
   /** Bill wise mode: `/report/daily` with `groupBy: "bill"` (one row per bill). */
   const [salesReportByBill, setSalesReportByBill] = useState([]);
   const [loadingSalesReport, setLoadingSalesReport] = useState(true);
-  const [reportBranchOptions, setReportBranchOptions] = useState([]);
-  const [reportBranchName, setReportBranchName] = useState(() =>
+  const adminBranch = useAdminReportBranch();
+  const [localReportBranchOptions, setLocalReportBranchOptions] = useState([]);
+  const [localReportBranchName, setLocalReportBranchName] = useState(() =>
     String(
       localStorage.getItem("sahitya_report_branch") ||
         localStorage.getItem("branchName") ||
@@ -139,6 +141,13 @@ const ReportIndex = ({ variant = "sales" }) => {
       .trim()
       .toUpperCase()
   );
+  const reportBranchName = adminBranch
+    ? adminBranch.reportBranchName
+    : localReportBranchName;
+  const reportBranchOptions =
+    (adminBranch?.reportBranchOptions?.length ?? 0) > 0
+      ? adminBranch.reportBranchOptions
+      : localReportBranchOptions;
   /** Tracks last toolbar period mode so switching to Item Wise can copy the visible range onto From/To. */
   const salesRangePrevModeRef = useRef("entry");
 
@@ -202,23 +211,25 @@ const ReportIndex = ({ variant = "sales" }) => {
   );
 
   useEffect(() => {
+    if (adminBranch) return undefined;
     let mounted = true;
     (async () => {
       const options = await loadBranchOptionsForForms();
       if (!mounted) return;
-      setReportBranchOptions(options);
-      if (options.length && !options.includes(reportBranchName)) {
-        setReportBranchName(options[0]);
+      setLocalReportBranchOptions(options);
+      if (options.length && !options.includes(localReportBranchName)) {
+        setLocalReportBranchName(options[0]);
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [reportBranchName]);
+  }, [adminBranch, localReportBranchName]);
 
   useEffect(() => {
-    localStorage.setItem("sahitya_report_branch", reportBranchName);
-  }, [reportBranchName]);
+    if (adminBranch) return;
+    localStorage.setItem("sahitya_report_branch", localReportBranchName);
+  }, [adminBranch, localReportBranchName]);
 
   useEffect(() => {
     if (reportType !== "daily") return;
@@ -1165,40 +1176,42 @@ const ReportIndex = ({ variant = "sales" }) => {
                     disabled={loadingSalesReport}
                   />
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <label
-                    htmlFor="report-branch-select"
-                    className="report-branch-label"
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      marginRight: 2,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Branch
-                  </label>
-                  <select
-                    id="report-branch-select"
-                    className="report-branch-select"
-                    value={reportBranchName}
-                    onChange={(e) =>
-                      setReportBranchName(
-                        String(e.target.value || "").trim().toUpperCase()
-                      )
-                    }
-                    disabled={loadingSalesReport}
-                  >
-                    {(reportBranchOptions.length
-                      ? reportBranchOptions
-                      : [reportBranchName]
-                    ).map((code) => (
-                      <option key={code} value={code}>
-                        {code}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {!adminBranch && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <label
+                      htmlFor="report-branch-select"
+                      className="report-branch-label"
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        marginRight: 2,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Branch
+                    </label>
+                    <select
+                      id="report-branch-select"
+                      className="report-branch-select"
+                      value={localReportBranchName}
+                      onChange={(e) =>
+                        setLocalReportBranchName(
+                          String(e.target.value || "").trim().toUpperCase()
+                        )
+                      }
+                      disabled={loadingSalesReport}
+                    >
+                      {(localReportBranchOptions.length
+                        ? localReportBranchOptions
+                        : [localReportBranchName]
+                      ).map((code) => (
+                        <option key={code} value={code}>
+                          {code}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
               <div
                 style={{

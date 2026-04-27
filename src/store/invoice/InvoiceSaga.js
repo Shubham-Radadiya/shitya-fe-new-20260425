@@ -62,11 +62,16 @@ function* requestInvoiceData(action) {
     const storeWide = Boolean(
       typeof p === "object" && p && p.storeWide === true
     );
+    const branchName =
+      typeof p === "object" && p && p.branchName != null
+        ? String(p.branchName).trim()
+        : undefined;
     const data = yield call(
       invoiceServices.getInvoices,
       isReturned,
       range,
-      storeWide
+      storeWide,
+      branchName
     );
     yield put({ type: SET_INVOICE_DATA, payload: data });
   } catch (error) {
@@ -81,8 +86,20 @@ function* requestInvoiceData(action) {
 
 function* requestBhetData(action) {
   try {
-    console.log("Saga - Fetching Bhet Data with isReturned:", action.payload);
-    const data = yield call(invoiceServices.getBhet, action.payload);
+    const p = action.payload;
+    const isReturned = typeof p === "boolean" ? p : Boolean(p?.isReturned);
+    const storeWide = Boolean(
+      typeof p === "object" && p && p.storeWide === true
+    );
+    const branchName =
+      typeof p === "object" && p && p.branchName != null
+        ? String(p.branchName).trim()
+        : undefined;
+    console.log("Saga - Fetching Bhet Data with isReturned:", isReturned);
+    const data = yield call(invoiceServices.getBhet, isReturned, {
+      storeWide,
+      branchName,
+    });
     yield put({ type: SET_BHET_DATA, payload: data });
   } catch (error) {
     const msg = handleError(error, "Failed to load bhet data");

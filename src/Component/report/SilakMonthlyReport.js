@@ -11,11 +11,13 @@ import {
 import { buildDateRangeReportTitleRows } from "../../utils/reportDomExcelExport";
 import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
 import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { useAdminReportBranch } from "../../context/AdminReportBranchContext";
 import { saveReportExcelWithToast } from "../../utils/excelExport";
 import { toast } from "react-toastify";
 
 const SilakMonthlyReport = () => {
   const { reportExportDirectoryHandle } = useStoreSettings();
+  const adminBranch = useAdminReportBranch();
   const [reportData, setReportData] = useState([]); // always array
   const [silakLoading, setSilakLoading] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(null);
@@ -69,7 +71,7 @@ const SilakMonthlyReport = () => {
     if (selectedMonth && startYear && endYear) {
       fetchFinancialYearData(startYear, endYear);
     }
-  }, [selectedMonth, startYear, endYear]);
+  }, [selectedMonth, startYear, endYear, adminBranch?.reportBranchName]);
 
   const fetchFinancialYearData = async (start, end) => {
     if (!start || !end) {
@@ -91,7 +93,13 @@ const SilakMonthlyReport = () => {
             "Content-Type": "application/json",
             Authorization: token,
           },
-          body: JSON.stringify({ startDate, endDate }),
+          body: JSON.stringify({
+            startDate,
+            endDate,
+            ...(adminBranch?.reportBranchName
+              ? { branchName: adminBranch.reportBranchName }
+              : {}),
+          }),
         }
       );
 

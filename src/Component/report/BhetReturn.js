@@ -42,6 +42,7 @@ import {
 } from "../../utils/reportDomExcelExport";
 import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
 import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { useAdminReportBranch } from "../../context/AdminReportBranchContext";
 import { saveReportExcelWithToast } from "../../utils/excelExport";
 import { toast } from "react-toastify";
 
@@ -55,6 +56,19 @@ const BhetReturn = () => {
     () => listIndianFYOptions(12)[0]?.value ?? new Date().getFullYear(),
     []
   );
+  const bhetStoreWide = useMemo(() => {
+    try {
+      const r = localStorage.getItem("role");
+      return r === "SUPER ADMIN" || r === "MANAGER";
+    } catch {
+      return false;
+    }
+  }, []);
+  const adminBranch = useAdminReportBranch();
+  const reportBranchForApi =
+    bhetStoreWide && adminBranch?.reportBranchName
+      ? adminBranch.reportBranchName
+      : undefined;
   const [entryMode, setEntryMode] = useState("entry");
   const [filterDateRangeStart, setFilterDateRangeStart] = useState(() => new Date());
   const [filterDateRangeEnd, setFilterDateRangeEnd] = useState(() => new Date());
@@ -128,14 +142,24 @@ const BhetReturn = () => {
   };
 
   useEffect(() => {
-    dispatch({ type: REQUEST_BHET_DATA, payload: true });
-  }, [dispatch]);
+    dispatch({
+      type: REQUEST_BHET_DATA,
+      payload: {
+        isReturned: true,
+        storeWide: bhetStoreWide,
+        ...(reportBranchForApi ? { branchName: reportBranchForApi } : {}),
+      },
+    });
+  }, [dispatch, bhetStoreWide, reportBranchForApi]);
 
   useEffect(() => {
     let cancelled = false;
     setEntrySummaryLoading(true);
     invoiceServices
-      .getBhetEntrySummary(true)
+      .getBhetEntrySummary(true, {
+        storeWide: bhetStoreWide,
+        branchName: reportBranchForApi,
+      })
       .then((data) => {
         if (!cancelled) {
           setEntrySummaryUsers(Array.isArray(data) ? data : []);
@@ -151,7 +175,7 @@ const BhetReturn = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [bhetStoreWide, reportBranchForApi]);
 
   const tableLoading = bhetDataLoading;
 

@@ -78,6 +78,35 @@
   letter-spacing: 0.02em;
 }
 
+.admin-report-branch-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(97, 37, 17, 0.12);
+  flex-shrink: 0;
+  background: var(--white-color, #fff);
+}
+
+.admin-report-branch-row label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--brown-color, #612711);
+  white-space: nowrap;
+}
+
+.admin-report-branch-row select {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--btn-radius, 0.45rem);
+  border: 1px solid rgba(97, 37, 17, 0.35);
+  background: var(--bg-color, #fffef9);
+  color: var(--brown-color, #612711);
+}
+
 .admin-report-sidebar-sub--reserved {
   display: inline-block;
   min-height: 1.15em;

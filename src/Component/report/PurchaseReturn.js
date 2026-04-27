@@ -47,6 +47,7 @@ import {
 } from "../../utils/reportDomExcelExport";
 import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
 import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { useAdminReportBranch } from "../../context/AdminReportBranchContext";
 import { saveReportExcelWithToast } from "../../utils/excelExport";
 import { toast } from "react-toastify";
 
@@ -68,6 +69,11 @@ const PurchaseReturn = () => {
       return false;
     }
   }, []);
+  const adminBranch = useAdminReportBranch();
+  const reportBranchForApi =
+    purchaseInvoiceStoreWide && adminBranch?.reportBranchName
+      ? adminBranch.reportBranchName
+      : undefined;
   const [entryMode, setEntryMode] = useState("entry");
   const [filterDateRangeStart, setFilterDateRangeStart] = useState(
     () => getDefaultBillWiseDateRangeThroughToday().start
@@ -172,9 +178,10 @@ const PurchaseReturn = () => {
         startDate: formatLocalDateYMD(invoiceFetchBounds.start),
         endDate: formatLocalDateYMD(invoiceFetchBounds.end),
         storeWide: purchaseInvoiceStoreWide,
+        ...(reportBranchForApi ? { branchName: reportBranchForApi } : {}),
       },
     });
-  }, [dispatch, invoiceFetchBounds, purchaseInvoiceStoreWide]);
+  }, [dispatch, invoiceFetchBounds, purchaseInvoiceStoreWide, reportBranchForApi]);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,7 +193,8 @@ const PurchaseReturn = () => {
           startDate: formatLocalDateYMD(entryItemWiseStart),
           endDate: formatLocalDateYMD(entryItemWiseEnd),
         },
-        purchaseInvoiceStoreWide
+        purchaseInvoiceStoreWide,
+        reportBranchForApi
       )
       .then((data) => {
         if (!cancelled) {
@@ -203,7 +211,12 @@ const PurchaseReturn = () => {
     return () => {
       cancelled = true;
     };
-  }, [entryItemWiseStart, entryItemWiseEnd, purchaseInvoiceStoreWide]);
+  }, [
+    entryItemWiseStart,
+    entryItemWiseEnd,
+    purchaseInvoiceStoreWide,
+    reportBranchForApi,
+  ]);
 
   const tableLoading = invoiceDataLoading;
 

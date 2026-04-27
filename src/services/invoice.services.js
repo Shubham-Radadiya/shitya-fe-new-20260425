@@ -29,7 +29,7 @@ export const createInvoice = (payload) =>
   apiRequest("post", "/invoice", payload);
 export const createInvoiceReturn = (payload) =>
   apiRequest("post", "/invoice/return", payload);
-export const getInvoices = (isReturned = false, range, storeWide) => {
+export const getInvoices = (isReturned = false, range, storeWide, branchName) => {
   const params = new URLSearchParams({
     isReturned: String(isReturned),
   });
@@ -38,11 +38,19 @@ export const getInvoices = (isReturned = false, range, storeWide) => {
     params.set("endDate", range.endDate);
   }
   if (storeWide) params.set("storeWide", "true");
+  if (branchName != null && String(branchName).trim() !== "") {
+    params.set("branchName", String(branchName).trim().toUpperCase());
+  }
   return apiRequest("get", `/invoice?${params.toString()}`);
 };
 
 /** FY merged per user: `products` + `categories` (daily-report shape) for entry-wise purchase UI */
-export const getInvoicesEntrySummary = (isReturned = false, range, storeWide) => {
+export const getInvoicesEntrySummary = (
+  isReturned = false,
+  range,
+  storeWide,
+  branchName
+) => {
   const params = new URLSearchParams({
     isReturned: String(isReturned),
     entrySummary: "true",
@@ -52,23 +60,39 @@ export const getInvoicesEntrySummary = (isReturned = false, range, storeWide) =>
     params.set("endDate", range.endDate);
   }
   if (storeWide) params.set("storeWide", "true");
+  if (branchName != null && String(branchName).trim() !== "") {
+    params.set("branchName", String(branchName).trim().toUpperCase());
+  }
   return apiRequest("get", `/invoice?${params.toString()}`);
 };
 
 /** Same as getInvoicesEntrySummary but for bhet bills */
-export const getBhetEntrySummary = (isReturned = false) =>
-  apiRequest(
-    "get",
-    `/bhet?isReturned=${encodeURIComponent(String(isReturned))}&entrySummary=true`
-  );
+export const getBhetEntrySummary = (isReturned = false, opts = {}) => {
+  const params = new URLSearchParams({
+    isReturned: String(isReturned),
+    entrySummary: "true",
+  });
+  if (opts.storeWide) params.set("storeWide", "true");
+  if (opts.branchName != null && String(opts.branchName).trim() !== "") {
+    params.set("branchName", String(opts.branchName).trim().toUpperCase());
+  }
+  return apiRequest("get", `/bhet?${params.toString()}`);
+};
 export const editInvoice = (id, payload) =>
   apiRequest("patch", `/invoice/${id}`, payload);
 export const createReturnInvoice = (payload, id) =>
   apiRequest("patch", `/invoice/return/${id}`, payload);
 export const updateReturnBhet = (payload, id) =>
   apiRequest("patch", `/bhet/return/${id}`, payload);
-export const getBhet = async (isReturned = false) => {
-  const response = await apiRequest("get", `/bhet?isReturned=${isReturned}`);
+export const getBhet = async (isReturned = false, opts = {}) => {
+  const params = new URLSearchParams({
+    isReturned: String(isReturned),
+  });
+  if (opts.storeWide) params.set("storeWide", "true");
+  if (opts.branchName != null && String(opts.branchName).trim() !== "") {
+    params.set("branchName", String(opts.branchName).trim().toUpperCase());
+  }
+  const response = await apiRequest("get", `/bhet?${params.toString()}`);
   console.log("Bhet API Response:", response);
   return response;
 };

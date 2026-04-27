@@ -11,6 +11,7 @@ import {
 import { buildDateRangeReportTitleRows } from "../../utils/reportDomExcelExport";
 import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
 import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { useAdminReportBranch } from "../../context/AdminReportBranchContext";
 import { saveReportExcelWithToast } from "../../utils/excelExport";
 import { toast } from "react-toastify";
 
@@ -20,6 +21,7 @@ const SILAK_YEARLY_API_END = "2025-09-02T07:17:42.511+00:00";
 
 const SilakYearlyReport = () => {
   const { reportExportDirectoryHandle } = useStoreSettings();
+  const adminBranch = useAdminReportBranch();
   const [reportData, setReportData] = useState(null);
   const [silakLoading, setSilakLoading] = useState(true);
 
@@ -39,6 +41,9 @@ const SilakYearlyReport = () => {
           body: JSON.stringify({
             startDate: SILAK_YEARLY_API_START,
             endDate: SILAK_YEARLY_API_END,
+            ...(adminBranch?.reportBranchName
+              ? { branchName: adminBranch.reportBranchName }
+              : {}),
           }),
         }
       );
@@ -56,7 +61,7 @@ const SilakYearlyReport = () => {
 
   useEffect(() => {
     fetchYearlyReport();
-  }, []);
+  }, [adminBranch?.reportBranchName]);
   useEffect(() => {
     console.log(reportData?.[0]?.silkData?.openSilak ?? 0, "reportData");
     reportData?.map((p) => {

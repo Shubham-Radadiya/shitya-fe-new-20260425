@@ -10,6 +10,7 @@ import { ReportTablesLoaderWrap } from "./ReportTableLoader";
 import { formatLocalDateYMD } from "../../utils/reportPayloadDate";
 import { reportExcelBlobFromAoa } from "../../utils/reportExcelStyled";
 import { useStoreSettings } from "../../context/StoreSettingsContext";
+import { useAdminReportBranch } from "../../context/AdminReportBranchContext";
 import { saveReportExcelWithToast } from "../../utils/excelExport";
 import { toast } from "react-toastify";
 
@@ -104,6 +105,7 @@ const StockTable = () => {
   });
   const dispatch = useDispatch();
   const { reportExportDirectoryHandle } = useStoreSettings();
+  const adminBranch = useAdminReportBranch();
 
   const stock = useSelector((state) => state.product?.stock?.data || []);
   const stockLoading = useSelector((state) => state.product?.stockLoading);
@@ -173,9 +175,12 @@ const StockTable = () => {
       payload: {
         startDate: formatLocalDateYMD(stockRangeStart),
         endDate: formatLocalDateYMD(endForApi),
+        ...(adminBranch?.reportBranchName
+          ? { branchName: adminBranch.reportBranchName }
+          : {}),
       },
     });
-  }, [dispatch, stockRangeStart, stockRangeEnd]);
+  }, [dispatch, stockRangeStart, stockRangeEnd, adminBranch?.reportBranchName]);
 
   const exportToExcel = async () => {
     try {

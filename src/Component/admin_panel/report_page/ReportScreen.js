@@ -1,10 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import {
-  fetchBhet,
-  fetchInvoices,
-} from "../../../store/invoice/InvoiceAction";
-import { useInvoice } from "../../../store/invoice/InvoiceReducer";
+import React, { useState } from "react";
 import PurchaseReport from "../../report/PurchaseReport";
 import ReportIndex from "../../report/ReportIndex";
 import PurchaseReturn from "../../report/PurchaseReturn";
@@ -13,6 +7,10 @@ import BhetReport from "../../report/BhetReport";
 import BhetReturn from "../../report/BhetReturn";
 import SilakMonthlyReport from "../../report/SilakMonthlyReport";
 import SilakYearlyReport from "../../report/SilakYearlyReport";
+import {
+  AdminReportBranchProvider,
+  useAdminReportBranch,
+} from "../../../context/AdminReportBranchContext";
 import {
   LuBarChart3,
   LuLineChart,
@@ -29,19 +27,15 @@ import "./ReportScreen.css";
 /**
  * Admin reports: flat sidebar (purchase, returns, sales, silak, stock, bhet).
  * Silak keeps monthly / yearly sub-items.
+ * Branch scope is chosen once in the sidebar for all report types.
  */
-const ReportScreen = () => {
-  const dispatch = useDispatch();
+function ReportScreenInner() {
   const [activeKey, setActiveKey] = useState("sales");
-
-  const { invoiceData } = useInvoice();
-
-  useEffect(() => {
-    if (activeKey === "purchase") dispatch(fetchInvoices(false));
-    else if (activeKey === "purchaseReturn") dispatch(fetchInvoices(true));
-    else if (activeKey === "bhet") dispatch(fetchBhet(false));
-    else if (activeKey === "bhetReturn") dispatch(fetchBhet(true));
-  }, [activeKey, dispatch]);
+  const {
+    reportBranchName,
+    setReportBranchName,
+    reportBranchOptions,
+  } = useAdminReportBranch();
 
   const silakSub = [
     {
@@ -73,13 +67,13 @@ const ReportScreen = () => {
       key: "purchase",
       label: "Purchase",
       icon: LuShoppingCart,
-      component: <PurchaseReport invoiceData={invoiceData} />,
+      component: <PurchaseReport />,
     },
     {
       key: "purchaseReturn",
       label: "Purchase return",
       icon: LuRotateCcw,
-      component: <PurchaseReturn invoiceData={invoiceData} />,
+      component: <PurchaseReturn />,
     },
     {
       key: "bhet",
@@ -108,6 +102,11 @@ const ReportScreen = () => {
     return flatReports.find((r) => r.key === activeKey)?.component;
   })();
 
+  const branchSelectOptions =
+    reportBranchOptions.length > 0
+      ? reportBranchOptions
+      : [reportBranchName];
+
   return (
     <div className="admin-report-page">
       <aside className="admin-report-sidebar" aria-label="Report types">
@@ -117,10 +116,24 @@ const ReportScreen = () => {
           </div>
           <div className="admin-report-sidebar-head-text">
             <span className="admin-report-sidebar-title">Reports</span>
-            <span className="admin-report-sidebar-sub admin-report-sidebar-sub--reserved" aria-hidden="true">
-              {"\u00a0"}
-            </span>
+            <span className="admin-report-sidebar-sub">All reports use the branch below</span>
           </div>
+        </div>
+        <div className="admin-report-branch-row">
+          <label htmlFor="admin-report-global-branch">Branch</label>
+          <select
+            id="admin-report-global-branch"
+            value={reportBranchName}
+            onChange={(e) =>
+              setReportBranchName(String(e.target.value || "").trim().toUpperCase())
+            }
+          >
+            {branchSelectOptions.map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </select>
         </div>
         <nav className="admin-report-nav">
           {flatReports.map((report) => {
@@ -174,6 +187,12 @@ const ReportScreen = () => {
       <div className="admin-report-main">{mainContent}</div>
     </div>
   );
-};
+}
+
+const ReportScreen = () => (
+  <AdminReportBranchProvider>
+    <ReportScreenInner />
+  </AdminReportBranchProvider>
+);
 
 export default ReportScreen;
